@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-pulse-glow,
+  .animate-float-a,
+  .animate-float-b,
+  .animate-twinkle,
+  .animate-float-up,
+  .animate-bounce-btn,
+  .animate-dance-tonton,
+  .animate-scroll-bounce {
+    animation: none !important;
+  }
+}
