@@ -14,7 +14,7 @@ function CameraRig() {
     camRef.current?.lookAt(...CAMERA.lookAt);
   }, []);
 
-  return <OrthographicCamera ref={camRef} makeDefault position={CAMERA.position} zoom={30} near={0.1} far={100} />;
+  return <OrthographicCamera ref={camRef} makeDefault position={CAMERA.position} zoom={CAMERA.zoom} near={0.1} far={100} />;
 }
 
 // DioramaContents holds everything that lives inside the Canvas: lights,

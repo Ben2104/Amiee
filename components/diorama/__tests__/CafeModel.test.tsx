@@ -24,7 +24,8 @@ describe("CafeModel", () => {
     ];
 
     for (const name of expectedGroups) {
-      expect(graph).toContain(`"${name}"`);
+      const matches = graph.match(new RegExp(`"name":"${name}"`, "g"));
+      expect(matches?.length).toBe(1);
     }
   });
 });

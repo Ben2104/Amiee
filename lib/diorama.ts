@@ -13,4 +13,10 @@ export const PALETTE = {
 export const CAMERA = {
   position: [14, 12, 14] as [number, number, number],
   lookAt: [3.5, 1, 3.5] as [number, number, number],
+  zoom: 30,
+} as const;
+
+export const LIGHTING = {
+  pointLightIntensity: 8,
+  pointLightDecay: 0,
 } as const;

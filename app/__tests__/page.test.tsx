@@ -17,7 +17,7 @@ describe("Home page", () => {
 
   it("includes at least one extra decorative sticker outside the love note flow", () => {
     render(<Home />);
-    const stickers = screen.getAllByRole("img").filter((img) => img.getAttribute("alt")?.includes("Tonton") === false);
-    expect(stickers.length).toBeGreaterThan(0);
+    expect(screen.getByAltText(/tsundere bella the cat/i)).toBeInTheDocument();
+    expect(screen.getByAltText(/chubby tobi the bunny/i)).toBeInTheDocument();
   });
 });

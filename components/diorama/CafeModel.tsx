@@ -10,7 +10,7 @@ import {
   DECOR,
   type BoxSpec,
 } from "./cafeData";
-import { PALETTE } from "@/lib/diorama";
+import { PALETTE, LIGHTING } from "@/lib/diorama";
 
 function Boxes({ specs }: { specs: BoxSpec[] }) {
   return (
@@ -55,10 +55,10 @@ export function CafeModel() {
       <group name="decor">
         <Boxes specs={DECOR} />
       </group>
-      <pointLight position={[2.5, 4.8, 1.0]} color={PALETTE.warmLight} intensity={8} decay={0} />
-      <pointLight position={[5.0, 4.8, 1.0]} color={PALETTE.warmLight} intensity={8} decay={0} />
-      <pointLight position={[2.4, 4.8, 3.2]} color={PALETTE.warmLight} intensity={8} decay={0} />
-      <pointLight position={[5.2, 4.8, 3.4]} color={PALETTE.warmLight} intensity={8} decay={0} />
+      <pointLight position={[2.5, 4.8, 1.0]} color={PALETTE.warmLight} intensity={LIGHTING.pointLightIntensity} decay={LIGHTING.pointLightDecay} />
+      <pointLight position={[5.0, 4.8, 1.0]} color={PALETTE.warmLight} intensity={LIGHTING.pointLightIntensity} decay={LIGHTING.pointLightDecay} />
+      <pointLight position={[2.4, 4.8, 3.2]} color={PALETTE.warmLight} intensity={LIGHTING.pointLightIntensity} decay={LIGHTING.pointLightDecay} />
+      <pointLight position={[5.2, 4.8, 3.4]} color={PALETTE.warmLight} intensity={LIGHTING.pointLightIntensity} decay={LIGHTING.pointLightDecay} />
     </group>
   );
 }
