@@ -2,7 +2,7 @@ import { Hono, type Context } from "hono";
 import { cors } from "hono/cors";
 import { randomUUID } from "node:crypto";
 import { query } from "./db";
-import { AuthError, requireMember, signIn, refresh, signOut, type Member } from "./auth";
+import { AuthError, requireMember, signIn, refresh, signOut, USERNAME_RE, type Member, type Name } from "./auth";
 import { RESOURCES, ValidationError, parseBody, selectList, type Resource } from "./resources";
 import { PHOTO_TYPES, PHOTO_KEY_RE, sniffMatches, putPhoto, getPhoto, deletePhoto, photoExists } from "./storage";
 
@@ -20,7 +20,7 @@ app.use(
   cors({
     origin: (origin) => (origin && allowed.some((re) => re.test(origin)) ? origin : null),
     allowMethods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-    allowHeaders: ["Authorization", "Content-Type"],
+    allowHeaders: ["Authorization", "Content-Type", "X-Author"],
     maxAge: 600,
   }),
 );
@@ -43,7 +43,7 @@ app.onError((err, c) => {
   return fail(c, 500, "Something went wrong on our side");
 });
 
-const VERSION = "2026-11-03.1";
+const VERSION = "2026-11-03.2";
 app.get("/", (c) => c.json({ ok: true, service: "our-little-world-api", version: VERSION }));
 
 // ── auth relay (see auth.ts for why) ──
@@ -67,17 +67,30 @@ const str = (v: unknown, name: string, max = 600) => {
   return v;
 };
 
+const NAMES: readonly Name[] = ["Ben", "Amie"];
+const asName = (v: unknown): Name | null => (NAMES.includes(v as Name) ? (v as Name) : null);
+
 app.post("/auth/sign-in", async (c) => {
   const ip = clientIp(c);
   brake(ip || "unknown");
   const body = await json(c);
-  const out = await signIn(str(body.email, "email", 320).trim(), str(body.password, "password", 200), ip);
-  return c.json({ accessToken: out.accessToken, refreshToken: out.refreshToken, member: { name: out.member.name } });
+  const username = str(body.username, "username", 64).trim().toLowerCase();
+  if (!USERNAME_RE.test(username)) throw new AuthError(401, "That username and password don't match");
+  // A shared login needs to know which of us is here; a personal one already does.
+  const picked = asName(body.as);
+  const out = await signIn(username, str(body.password, "password", 200), ip);
+  const name = out.member.name || picked;
+  if (!name) {
+    await signOut(out.refreshToken, ip).catch(() => {});
+    throw new ValidationError("Choose who is signing in: Ben or Amie");
+  }
+  return c.json({ accessToken: out.accessToken, refreshToken: out.refreshToken, member: { name } });
 });
 app.post("/auth/refresh", async (c) => {
   const body = await json(c);
   const out = await refresh(str(body.refreshToken, "refreshToken"), clientIp(c));
-  return c.json({ accessToken: out.accessToken, refreshToken: out.refreshToken, member: { name: out.member.name } });
+  const name = out.member.name || asName(body.as);
+  return c.json({ accessToken: out.accessToken, refreshToken: out.refreshToken, member: { name } });
 });
 app.post("/auth/sign-out", async (c) => {
   const body = await json(c);
@@ -99,17 +112,24 @@ for (const name of Object.keys(RESOURCES)) {
   app.use(`/${name}/*`, needMember);
 }
 
-app.get("/me", (c) => c.json({ name: c.get("member").name }));
+/** Who is writing: a personal login's own name, or the X-Author header on a shared login. */
+function authorOf(c: Context<Env>): Name {
+  const name = c.get("member").name || asName(c.req.header("x-author"));
+  if (!name) throw new ValidationError("Sign in again and choose Ben or Amie");
+  return name;
+}
+
+app.get("/me", (c) => c.json({ name: c.get("member").name || asName(c.req.header("x-author")) }));
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const listSql = (r: Resource) =>
-  `select ${selectList(r)} from ${r.table} t join members m on m.user_id = t.author_id order by ${r.order}`;
+  `select ${selectList(r)} from ${r.table} t order by ${r.order}`;
 const oneSql = (r: Resource) =>
-  `select ${selectList(r)} from ${r.table} t join members m on m.user_id = t.author_id where t.id = $1`;
+  `select ${selectList(r)} from ${r.table} t where t.id = $1`;
 
 app.get("/content", async (c) => {
   const entries = await Promise.all(Object.entries(RESOURCES).map(async ([k, r]) => [k, await query(listSql(r))] as const));
-  return c.json({ me: { name: c.get("member").name }, ...Object.fromEntries(entries) });
+  return c.json({ me: { name: c.get("member").name || asName(c.req.header("x-author")) }, ...Object.fromEntries(entries) });
 });
 
 async function checkPhoto(values: Record<string, unknown>) {
@@ -123,8 +143,8 @@ for (const [name, r] of Object.entries(RESOURCES)) {
   app.post(`/${name}`, async (c) => {
     const values = parseBody(r, await json(c), "create");
     await checkPhoto(values);
-    const cols = ["author_id", ...Object.keys(values)];
-    const params = [c.get("member").userId, ...Object.values(values)];
+    const cols = ["author_id", "author", ...Object.keys(values)];
+    const params = [c.get("member").userId, authorOf(c), ...Object.values(values)];
     const [{ id }] = await query<{ id: string }>(
       `insert into ${r.table} (${cols.join(", ")}) values (${cols.map((_, i) => `$${i + 1}`).join(", ")}) returning id`,
       params,

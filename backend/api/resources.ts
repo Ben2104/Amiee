@@ -120,5 +120,5 @@ export function selectList(r: Resource, alias = "t") {
   const cols = Object.entries(r.fields).map(([name, f]) =>
     f.type === "time" ? `to_char(${alias}.${f.col}, 'HH24:MI') as "${name}"` : `${alias}.${f.col} as "${name}"`,
   );
-  return [`${alias}.id`, ...cols, `m.display_name as author`, `${alias}.created_at as "createdAt"`, `${alias}.updated_at as "updatedAt"`].join(", ");
+  return [`${alias}.id`, ...cols, `${alias}.author`, `${alias}.created_at as "createdAt"`, `${alias}.updated_at as "updatedAt"`].join(", ");
 }

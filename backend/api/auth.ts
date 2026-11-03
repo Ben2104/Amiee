@@ -16,7 +16,15 @@ const AUTH_ORIGIN = new URL(AUTH_BASE).origin;
 const COOKIE = "__Secure-neon-auth.session_token";
 const jwks = createRemoteJWKSet(new URL(JWKS_URL));
 
-export type Member = { userId: string; name: "Ben" | "Amie" };
+export type Name = "Ben" | "Amie";
+// name is null for a shared login: whoever signs in picks Ben or Amie.
+export type Member = { userId: string; name: Name | null };
+
+// Neon Auth accounts are keyed by email. We sign in with a username instead and map
+// it to an address on the reserved .invalid domain, which never receives mail.
+export const USERNAME_RE = /^[a-z0-9][a-z0-9._-]{2,31}$/;
+export const LOGIN_DOMAIN = "login.our-little-world.invalid";
+export const usernameEmail = (u: string) => `${u}@${LOGIN_DOMAIN}`;
 export class AuthError extends Error {
   constructor(public status: 401 | 403 | 429 | 502, message: string) {
     super(message);
@@ -27,7 +35,7 @@ const memberCache = new Map<string, { member: Member | null; at: number }>();
 async function memberFor(userId: string): Promise<Member | null> {
   const hit = memberCache.get(userId);
   if (hit && Date.now() - hit.at < 60_000) return hit.member;
-  const [row] = await query<{ display_name: Member["name"] }>(
+  const [row] = await query<{ display_name: Name | null }>(
     "select display_name from members where user_id = $1",
     [userId],
   );
@@ -87,15 +95,15 @@ async function mintToken(refreshToken: string, clientIp?: string) {
   return { accessToken: token, refreshToken: sessionFrom(res) || refreshToken };
 }
 
-export async function signIn(email: string, password: string, clientIp?: string) {
+export async function signIn(username: string, password: string, clientIp?: string) {
   const res = await fetch(`${AUTH_BASE}/sign-in/email`, {
     method: "POST",
     headers: relayHeaders(clientIp, { "content-type": "application/json" }),
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email: usernameEmail(username), password }),
   });
   if (res.status === 429) throw new AuthError(429, "Too many tries. Wait a minute and try again.");
   if (res.status === 401 || res.status === 400 || res.status === 403)
-    throw new AuthError(401, "That email and password don't match");
+    throw new AuthError(401, "That username and password don't match");
   if (!res.ok) throw new AuthError(502, "Sign-in service is unavailable");
   const session = sessionFrom(res);
   if (!session) throw new AuthError(502, "Sign-in service returned no session");
