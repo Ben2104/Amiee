@@ -16,7 +16,7 @@ export const EVENT_KINDS = ["date", "trip", "food", "home", "celebration", "othe
 export const RESOURCES: Record<string, Resource> = {
   letters: {
     table: "letters",
-    order: "letter_date desc nulls last, created_at desc",
+    order: "t.letter_date desc nulls last, t.created_at desc",
     fields: {
       title: { col: "title", type: "text", required: true, max: 200 },
       body: { col: "body", type: "text", required: true, max: 20000 },
@@ -25,7 +25,7 @@ export const RESOURCES: Record<string, Resource> = {
   },
   milestones: {
     table: "milestones",
-    order: "happened_on asc, created_at asc",
+    order: "t.happened_on asc, t.created_at asc",
     fields: {
       date: { col: "happened_on", type: "date", required: true },
       title: { col: "title", type: "text", required: true, max: 200 },
@@ -36,12 +36,12 @@ export const RESOURCES: Record<string, Resource> = {
   },
   notes: {
     table: "love_notes",
-    order: "created_at asc",
+    order: "t.created_at asc",
     fields: { text: { col: "body", type: "text", required: true, max: 500 } },
   },
   events: {
     table: "events",
-    order: "event_date asc nulls last, event_time asc nulls first, created_at asc",
+    order: "t.event_date asc nulls last, t.event_time asc nulls first, t.created_at asc",
     fields: {
       title: { col: "title", type: "text", required: true, max: 200 },
       date: { col: "event_date", type: "date", nullable: true },
@@ -117,6 +117,8 @@ export function parseBody(r: Resource, body: unknown, mode: "create" | "update")
 
 /** select list that maps columns back to API field names, plus author and timestamps. */
 export function selectList(r: Resource, alias = "t") {
-  const cols = Object.entries(r.fields).map(([name, f]) => `${alias}.${f.col} as "${name}"`);
+  const cols = Object.entries(r.fields).map(([name, f]) =>
+    f.type === "time" ? `to_char(${alias}.${f.col}, 'HH24:MI') as "${name}"` : `${alias}.${f.col} as "${name}"`,
+  );
   return [`${alias}.id`, ...cols, `m.display_name as author`, `${alias}.created_at as "createdAt"`, `${alias}.updated_at as "updatedAt"`].join(", ");
 }

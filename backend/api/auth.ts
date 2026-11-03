@@ -32,7 +32,9 @@ async function memberFor(userId: string): Promise<Member | null> {
     [userId],
   );
   const member = row ? { userId, name: row.display_name } : null;
-  memberCache.set(userId, { member, at: Date.now() });
+  // Cache only confirmed members, so a newly added login works straight away.
+  if (member) memberCache.set(userId, { member, at: Date.now() });
+  else memberCache.delete(userId);
   return member;
 }
 

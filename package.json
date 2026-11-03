@@ -10,7 +10,8 @@
     "db:migrate": "NODE_USE_ENV_PROXY=1 node backend/scripts/migrate.mjs",
     "db:add-member": "NODE_USE_ENV_PROXY=1 node backend/scripts/add-member.mjs",
     "typecheck:backend": "tsc -p backend/tsconfig.json",
-    "neon:deploy": "neonctl deploy --env .env.local"
+    "neon:deploy": "neonctl deploy --env .env.local",
+    "test:e2e": "NODE_USE_ENV_PROXY=1 node backend/scripts/e2e.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1161.0",

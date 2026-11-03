@@ -36,11 +36,15 @@ const fail = (c: Context, status: number, error: string) => c.json({ error }, st
 app.onError((err, c) => {
   if (err instanceof AuthError) return fail(c, err.status, err.message);
   if (err instanceof ValidationError) return fail(c, 400, err.message);
+  // Postgres check / format violations are bad input, not server errors.
+  const code = (err as { code?: string }).code;
+  if (code === "23514" || code === "22P02" || code === "22007" || code === "22008") return fail(c, 400, "Some of those values aren't valid");
   console.error(err);
   return fail(c, 500, "Something went wrong on our side");
 });
 
-app.get("/", (c) => c.json({ ok: true, service: "our-little-world-api" }));
+const VERSION = "2026-11-03.1";
+app.get("/", (c) => c.json({ ok: true, service: "our-little-world-api", version: VERSION }));
 
 // ── auth relay (see auth.ts for why) ──
 // A tiny per-isolate brake on password guessing, on top of Neon Auth's own rate limit.
