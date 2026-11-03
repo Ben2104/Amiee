@@ -1409,6 +1409,8 @@ const GIFT = {
 
   on(document, "keydown", e => {
     if (e.key !== "Escape") return;
+    if ($("#signin").open) return;     // Escape there closes only the sign-in dialog
+    if (editing && mode === "panel") { e.preventDefault(); const c = pBody.querySelector('[data-act="cancel"]'); c && c.click(); return; }
     if (mode === "panel") closePanel();
     else if (mode === "finale") closeFinale();
   });
