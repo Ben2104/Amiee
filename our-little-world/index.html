@@ -249,6 +249,84 @@ h1,h2,h3{font-family:var(--font-display);font-variation-settings:"SOFT" 100;text
 /* ───── no WebGL notice ───── */
 #notice{position:absolute;bottom:calc(var(--safe-b) + 6px);left:50%;transform:translateX(-50%);font-size:.78rem;background:var(--glass);padding:.4rem .9rem;border-radius:999px;color:var(--ink-soft);z-index:21;max-width:calc(100% - 32px);text-align:center}
 
+/* ───── our own content: sign-in, forms, lists, calendar ───── */
+.pill-btn.signed{background:var(--ink);color:var(--cream)}
+#signin{border:0;border-radius:28px;padding:0;width:min(420px,calc(100% - 32px));max-height:calc(100% - 32px);overflow:auto;background:var(--paper);color:var(--ink);box-shadow:0 24px 60px rgba(110,50,60,.32)}
+#signin::backdrop{background:rgba(74,44,54,.38)}
+#signin form{display:grid;gap:14px;padding:24px}
+#signin h2{font-size:1.7rem}
+#signin .lede{margin:0}
+.field{display:grid;gap:6px;font-weight:700;font-size:.92rem}
+.field input,.field textarea,.field select{font:inherit;font-weight:400;font-size:1rem;color:var(--ink);background:#FFFDF8;border:2px solid var(--line);border-radius:14px;padding:.6rem .8rem;min-height:46px;width:100%}
+.field textarea{resize:vertical;line-height:1.5}
+.field input:focus-visible,.field textarea:focus-visible,.field select:focus-visible{outline:3px solid var(--rose);outline-offset:1px}
+.field .hint,.hint{font-weight:400;color:var(--ink-soft);font-size:.82rem;margin:0}
+.check{display:flex;gap:10px;align-items:center;font-weight:700;min-height:44px}
+.check input{width:22px;height:22px;accent-color:var(--rose);flex:none}
+.form-error{margin:0;color:#A3123A;font-weight:700}
+.form-error:empty{display:none}
+.form-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.form-actions .btn{padding:.55rem 1.2rem;min-height:44px;font-size:.95rem}
+.edit-form{display:grid;gap:14px;padding:4px 0 8px}
+.edit-form h3{font-size:1.35rem}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:420px){.row2{grid-template-columns:1fr}}
+.btn-sm{min-height:40px;padding:.45rem 1rem;font-size:.9rem}
+.btn[disabled]{opacity:.6;cursor:progress}
+.panel-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin:0 0 14px}
+.mini{display:inline-flex;align-items:center;gap:4px;border:0;background:transparent;color:var(--rose-deep);font-weight:800;font-size:.85rem;padding:.3rem .55rem;border-radius:10px;min-height:36px}
+.mini:hover{background:rgba(242,167,184,.22)}
+.mini.danger{color:#A3123A}
+.mini[aria-pressed="true"]{background:var(--sage);color:#22351A}
+.actions{display:flex;gap:2px;flex-wrap:wrap;margin-top:4px}
+.by{font-family:var(--font-hand);color:var(--ink-soft);font-size:1rem}
+.nudge{background:#FCEBC4;color:#5E4416;border-radius:14px;padding:.6rem .85rem;font-size:.9rem;margin:0 0 14px}
+.nudge button{border:0;background:none;padding:0;font-weight:800;text-decoration:underline;color:inherit}
+.empty{color:var(--ink-soft);text-align:center;padding:20px 8px;margin:0}
+.photo-pick{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.photo-pick img{width:96px;height:72px;object-fit:cover;border-radius:8px;box-shadow:0 4px 10px rgba(120,60,60,.15)}
+.file-btn{position:relative;overflow:hidden}
+.file-btn input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.file-btn:focus-within{outline:3px solid var(--ink);outline-offset:3px}
+.letter-list{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.env-btn{width:100%;display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:center;text-align:left;border:0;border-radius:16px;padding:12px 14px;background:#FFF1E2;box-shadow:0 3px 0 #EBD3BE}
+.env-btn .ico,.ev .ico{width:44px;height:44px;border-radius:14px;background:var(--cream);display:grid;place-items:center;color:var(--rose)}
+.env-btn .ico svg,.ev .ico svg{width:24px;height:24px}
+.env-btn strong{display:block;font-family:var(--font-display);font-size:1.1rem;font-weight:560;line-height:1.2}
+.env-btn .meta{display:block;color:var(--ink-soft);font-size:.88rem}
+.letter-back{margin:0 0 12px}
+.manage{width:100%;max-width:26rem;text-align:left;margin-top:6px}
+.manage summary{cursor:pointer;font-weight:800;padding:.4rem 0;min-height:36px}
+.manage ul{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:8px}
+.manage li{background:#FFF7EA;border-radius:12px;padding:10px 12px}
+.manage li p{margin:0}
+.cal{background:#FFF7EA;border-radius:18px;padding:12px;box-shadow:0 3px 0 #EBD3BE}
+.cal-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.cal-head h3{font-size:1.2rem}
+.cal-head .icon-btn{width:40px;height:40px;background:var(--cream)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-dow{text-align:center;font-size:.7rem;font-weight:800;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;padding-bottom:2px}
+.cal-day{position:relative;aspect-ratio:1;min-height:36px;border:0;border-radius:12px;background:transparent;font-weight:700;font-size:.9rem;display:grid;place-items:center;padding:0}
+.cal-day:hover{background:rgba(242,167,184,.2)}
+.cal-day.today{box-shadow:inset 0 0 0 2px var(--rose)}
+.cal-day.is-ann{color:var(--rose-deep)}
+.cal-day[aria-pressed="true"]{background:var(--rose);color:#fff}
+.cal-day .marks{position:absolute;bottom:3px;left:0;right:0;display:flex;justify-content:center;gap:3px;pointer-events:none}
+.cal-day .m{width:6px;height:6px;border-radius:50%;background:#6E9460}
+.cal-day .m.ann{background:var(--rose)}
+.cal-day[aria-pressed="true"] .m{background:#fff}
+.cal-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.8rem;color:var(--ink-soft);margin:8px 0 0}
+.cal-legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.ev-sec h3{font-size:1.15rem;margin:18px 0 8px}
+.ev-list{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.ev{display:grid;grid-template-columns:44px 1fr;gap:12px;background:#FFF1E2;border-radius:16px;padding:12px 14px;box-shadow:0 3px 0 #EBD3BE}
+.ev strong{font-family:var(--font-display);font-size:1.08rem;font-weight:560;line-height:1.2;display:block}
+.ev .meta{display:block;color:var(--rose-deep);font-weight:700;font-size:.85rem}
+.ev .note{display:block;color:var(--ink-soft);font-size:.92rem;margin-top:2px}
+.ev.done{background:#EEF4E8;box-shadow:0 3px 0 #D3E0C8}
+.ev.ann{background:#FCE0E6;box-shadow:0 3px 0 #F0C3CD}
+.loading{color:var(--ink-soft);text-align:center;padding:30px 0}
+
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
   .pip::before{display:none}
@@ -280,6 +358,10 @@ h1,h2,h3{font-family:var(--font-display);font-variation-settings:"SOFT" 100;text
   <header id="topbar">
     <span class="brand" id="brand" hidden></span>
     <div class="top-actions">
+      <button id="accountBtn" class="pill-btn" type="button" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
+        <span class="txt" id="accountTxt">Sign in</span>
+      </button>
       <button id="musicBtn" class="pill-btn" type="button" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>
         <span class="txt" id="musicTxt">Play music</span>
@@ -329,6 +411,18 @@ h1,h2,h3{font-family:var(--font-display);font-variation-settings:"SOFT" 100;text
     </div>
   </section>
 
+  <dialog id="signin" aria-labelledby="signinTitle">
+    <form id="signinForm" novalidate>
+      <h2 id="signinTitle">Sign in</h2>
+      <p class="lede">Just for the two of us. Signed in, you can add, edit and delete our letters, milestones, little things and plans.</p>
+      <div class="field"><label for="signinEmail">Email</label><input id="signinEmail" name="email" type="email" autocomplete="username" required></div>
+      <div class="field"><label for="signinPassword">Password</label><input id="signinPassword" name="password" type="password" autocomplete="current-password" required></div>
+      <p class="form-error" id="signinError" role="alert"></p>
+      <div class="form-actions"><button class="btn btn-ghost" type="button" id="signinCancel">Not now</button><button class="btn btn-primary" type="submit" id="signinSubmit">Sign in</button></div>
+    </form>
+  </dialog>
+  <p id="liveStatus" class="sr-only" role="status" aria-live="polite"></p>
+
   <audio id="songAudio" loop preload="none"></audio>
 </div>
 
@@ -352,6 +446,14 @@ const GIFT = {
   togetherSince: "2026-07-11",       // YYYY-MM-DD
   anniversaryMessage: "I love you",
   showExampleBadges: true,           // set to false once you've replaced the sample content
+
+  // Our own content. With apiUrl set, the page shows a "Sign in" button; once one of us
+  // signs in, letters, milestones, little things and plans come from (and are saved to)
+  // our Neon backend. Signed out, offline or in a preview, the content below is used.
+  // Set apiUrl to "" to turn the backend off completely.
+  backend: {
+    apiUrl: "https://br-dark-hat-beah2g7l-api.compute.c-9.us-east-2.aws.neon.tech"
+  },
 
   colors: {                          // her favourite: pink
     blush: "#F2A7B8", peach: "#FFC8A2", cream: "#FFF6EA",
@@ -642,61 +744,478 @@ const GIFT = {
 
   function badge(txt) { return GIFT.showExampleBadges ? `<span class="badge">${esc(txt || "Example — replace in the config")}</span>` : ""; }
 
+  /* ════════════════ our own content (optional backend) ════════════════
+     With GIFT.backend.apiUrl set and one of us signed in, the panels show and
+     edit what we saved. Signed out, offline, or inside the artifact preview,
+     everything falls back to the GIFT config above. */
+  const API = (() => {
+    const url = String((GIFT.backend && GIFT.backend.apiUrl) || "").replace(/\/+$/, "");
+    const host = location.hostname;
+    const preview = location.origin === "null" || !/^https?:$/.test(location.protocol) ||
+      /(^|\.)(claude\.ai|claudeusercontent\.com|anthropic\.com)$/.test(host);
+    return { url, enabled: !!url && !preview };
+  })();
+  class ApiError extends Error { constructor(status, msg) { super(msg); this.status = status; } }
+  const SESSION_KEY = "olw-session";
+  const auth = { access: "", exp: 0, refresh: "", name: "" };
+  let live = null;            // { letters, milestones, notes, events } once loaded
+  let loading = false;
+  let editing = null;         // form open in the panel: { res, item }
+  const photoUrls = new Map();
+
+  try { const s = JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); if (s && s.refresh) { auth.refresh = s.refresh; auth.name = s.name || ""; } } catch (e) { /* storage unavailable */ }
+  function saveSession() {
+    try { if (auth.refresh) localStorage.setItem(SESSION_KEY, JSON.stringify({ refresh: auth.refresh, name: auth.name })); else localStorage.removeItem(SESSION_KEY); } catch (e) { /* storage unavailable */ }
+  }
+  function jwtExp(t) { try { return JSON.parse(atob(t.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))).exp * 1000; } catch (e) { return 0; } }
+  function setTokens(d) { auth.access = d.accessToken; auth.exp = jwtExp(d.accessToken); auth.refresh = d.refreshToken; auth.name = d.member.name; saveSession(); }
+  function forget() {
+    auth.access = auth.refresh = auth.name = ""; auth.exp = 0; saveSession();
+    live = null; editing = null;
+    photoUrls.forEach(u => URL.revokeObjectURL(u)); photoUrls.clear();
+  }
+
+  async function raw(method, path, body, headers) {
+    const h = Object.assign({}, headers);
+    let payload;
+    if (body instanceof Blob) { h["Content-Type"] = body.type; payload = body; }
+    else if (body !== undefined) { h["Content-Type"] = "application/json"; payload = JSON.stringify(body); }
+    let res;
+    try { res = await fetch(API.url + path, { method, headers: h, body: payload }); }
+    catch (e) { throw new ApiError(0, "We couldn't reach our little server. Check the connection and try again."); }
+    if (res.status === 204) return null;
+    const ct = res.headers.get("content-type") || "";
+    if (!res.ok) {
+      let msg = "Something went wrong (" + res.status + "). Please try again.";
+      if (ct.includes("json")) { try { msg = (await res.json()).error || msg; } catch (e) { /* keep default */ } }
+      throw new ApiError(res.status, msg);
+    }
+    return ct.includes("json") ? res.json() : res.blob();
+  }
+  let refreshing = null;
+  async function token(force) {
+    if (!force && auth.access && auth.exp - 30000 > Date.now()) return auth.access;
+    if (!auth.refresh) throw new ApiError(401, "Please sign in");
+    if (!refreshing) {
+      refreshing = raw("POST", "/auth/refresh", { refreshToken: auth.refresh })
+        .then(setTokens)
+        .catch(e => { if (e.status === 401 || e.status === 403) { forget(); contentChanged(); } throw e; })
+        .finally(() => { refreshing = null; });
+    }
+    await refreshing;
+    return auth.access;
+  }
+  async function api(method, path, body) {
+    try { return await raw(method, path, body, { Authorization: "Bearer " + await token() }); }
+    catch (e) {
+      if (e.status !== 401 || !auth.refresh) throw e;
+      return raw(method, path, body, { Authorization: "Bearer " + await token(true) });
+    }
+  }
+  async function photoUrl(key) {
+    if (!key) return "";
+    if (photoUrls.has(key)) return photoUrls.get(key);
+    try { const u = URL.createObjectURL(await api("GET", "/" + key)); photoUrls.set(key, u); return u; }
+    catch (e) { return ""; }
+  }
+  async function loadLive() {
+    loading = true; contentChanged();
+    try {
+      const d = await api("GET", "/content");
+      await Promise.all(d.milestones.map(m => photoUrl(m.photoKey)));
+      const keep = new Set(d.milestones.map(m => m.photoKey).filter(Boolean));
+      photoUrls.forEach((u, k) => { if (!keep.has(k)) { URL.revokeObjectURL(u); photoUrls.delete(k); } });
+      live = d;
+    } finally { loading = false; contentChanged(); }
+  }
+  function contentChanged() {
+    if (world) { world.setMemories(memories()); world.setFlowerCount(noteList().length); }
+    updateAccount();
+    if (mode === "panel" && current && !editing) renderPanel(current);
+  }
+
+  /* ── content accessors: live rows when signed in, the GIFT config otherwise ── */
+  const DOODLES = ["heart", "cups", "paws", "sunset", "stars", "cat"];
+  const longFmt = new Intl.DateTimeFormat("en-US", { month: "long", day: "numeric", year: "numeric" });
+  const shortFmt = new Intl.DateTimeFormat("en-US", { weekday: "short", month: "short", day: "numeric" });
+  const ymdDate = s => { const p = parseYMD(s); return p ? new Date(p.y, p.mo - 1, p.d) : null; };
+  const fmtLong = s => { const d = ymdDate(s); return d ? longFmt.format(d) : ""; };
+  const ymd = (y, mo, d) => y + "-" + String(mo).padStart(2, "0") + "-" + String(d).padStart(2, "0");
+  const todayStr = () => { const t = todayYMD(); return ymd(t.y, t.mo, t.d); };
+  function fmtTime(t) {
+    if (!t) return "";
+    const [h, m] = t.split(":").map(Number);
+    return new Date(2000, 0, 1, h, m).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  }
+  function memories() {
+    if (!live) return GIFT.memories;
+    return live.milestones.map((m, i) => ({ id: m.id, date: fmtLong(m.date), title: m.title, caption: m.caption,
+      photo: photoUrls.get(m.photoKey) || "", alt: m.photoAlt, doodle: DOODLES[i % DOODLES.length], author: m.author }));
+  }
+  const noteList = () => live ? live.notes : GIFT.loveNotes.map(text => ({ text }));
+  const canEdit = () => !!live;
+  const byLine = (who, verb) => who ? `<span class="by">${verb || "from"} ${esc(who)}</span>` : "";
+  function actions(res, id, label) {
+    return `<div class="actions"><button class="mini" type="button" data-act="edit" data-res="${res}" data-id="${id}">Edit<span class="sr-only"> ${esc(label)}</span></button>` +
+      `<button class="mini danger" type="button" data-act="delete" data-res="${res}" data-id="${id}">Delete<span class="sr-only"> ${esc(label)}</span></button></div>`;
+  }
+  function header(res, addLabel) {
+    if (canEdit()) return `<div class="panel-tools"><button class="btn btn-soft btn-sm" type="button" data-act="add" data-res="${res}">+ ${esc(addLabel)}</button>${byLine(auth.name, "signed in as")}</div>`;
+    if (API.enabled && auth.refresh && loading) return `<p class="nudge">Loading our things…</p>`;
+    if (API.enabled) return `<p class="nudge">These are the examples from the config. <button type="button" data-act="signin">Sign in</button> to see and add our own.</p>`;
+    return "";
+  }
+
+  /* ── forms ── */
+  const KINDS = { date: "Date", trip: "Trip", food: "Food & drinks", home: "At home", celebration: "Celebration", other: "Something else" };
+  const KIND_ICON = { date: "heart", trip: "map", food: "cup", home: "pan", celebration: "star", other: "basket" };
+  const FORMS = {
+    letters: { noun: "letter", fields: [
+      { k: "title", label: "Title", type: "text", req: true, max: 200 },
+      { k: "date", label: "Date on the letter", type: "date" },
+      { k: "body", label: "Letter", type: "textarea", req: true, max: 20000, rows: 10, hint: "Leave a blank line between paragraphs." }] },
+    milestones: { noun: "milestone", fields: [
+      { k: "date", label: "Date", type: "date", req: true },
+      { k: "title", label: "Title", type: "text", req: true, max: 200 },
+      { k: "caption", label: "Caption", type: "textarea", max: 2000, rows: 4 },
+      { k: "photo", label: "Photo", type: "photo" },
+      { k: "photoAlt", label: "Describe the photo", type: "text", max: 300, hint: "Read aloud by screen readers." }] },
+    notes: { noun: "little thing", fields: [
+      { k: "text", label: "A little thing I love about you", type: "textarea", req: true, max: 500, rows: 3 }] },
+    events: { noun: "plan", fields: [
+      { k: "title", label: "What", type: "text", req: true, max: 200 },
+      { k: "date", label: "Date", type: "date", hint: "Leave empty for a someday idea.", half: true },
+      { k: "time", label: "Time (optional)", type: "time", half: true },
+      { k: "location", label: "Where", type: "text", max: 200 },
+      { k: "kind", label: "Kind", type: "select", options: KINDS },
+      { k: "note", label: "Note", type: "textarea", max: 2000, rows: 3 },
+      { k: "done", label: "We did this together", type: "checkbox" }] }
+  };
+  let pendingPhoto = null;    // { blob, url } chosen in the open milestone form, or "remove"
+
+  function fieldHtml(f, v) {
+    const id = "f-" + f.k, req = f.req ? " required" : "", max = f.max ? ` maxlength="${f.max}"` : "";
+    const hint = f.hint ? `<span class="hint" id="${id}-h">${esc(f.hint)}</span>` : "";
+    const desc = f.hint ? ` aria-describedby="${id}-h"` : "";
+    if (f.type === "checkbox") return `<label class="check"><input type="checkbox" name="${f.k}"${v ? " checked" : ""}> ${esc(f.label)}</label>`;
+    if (f.type === "photo") {
+      const src = v ? esc(v) : "";
+      return `<div class="field"><span>${esc(f.label)}</span><div class="photo-pick" id="photoPick">${src ? `<img src="${src}" alt="Current photo">` : ""}
+        <label class="btn btn-soft btn-sm file-btn">${src ? "Change photo" : "Choose a photo"}<input type="file" accept="image/*" data-photo-input></label>
+        ${src ? `<button class="mini danger" type="button" data-act="photo-remove">Remove photo</button>` : ""}</div>
+        <span class="hint">It is shrunk on this device before uploading, and only the two of us can see it.</span></div>`;
+    }
+    let input;
+    if (f.type === "textarea") input = `<textarea id="${id}" name="${f.k}" rows="${f.rows || 4}"${req}${max}${desc}>${esc(v || "")}</textarea>`;
+    else if (f.type === "select") input = `<select id="${id}" name="${f.k}">${Object.entries(f.options).map(([k, l]) => `<option value="${k}"${k === v ? " selected" : ""}>${esc(l)}</option>`).join("")}</select>`;
+    else input = `<input id="${id}" name="${f.k}" type="${f.type}" value="${esc(v || "")}"${req}${max}${desc}${f.type === "text" ? ' autocomplete="off"' : ""}>`;
+    return `<div class="field"><label for="${id}">${esc(f.label)}${f.req ? "" : ' <span class="hint">(optional)</span>'}</label>${input}${hint}</div>`;
+  }
+  function openForm(res, item, preset) {
+    const spec = FORMS[res], vals = Object.assign({}, preset, item);
+    if (res === "milestones" && item) vals.photo = photoUrls.get(item.photoKey) || "";
+    editing = { res, item };
+    pendingPhoto = null;
+    const rows = [];
+    for (let i = 0; i < spec.fields.length; i++) {
+      const f = spec.fields[i], g = spec.fields[i + 1];
+      if (f.half && g && g.half) { rows.push(`<div class="row2">${fieldHtml(f, vals[f.k])}${fieldHtml(g, vals[g.k])}</div>`); i++; }
+      else rows.push(fieldHtml(f, vals[f.k]));
+    }
+    pBody.innerHTML = `<form class="edit-form" data-res="${res}" novalidate>
+      <h3 tabindex="-1">${item ? "Edit" : "New"} ${esc(spec.noun)}</h3>${rows.join("")}
+      <p class="form-error" role="alert"></p>
+      <div class="form-actions"><button class="btn btn-ghost" type="button" data-act="cancel">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div></form>`;
+    pBody.scrollTop = 0;
+    const first = pBody.querySelector("input:not([type=file]),textarea,select");
+    first && first.focus({ preventScroll: true });
+  }
+  function closeForm(focusSel) {
+    editing = null; pendingPhoto = null;
+    renderPanel(current);
+    const t = focusSel && pBody.querySelector(focusSel);
+    (t || $("#panelTitle")).focus({ preventScroll: true });
+  }
+  async function downscale(file, maxSide = 1600) {
+    let src;
+    try { src = await createImageBitmap(file); }
+    catch (e) {
+      src = await new Promise((ok, no) => { const im = new Image(); im.onload = () => ok(im); im.onerror = () => no(new Error("That file isn't a photo we can read.")); im.src = URL.createObjectURL(file); });
+    }
+    const w = src.width, h = src.height, k = Math.min(1, maxSide / Math.max(w, h));
+    const c = document.createElement("canvas"); c.width = Math.round(w * k); c.height = Math.round(h * k);
+    const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(src, 0, 0, c.width, c.height);
+    if (src.close) src.close();
+    const blob = await new Promise(ok => c.toBlob(ok, "image/jpeg", 0.85));
+    if (!blob) throw new Error("Couldn't prepare that photo.");
+    return blob;
+  }
+  function readForm(form, spec) {
+    const out = {};
+    for (const f of spec.fields) {
+      if (f.type === "photo") continue;
+      const el = form.elements[f.k];
+      if (f.type === "checkbox") { out[f.k] = el.checked; continue; }
+      const v = el.value.trim();
+      if (f.req && !v) { el.focus(); throw new Error(f.label + " is needed."); }
+      if ((f.type === "date" || f.type === "time") && v && !el.checkValidity()) { el.focus(); throw new Error(f.label + " doesn't look right."); }
+      out[f.k] = (f.type === "date" || f.type === "time") && !v ? null : v;
+    }
+    return out;
+  }
+  async function submitForm(form) {
+    const res = form.dataset.res, spec = FORMS[res], err = form.querySelector(".form-error"), btn = form.querySelector('[type="submit"]');
+    err.textContent = "";
+    let body;
+    try { body = readForm(form, spec); } catch (e) { err.textContent = e.message; return; }
+    if (res === "events" && body.time && !body.date) { err.textContent = "Pick a date for that time, or clear the time."; form.elements.date.focus(); return; }
+    btn.disabled = true; btn.textContent = "Saving…";
+    try {
+      if (res === "milestones") {
+        if (pendingPhoto === "remove") body.photoKey = null;
+        else if (pendingPhoto) body.photoKey = (await api("POST", "/photos", pendingPhoto.blob)).key;
+      }
+      const it = editing && editing.item;
+      const saved = it ? await api("PATCH", `/${res}/${it.id}`, body) : await api("POST", `/${res}`, body);
+      await loadLive().catch(() => { /* list reload failed; keep what we have */ });
+      if (res === "milestones" && live) storyIdx = Math.max(0, live.milestones.findIndex(m => m.id === saved.id));
+      if (res === "letters") openLetter = saved.id;
+      closeForm(`[data-id="${saved.id}"]`);
+      announce(`${spec.noun[0].toUpperCase() + spec.noun.slice(1)} saved.`);
+    } catch (e) {
+      err.textContent = e.message || "Couldn't save that.";
+      btn.disabled = false; btn.textContent = "Save";
+    }
+  }
+  async function removeItem(res, id) {
+    const spec = FORMS[res];
+    if (!window.confirm(`Delete this ${spec.noun}? This can't be undone.`)) return;
+    try {
+      await api("DELETE", `/${res}/${id}`);
+      if (res === "letters") openLetter = null;
+      await loadLive();
+      $("#panelTitle").focus({ preventScroll: true });
+      announce(`${spec.noun[0].toUpperCase() + spec.noun.slice(1)} deleted.`);
+    } catch (e) { window.alert(e.message || "Couldn't delete that."); }
+  }
+  const findItem = (res, id) => live && live[res].find(r => r.id === id);
+  function announce(msg) { const s = $("#liveStatus"); s.textContent = ""; setTimeout(() => (s.textContent = msg), 30); }
+
+  /* one set of delegated listeners for everything rendered inside the panel */
+  on(pBody, "click", e => {
+    const b = e.target.closest("[data-act]");
+    if (!b || !pBody.contains(b)) return;
+    const act = b.dataset.act, res = b.dataset.res, id = b.dataset.id;
+    if (act === "signin") openSignIn();
+    else if (act === "add") openForm(res, null, b.dataset.date ? { date: b.dataset.date } : res === "events" ? { kind: "date" } : {});
+    else if (act === "edit") { const it = findItem(res, id); if (it) openForm(res, it); }
+    else if (act === "delete") removeItem(res, id);
+    else if (act === "cancel") closeForm(editing && editing.item ? `[data-act="edit"][data-id="${editing.item.id}"]` : '[data-act="add"]');
+    else if (act === "photo-remove") {
+      pendingPhoto = "remove";
+      $("#photoPick").innerHTML = `<label class="btn btn-soft btn-sm file-btn">Choose a photo<input type="file" accept="image/*" data-photo-input></label><span class="hint">Photo will be removed when you save.</span>`;
+    }
+    else if (act === "open-letter") { openLetter = id; renderPanel("letter"); const h = $("#letterView"); h && h.focus({ preventScroll: true }); }
+    else if (act === "all-letters") { openLetter = null; renderPanel("letter"); const t = pBody.querySelector(`[data-act="open-letter"][data-id="${id}"]`); t && t.focus({ preventScroll: true }); }
+    else if (act === "toggle-done") {
+      const it = findItem("events", id); if (!it) return;
+      b.disabled = true;
+      api("PATCH", `/events/${id}`, { done: !it.done }).then(loadLive).then(() => {
+        const t = pBody.querySelector(`[data-act="toggle-done"][data-id="${id}"]`); t && t.focus({ preventScroll: true });
+      }).catch(err => { b.disabled = false; window.alert(err.message); });
+    }
+    else if (act === "cal-prev" || act === "cal-next") {
+      const d = new Date(calMonth.y, calMonth.mo - 1 + (act === "cal-next" ? 1 : -1), 1);
+      calMonth = { y: d.getFullYear(), mo: d.getMonth() + 1 }; calSel = null;
+      renderPanel("future"); const t = pBody.querySelector(`[data-act="${act}"]`); t && t.focus({ preventScroll: true });
+    }
+    else if (act === "cal-day") {
+      calSel = calSel === b.dataset.date ? null : b.dataset.date;
+      renderPanel("future"); const t = pBody.querySelector(`.cal-day[data-date="${b.dataset.date}"]`); t && t.focus({ preventScroll: true });
+    }
+  });
+  on(pBody, "submit", e => { const f = e.target.closest(".edit-form"); if (f) { e.preventDefault(); submitForm(f); } });
+  on(pBody, "change", async e => {
+    const inp = e.target.closest("[data-photo-input]");
+    if (!inp || !inp.files || !inp.files[0]) return;
+    const pick = $("#photoPick"), err = pBody.querySelector(".form-error");
+    try {
+      const blob = await downscale(inp.files[0]);
+      if (pendingPhoto && pendingPhoto.url) URL.revokeObjectURL(pendingPhoto.url);
+      pendingPhoto = { blob, url: URL.createObjectURL(blob) };
+      pick.innerHTML = `<img src="${pendingPhoto.url}" alt="Chosen photo preview"><label class="btn btn-soft btn-sm file-btn">Change photo<input type="file" accept="image/*" data-photo-input></label><span class="hint">${Math.round(blob.size / 1024)} KB, ready to upload.</span>`;
+    } catch (x) { if (err) err.textContent = x.message; }
+  });
+  on(pBody, "keydown", e => {
+    const d = e.target.closest(".cal-day");
+    if (!d) return;
+    const step = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 }[e.key];
+    if (!step) return;
+    e.preventDefault();
+    const days = [...pBody.querySelectorAll(".cal-day")], i = days.indexOf(d), n = days[i + step];
+    if (n) { days.forEach(x => (x.tabIndex = -1)); n.tabIndex = 0; n.focus(); }
+  });
+
+  /* ── panels ── */
+  let openLetter = null, calMonth = null, calSel = null;
   function renderPanel(key) {
     if (key === "story") { renderStory(); return; }
     if (key === "notes") {
-      pBody.innerHTML = `${badge("Example notes — write your own")}
+      const notes = noteList();
+      const list = canEdit() ? `<details class="manage"${notes.length ? "" : " open"}><summary>All little things (${notes.length})</summary><ul>${notes.map(n =>
+        `<li><p>${esc(n.text)}</p>${byLine(n.author)}${actions("notes", n.id, "this little thing")}</li>`).join("")}</ul></details>` : "";
+      pBody.innerHTML = `${header("notes", "Add a little thing") || badge("Example notes — write your own")}
         <div class="notes">
-          <button class="bloom" id="bloomBtn" type="button">
+          <button class="bloom" id="bloomBtn" type="button"${notes.length ? "" : " disabled"}>
             <svg viewBox="0 0 120 120" aria-hidden="true">${[0, 72, 144, 216, 288].map(r => `<ellipse cx="60" cy="34" rx="17" ry="26" fill="${C.blush}" stroke="#4A2C36" stroke-width="2.5" transform="rotate(${r} 60 60)"/>`).join("")}<circle cx="60" cy="60" r="14" fill="${C.gold}" stroke="#4A2C36" stroke-width="2.5"/></svg>
             <span>Pick a flower</span>
           </button>
           <blockquote class="note-card" aria-live="polite"><p id="noteText"></p><footer id="noteCount"></footer></blockquote>
+          ${list}
         </div>`;
+      noteOrder = []; notePos = -1;
       nextNote();
       on($("#bloomBtn"), "click", nextNote);
       return;
     }
-    if (key === "letter") {
-      const L = GIFT.letter;
-      pBody.innerHTML = `${badge("Placeholder letter — write your own")}
-        <article class="letter">
-          <div class="stamp" aria-hidden="true"><svg viewBox="0 0 24 24" fill="${C.rose}"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.7c0 5.6-7.5 10.2-7.5 10.2z"/></svg></div>
-          ${L.date ? `<p class="letter-date hand">${esc(L.date)}</p>` : ""}
-          <p class="greet">${esc(L.greeting)}</p>
-          ${L.paragraphs.map(p => `<p>${esc(p)}</p>`).join("")}
-          <p class="closing">${esc(L.closing)}</p>
-          <p class="sig">${esc(L.signature)}</p>
-        </article>`;
+    if (key === "letter") { renderLetters(); return; }
+    if (key === "future") renderFuture();
+  }
+
+  function letterHtml(L) {
+    return `<article class="letter" id="letterView" tabindex="-1">
+      <div class="stamp" aria-hidden="true"><svg viewBox="0 0 24 24" fill="${C.rose}"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.7c0 5.6-7.5 10.2-7.5 10.2z"/></svg></div>
+      ${L.date ? `<p class="letter-date hand">${esc(L.date)}</p>` : ""}
+      <p class="greet">${esc(L.greeting)}</p>
+      ${L.paragraphs.map(p => `<p>${esc(p).replace(/\n/g, "<br>")}</p>`).join("")}
+      <p class="closing">${esc(L.closing)}</p>
+      <p class="sig">${esc(L.signature)}</p>
+    </article>`;
+  }
+  function renderLetters() {
+    if (!canEdit()) { pBody.innerHTML = `${header("letters", "") || badge("Placeholder letter — write your own")}${letterHtml(GIFT.letter)}`; return; }
+    const letters = live.letters;
+    const L = openLetter && letters.find(l => l.id === openLetter);
+    if (L) {
+      pBody.innerHTML = `<p class="letter-back"><button class="mini" type="button" data-act="all-letters" data-id="${L.id}">&larr; All letters</button></p>
+        ${letterHtml({ date: fmtLong(L.date), greeting: L.title, paragraphs: L.body.split(/\n\s*\n/), closing: "Love,", signature: L.author })}
+        ${actions("letters", L.id, "this letter")}`;
       return;
     }
-    if (key === "future") {
+    pBody.innerHTML = `${header("letters", "Write a letter")}
+      ${letters.length ? `<ul class="letter-list">${letters.map(l => `<li><button class="env-btn" type="button" data-act="open-letter" data-id="${l.id}">
+        <span class="ico" aria-hidden="true">${ICON.letter}</span>
+        <span><strong>${esc(l.title)}</strong><span class="meta">from ${esc(l.author)}${l.date ? " · " + esc(fmtLong(l.date)) : ""}</span></span></button></li>`).join("")}</ul>`
+        : `<p class="empty">The mailbox is empty. Write the first letter.</p>`}`;
+  }
+
+  /* calendar + plans under the tree */
+  function anniversaryIn(y, mo) {
+    if (!startDate) return null;
+    const months = (y - startDate.y) * 12 + (mo - startDate.mo);
+    if (months < 1) return null;
+    return { d: Math.min(startDate.d, new Date(y, mo, 0).getDate()), months };
+  }
+  const annLabel = m => m % 12 === 0 ? (m === 12 ? "1 year" : m / 12 + " years") + " together" : m + (m === 1 ? " month" : " months") + " together";
+  function nextAnniversary() {
+    const t = todayYMD();
+    for (let k = 0; k < 14; k++) {
+      const d = new Date(t.y, t.mo - 1 + k, 1), a = anniversaryIn(d.getFullYear(), d.getMonth() + 1);
+      if (a && ymd(d.getFullYear(), d.getMonth() + 1, a.d) >= todayStr()) return { date: ymd(d.getFullYear(), d.getMonth() + 1, a.d), label: annLabel(a.months) };
+    }
+    return null;
+  }
+  function eventItem(e) {
+    const when = e.date ? shortFmt.format(ymdDate(e.date)) + (e.time ? " · " + fmtTime(e.time) : "") : "Someday";
+    const meta = [when, e.location].filter(Boolean).map(esc).join(" · ");
+    const tools = canEdit() && e.id ? `<div class="actions"><button class="mini" type="button" data-act="toggle-done" data-id="${e.id}" aria-pressed="${e.done ? "true" : "false"}">${e.done ? "Done ✓" : "Mark done"}<span class="sr-only"> ${esc(e.title)}</span></button>
+      <button class="mini" type="button" data-act="edit" data-res="events" data-id="${e.id}">Edit<span class="sr-only"> ${esc(e.title)}</span></button>
+      <button class="mini danger" type="button" data-act="delete" data-res="events" data-id="${e.id}">Delete<span class="sr-only"> ${esc(e.title)}</span></button></div>` : "";
+    return `<li class="ev${e.done ? " done" : ""}${e.ann ? " ann" : ""}"><span class="ico" aria-hidden="true">${ICON[e.ann ? "heart" : KIND_ICON[e.kind] || e.icon || "heart"] || ICON.heart}</span>
+      <div><strong>${esc(e.title)}</strong><span class="meta">${meta}</span>${e.note ? `<span class="note">${esc(e.note)}</span>` : ""}${byLine(e.author, "added by")}${tools}</div></li>`;
+  }
+  function renderFuture() {
+    const t = todayYMD(), today = todayStr();
+    if (!calMonth) calMonth = { y: t.y, mo: t.mo };
+    const evs = live ? live.events : [];
+    const { y, mo } = calMonth, first = new Date(y, mo - 1, 1), dim = new Date(y, mo, 0).getDate();
+    const ann = anniversaryIn(y, mo);
+    const monthName = first.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+    const focusDay = calSel && calSel.startsWith(ymd(y, mo, 1).slice(0, 8)) ? calSel : (t.y === y && t.mo === mo ? today : ymd(y, mo, 1));
+    let cells = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(d => `<div class="cal-dow" aria-hidden="true">${d}</div>`).join("");
+    for (let i = 0; i < first.getDay(); i++) cells += "<div></div>";
+    for (let d = 1; d <= dim; d++) {
+      const s = ymd(y, mo, d), dayEvs = evs.filter(e => e.date === s), isAnn = ann && ann.d === d;
+      const label = [longFmt.format(new Date(y, mo - 1, d)), s === today ? "today" : "", isAnn ? annLabel(ann.months) : "",
+        dayEvs.length ? dayEvs.length + (dayEvs.length === 1 ? " plan" : " plans") : ""].filter(Boolean).join(", ");
+      cells += `<button class="cal-day${s === today ? " today" : ""}${isAnn ? " is-ann" : ""}" type="button" data-act="cal-day" data-date="${s}" aria-label="${esc(label)}" aria-pressed="${calSel === s}" tabindex="${s === focusDay ? 0 : -1}">${d}
+        ${isAnn || dayEvs.length ? `<span class="marks">${isAnn ? '<span class="m ann"></span>' : ""}${dayEvs.length ? '<span class="m"></span>' : ""}</span>` : ""}</button>`;
+    }
+    const cal = `<div class="cal" role="group" aria-labelledby="calTitle">
+      <div class="cal-head"><button class="icon-btn" type="button" data-act="cal-prev" aria-label="Previous month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <h3 id="calTitle" aria-live="polite">${esc(monthName)}</h3>
+        <button class="icon-btn" type="button" data-act="cal-next" aria-label="Next month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button></div>
+      <div class="cal-grid">${cells}</div>
+      <p class="cal-legend"><span><i style="background:var(--rose)"></i>our monthly anniversary</span>${live ? '<span><i style="background:#6E9460"></i>a plan</span>' : ""}<span class="hint">Arrow keys move between days.</span></p></div>`;
+
+    let dayBox = "";
+    if (calSel) {
+      const p = parseYMD(calSel), a = p && anniversaryIn(p.y, p.mo);
+      const items = evs.filter(e => e.date === calSel);
+      if (a && a.d === p.d) items.unshift({ title: annLabel(a.months), date: calSel, ann: true, note: "Happy monthly anniversary ♡" });
+      dayBox = `<section class="ev-sec" aria-labelledby="daySec"><h3 id="daySec">${esc(longFmt.format(ymdDate(calSel)))}</h3>
+        ${items.length ? `<ul class="ev-list">${items.map(eventItem).join("")}</ul>` : `<p class="empty">Nothing planned yet.</p>`}
+        ${canEdit() ? `<p><button class="btn btn-soft btn-sm" type="button" data-act="add" data-res="events" data-date="${calSel}">+ Plan something on this day</button></p>` : ""}</section>`;
+    }
+    const next = nextAnniversary();
+    const upcoming = evs.filter(e => e.date && e.date >= today && !e.done);
+    if (next) {
+      const at = upcoming.findIndex(e => e.date > next.date);
+      upcoming.splice(at < 0 ? upcoming.length : at, 0, { title: next.label, date: next.date, ann: true, note: "Our next monthly anniversary." });
+    }
+    const someday = evs.filter(e => !e.date && !e.done);
+    const done = evs.filter(e => e.done || (e.date && e.date < today)).sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+    const sec = (id, title, items, empty) => `<section class="ev-sec" aria-labelledby="${id}"><h3 id="${id}">${title}</h3>${items.length ? `<ul class="ev-list">${items.map(eventItem).join("")}</ul>` : `<p class="empty">${empty}</p>`}</section>`;
+
+    let somedayHtml;
+    if (live) somedayHtml = sec("somedaySec", "Someday", someday, "No someday ideas yet. Add one without a date.");
+    else {
       let saved = {};
       try { saved = JSON.parse(localStorage.getItem("olw-adventures") || "{}") || {}; } catch (e) { saved = {}; }
-      pBody.innerHTML = `${badge("Example ideas — edit in the config")}
+      somedayHtml = `<section class="ev-sec" aria-labelledby="somedaySec"><h3 id="somedaySec">Someday</h3>
         <p class="lede">A few things I want to do with you next. Tap the ones you're in for.</p>
         <ul class="tickets">${GIFT.adventures.map((a, i) => `<li><button class="ticket" type="button" data-i="${i}" aria-pressed="${saved[i] ? "true" : "false"}">
           <span class="ico" aria-hidden="true">${ICON[a.icon] || ICON.heart}</span>
           <span><strong>${esc(a.title)}</strong><span class="note">${esc(a.note)}</span></span>
-          <span class="yes">${saved[i] ? "yes, let's ♡" : "let's?"}</span></button></li>`).join("")}</ul>`;
-      pBody.querySelectorAll(".ticket").forEach(b => on(b, "click", () => {
-        const now = b.getAttribute("aria-pressed") !== "true";
-        b.setAttribute("aria-pressed", now);
-        b.querySelector(".yes").textContent = now ? "yes, let's ♡" : "let's?";
-        saved[b.dataset.i] = now;
-        try { localStorage.setItem("olw-adventures", JSON.stringify(saved)); } catch (e) { /* storage unavailable */ }
-      }));
+          <span class="yes">${saved[i] ? "yes, let's ♡" : "let's?"}</span></button></li>`).join("")}</ul></section>`;
     }
+    pBody.innerHTML = `${header("events", "Plan something") || badge("Example ideas — edit in the config")}${cal}${dayBox}
+      ${sec("upSec", "Coming up", upcoming, "Nothing on the calendar yet.")}
+      ${somedayHtml}
+      ${live ? sec("doneSec", "Done together", done, "Nothing ticked off yet. Soon!") : ""}`;
+    if (!live) pBody.querySelectorAll(".ticket").forEach(b => on(b, "click", () => {
+      let saved = {};
+      try { saved = JSON.parse(localStorage.getItem("olw-adventures") || "{}") || {}; } catch (e) { saved = {}; }
+      const now = b.getAttribute("aria-pressed") !== "true";
+      b.setAttribute("aria-pressed", now);
+      b.querySelector(".yes").textContent = now ? "yes, let's ♡" : "let's?";
+      saved[b.dataset.i] = now;
+      try { localStorage.setItem("olw-adventures", JSON.stringify(saved)); } catch (e) { /* storage unavailable */ }
+    }));
   }
 
   /* story carousel */
   function renderStory() {
-    const n = GIFT.memories.length;
-    pBody.innerHTML = `<div class="story">
+    const mems = memories(), n = mems.length;
+    if (!n) {
+      pBody.innerHTML = `${header("milestones", "Add a milestone")}<p class="empty">No milestones yet. Add the day it all started.</p>`;
+      return;
+    }
+    pBody.innerHTML = `${header("milestones", "Add a milestone")}<div class="story">
       <div class="story-stage" id="storyStage"></div>
       <div class="story-nav">
         <button class="icon-btn" id="storyPrev" type="button" aria-label="Previous memory"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
-        <div class="dots">${GIFT.memories.map((m, i) => `<button class="dot" type="button" data-i="${i}" aria-label="Memory ${i + 1}: ${esc(m.title)}"></button>`).join("")}</div>
+        <div class="dots">${mems.map((m, i) => `<button class="dot" type="button" data-i="${i}" aria-label="Memory ${i + 1}: ${esc(m.title)}"></button>`).join("")}</div>
         <button class="icon-btn" id="storyNext" type="button" aria-label="Next memory"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
       </div></div>`;
     on($("#storyPrev"), "click", () => showMemory(storyIdx - 1));
@@ -710,21 +1229,22 @@ const GIFT = {
       const dx = e.clientX - sx, dy = e.clientY - sy; sx = null;
       if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.4) showMemory(storyIdx + (dx < 0 ? 1 : -1));
     });
-    on($(".story", pBody), "keydown", e => { if (e.key === "ArrowRight") showMemory(storyIdx + 1); if (e.key === "ArrowLeft") showMemory(storyIdx - 1); });
+    on($(".story", pBody), "keydown", e => { if (e.target.closest("input,textarea,select")) return; if (e.key === "ArrowRight") showMemory(storyIdx + 1); if (e.key === "ArrowLeft") showMemory(storyIdx - 1); });
     showMemory(Math.min(storyIdx, n - 1), true);
   }
   function showMemory(i, first) {
-    const n = GIFT.memories.length;
+    const mems = memories(), n = mems.length;
     if (i < 0 || i >= n) return;
     storyIdx = i;
-    const m = GIFT.memories[i];
+    const m = mems[i];
     const tilt = [-2.5, 1.8, -1.2, 2.4, -1.8, 1.2][i % 6];
     const photo = m.photo
       ? `<img src="${esc(m.photo)}" alt="${esc(m.alt || m.title)}" loading="lazy">`
-      : `${doodle(m.doodle)}${GIFT.showExampleBadges ? '<span class="stick">your photo here</span>' : ""}`;
+      : `${doodle(m.doodle)}${GIFT.showExampleBadges && !live ? '<span class="stick">your photo here</span>' : ""}`;
     $("#storyStage").innerHTML = `<div class="${first ? "" : "swap"}" style="display:grid;gap:18px">
       <figure class="polaroid" style="--tilt:${tilt}deg"><div class="photo">${photo}</div><figcaption>${esc(m.date)}</figcaption></figure>
-      <div class="story-text"><p class="kicker">Memory ${i + 1} of ${n}</p><h3>${esc(m.title)}</h3><p>${esc(m.caption)}</p>${m.example ? "<div style=\"margin-top:12px\">" + badge() + "</div>" : ""}</div></div>`;
+      <div class="story-text"><p class="kicker">Memory ${i + 1} of ${n}</p><h3>${esc(m.title)}</h3><p>${esc(m.caption)}</p>${m.example && !live ? "<div style=\"margin-top:12px\">" + badge() + "</div>" : ""}
+      ${m.id ? byLine(m.author, "added by") + actions("milestones", m.id, m.title) : ""}</div></div>`;
     const img = $("#storyStage img");
     if (img) img.onerror = () => { img.replaceWith(document.createRange().createContextualFragment(doodle(m.doodle))); };
     $("#storyPrev").disabled = i === 0;
@@ -735,9 +1255,11 @@ const GIFT = {
 
   /* love notes */
   function nextNote() {
-    const notes = GIFT.loveNotes;
-    if (!notes.length) return;
-    if (notePos < 0 || notePos >= noteOrder.length - 1) {
+    const notes = noteList();
+    const t = $("#noteText"), c = $("#noteCount"), b = $("#bloomBtn");
+    if (!t) return;
+    if (!notes.length) { t.textContent = "No little things yet."; c.textContent = canEdit() ? "Add the first one above." : ""; return; }
+    if (notePos < 0 || notePos >= noteOrder.length - 1 || noteOrder.length !== notes.length) {
       const last = noteOrder[noteOrder.length - 1];
       noteOrder = notes.map((_, i) => i);
       for (let i = noteOrder.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [noteOrder[i], noteOrder[j]] = [noteOrder[j], noteOrder[i]]; }
@@ -745,15 +1267,62 @@ const GIFT = {
       notePos = -1;
     }
     notePos++;
-    const t = $("#noteText"), c = $("#noteCount"), b = $("#bloomBtn");
-    if (!t) return;
-    t.textContent = notes[noteOrder[notePos]];
-    c.textContent = "— little thing no. " + (noteOrder[notePos] + 1) + " of " + notes.length;
+    const note = notes[noteOrder[notePos]];
+    t.textContent = note.text;
+    c.textContent = "— little thing no. " + (noteOrder[notePos] + 1) + " of " + notes.length + (note.author ? ", from " + note.author : "");
     const card = t.parentElement;
     card.classList.remove("swap"); void card.offsetWidth; card.classList.add("swap");
     if (b) { b.classList.toggle("spin"); }
     if (world) world.wiggleFlowers();
   }
+
+  /* ── sign in / out ── */
+  const dlg = $("#signin"), accountBtn = $("#accountBtn");
+  let dlgOpener = null;
+  function updateAccount() {
+    accountBtn.hidden = !API.enabled;
+    const signed = !!auth.refresh;
+    accountBtn.classList.toggle("signed", signed);
+    $("#accountTxt").textContent = signed ? auth.name + " · sign out" : "Sign in";
+    accountBtn.setAttribute("aria-label", signed ? "Signed in as " + auth.name + ". Sign out" : "Sign in to see and add our own things");
+  }
+  function openSignIn() {
+    dlgOpener = document.activeElement;
+    $("#signinError").textContent = "";
+    $("#signinForm").reset();
+    if (dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", "");
+    $("#signinEmail").focus();
+  }
+  function closeSignIn() {
+    if (dlg.close) dlg.close(); else dlg.removeAttribute("open");
+  }
+  on(dlg, "close", () => { if (dlgOpener && document.body.contains(dlgOpener)) dlgOpener.focus({ preventScroll: true }); });
+  on($("#signinCancel"), "click", closeSignIn);
+  on($("#signinForm"), "submit", async e => {
+    e.preventDefault();
+    const f = e.currentTarget, err = $("#signinError"), btn = $("#signinSubmit");
+    const email = f.elements.email.value.trim(), password = f.elements.password.value;
+    if (!email || !password) { err.textContent = "Enter your email and password."; (email ? f.elements.password : f.elements.email).focus(); return; }
+    err.textContent = ""; btn.disabled = true; btn.textContent = "Signing in…";
+    try {
+      setTokens(await raw("POST", "/auth/sign-in", { email, password }));
+      closeSignIn();
+      announce("Signed in as " + auth.name + ".");
+      await loadLive().catch(x => notify(x.message));
+    } catch (x) {
+      err.textContent = x.message;
+      f.elements.password.select();
+    } finally { btn.disabled = false; btn.textContent = "Sign in"; }
+  });
+  on(accountBtn, "click", async () => {
+    if (!auth.refresh) { openSignIn(); return; }
+    if (!window.confirm("Sign out of our little world on this device?")) return;
+    const rt = auth.refresh;
+    forget(); contentChanged();
+    announce("Signed out.");
+    raw("POST", "/auth/sign-out", { refreshToken: rt }).catch(() => { /* already signed out locally */ });
+  });
+  function notify(msg) { const n = $("#notice"); n.textContent = msg; n.hidden = false; clearTimeout(notify._t); notify._t = setTimeout(() => (n.hidden = true), 6000); }
 
   /* ── finale ── */
   const finale = $("#finale");
@@ -1133,19 +1702,33 @@ const GIFT = {
     const polaroids = [];
     const pegMat = clay(C.rose);
     const backMat = clay("#FFFDF8");
-    const nPol = Math.min(3, Math.max(1, GIFT.memories.length));
-    for (let i = 0; i < nPol; i++) {
-      const x = nPol === 1 ? 0 : -0.44 + (0.88 * i) / (nPol - 1), t = (x + 0.75) / 1.5;
+    for (let i = 0; i < 3; i++) {
+      const x = -0.44 + 0.44 * i, t = (x + 0.75) / 1.5;
       const y = (1 - t) * (1 - t) * 1.12 + 2 * t * (1 - t) * 0.9 + t * t * 1.12;
       const pv = new T.Group(); pv.position.set(x, y, 0); photoG.add(pv);
-      const tex = polaroidTexture(GIFT.memories[i], i);
-      const front = new T.Mesh(new T.PlaneGeometry(0.3, 0.36), new T.MeshStandardMaterial({ map: tex, roughness: 0.8 }));
+      const front = new T.Mesh(new T.PlaneGeometry(0.3, 0.36), new T.MeshStandardMaterial({ roughness: 0.8 }));
       front.position.set(0, -0.2, 0.004); front.castShadow = true; pv.add(front);
+      pv.userData.front = front;
       const backP = new T.Mesh(new T.PlaneGeometry(0.3, 0.36), backMat); backP.rotation.y = Math.PI; backP.position.set(0, -0.2, 0); pv.add(backP);
       pv.add(mesh(new T.BoxGeometry(0.03, 0.07, 0.025), pegMat, 0, -0.02, 0.012, true));
       pv.userData.phase = i * 1.7; pv.userData.boost = 0;
       polaroids.push(pv);
     }
+    // 1 memory → middle peg, 2 → outer pegs, 3+ → all three
+    let photoSlots = [0, 1, 2];
+    function setMemories(list) {
+      const n = Math.min(3, list.length);
+      photoSlots = n <= 1 ? [1] : n === 2 ? [0, 2] : [0, 1, 2];
+      polaroids.forEach((pv, idx) => {
+        const k = photoSlots.indexOf(idx);
+        pv.visible = k >= 0;
+        if (k < 0) return;
+        const mat = pv.userData.front.material, old = mat.map;
+        mat.map = polaroidTexture(list[k], k); mat.needsUpdate = true;
+        if (old) old.dispose();
+      });
+    }
+    setMemories(GIFT.memories);
     function polaroidTexture(mem, i) {
       const c = document.createElement("canvas"); c.width = 256; c.height = 308;
       const g = c.getContext("2d");
@@ -1662,8 +2245,10 @@ const GIFT = {
         } else { lanternsOn = false; state = "island"; }
       },
       markVisited(k) { tagEls[k] && tagEls[k].classList.add("visited"); },
-      highlightPhoto(i) { if (polaroids[i % polaroids.length] && i !== focusedPhoto) { polaroids[i % polaroids.length].userData.boost = 1.2; focusedPhoto = i; } },
+      highlightPhoto(i) { const p = polaroids[photoSlots[i % photoSlots.length]]; if (p && i !== focusedPhoto) { p.userData.boost = 1.2; focusedPhoto = i; } },
       wiggleFlowers() { flowers.forEach(f => (f.userData.wig = 1)); },
+      setMemories,
+      setFlowerCount(n) { const k = Math.max(1, Math.min(flowers.length, n)); flowers.forEach((f, i) => (f.visible = i < k)); },
       destroy() {
         cancelAnimationFrame(raf); ro && ro.disconnect();
         scene.traverse(o => {
@@ -1703,6 +2288,12 @@ const GIFT = {
     catch (e) { console.warn("3D unavailable:", e); world = null; useFallback("Showing the simple version: 3D graphics are not available on this device."); }
   } else {
     useFallback("Showing the simple version: 3D graphics are not available on this device.");
+  }
+
+  updateAccount();
+  if (world) world.setFlowerCount(noteList().length);
+  if (API.enabled && auth.refresh) {
+    loadLive().catch(e => { if (e.status !== 401 && e.status !== 403) notify("Couldn't reach our little server, so this is the saved version."); });
   }
 
   on(window, "pagehide", () => {
