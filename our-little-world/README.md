@@ -91,10 +91,17 @@ The Neon skills recommend **Managed Neon Auth** when an app has no login yet,
 and a **JWT verified against the Neon Auth JWKS** at the top of a Function that
 browsers call directly. That's what this uses:
 
+- We sign in with a **username and password**. Neon Auth accounts are keyed by
+  email, so the API maps a username to `<username>@login.our-little-world.invalid`.
+  `.invalid` is a reserved domain, so no mail is ever sent to it.
+- We share **one login**. The sign-in form asks "Who's signing in? Ben / Amie",
+  and that name is saved as the author of everything you add in that session.
+  To switch, sign out and back in. A personal login fixed to one name also
+  works (`--name`, below).
 - Accounts and password hashes live in Neon Auth, never in our tables. Sign-up
-  is **disabled** after our two accounts exist, so nobody else can register.
-- On top of that, the API only accepts users listed in the `members` table
-  (Ben and Amie). Any other valid account gets `403`.
+  is **disabled** once the login exists, so nobody else can register.
+- On top of that, the API only accepts accounts listed in the `members` table.
+  Any other valid account gets `403`.
 - Every data route verifies the JWT's signature, issuer and audience against
   the Neon Auth JWKS before it touches Postgres or the bucket. Without a token
   every route returns `401`, including the photo download.
@@ -156,28 +163,28 @@ npm install
    Each file in `backend/db/migrations/` runs once, in order, inside a
    transaction. Add new changes as new numbered files; never edit an applied one.
 
-5. **Create our two logins.** Turn sign-up on for a minute, add both of us,
-   then turn it off again:
+5. **Create the login.** Our shared login already exists. To add another one,
+   or to recreate it on a new branch, turn sign-up on for a minute, add the
+   login, then turn sign-up off again:
 
    ```bash
    npx neonctl neon-auth config email-password update --disable-sign-up false
    ```
 
    ```bash
-   MEMBER_PASSWORD='choose-a-long-one' npm run db:add-member -- --name Ben --email ben@example.com
-   ```
-
-   ```bash
-   MEMBER_PASSWORD='another-long-one' npm run db:add-member -- --name Amie --email amie@example.com
+   MEMBER_PASSWORD='the-password' npm run db:add-member -- --username our-username
    ```
 
    ```bash
    npx neonctl neon-auth config email-password update --disable-sign-up true
    ```
 
-   If an email already has a Neon Auth account, `db:add-member` just links it
-   (no password needed). To change a password, delete that user with
-   `npx neonctl neon-auth user delete <user-id>` and add them again.
+   Usernames are 3 to 32 characters (`a-z 0-9 . _ -`) and not case-sensitive;
+   passwords need 8 or more. Add `--name Ben` or `--name Amie` for a personal
+   login that always writes as that person. An existing username is linked
+   as-is. To change a password, delete the user with
+   `npx neonctl neon-auth user delete <user-id>` (the id is in the Neon Console,
+   or `select id, email from neon_auth."user"`), then add it again.
 
 6. **Publish the page:** run `./make-standalone.sh` in this folder if you edited
    the source, then push. Vercel redeploys the static files.
@@ -185,11 +192,12 @@ npm install
 ### Checking it
 
 ```bash
-E2E_BEN_EMAIL=… E2E_BEN_PASSWORD=… E2E_AMIE_EMAIL=… E2E_AMIE_PASSWORD=… npm run test:e2e
+E2E_USERNAME=… E2E_PASSWORD=… npm run test:e2e
 ```
 
-This runs 78 checks against the deployed API: sign-in and sign-out, refusal of
-signed-out and forged requests, create/read/update/delete for every content
+This runs 83 checks against the deployed API, signing in once as Ben and once
+as Amie: sign-in and sign-out, refusal of wrong passwords, unknown usernames,
+signed-out and forged requests, and writes that don't say who wrote them, create/read/update/delete for every content
 type, photo upload and download, and that the bucket isn't public. It deletes
 everything it creates.
 
