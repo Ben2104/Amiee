@@ -135,11 +135,14 @@ npm install
    gitignored), adding any custom domain you use:
 
    ```bash
-   ALLOWED_ORIGINS=https://amiee.vercel.app,https://amiee-khoi-dos-projects-cd46277e.vercel.app,https://amiee-*-khoi-dos-projects-cd46277e.vercel.app,http://localhost:*,http://127.0.0.1:*
+   ALLOWED_ORIGINS=https://amiee-sigma.vercel.app,https://amiee-khoi-dos-projects-cd46277e.vercel.app,https://amiee-*-khoi-dos-projects-cd46277e.vercel.app,http://localhost:*,http://127.0.0.1:*
    ```
 
    `*` matches any characters within the host, so the last Vercel entry
-   covers preview deployments.
+   covers preview deployments. Our live site is `https://amiee-sigma.vercel.app`.
+   (`amiee.vercel.app` is someone else's site, so don't add it.) If the page
+   says "We couldn't reach our little server", the address you opened is
+   probably missing from this list.
 
 3. **Deploy the Neon services** (Auth, the `api` function and the `photos`
    bucket). This also writes `DATABASE_URL`, `NEON_AUTH_*`, `AWS_*` and
