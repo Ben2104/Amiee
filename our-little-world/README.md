@@ -32,3 +32,177 @@ This folder is a static site with no build step. In the Vercel project:
 3. Redeploy. `index.html` is served at the site's root URL.
 
 Rebuild `index.html` with `./make-standalone.sh` after editing the source.
+
+The Vercel side needs **no changes** for the backend: no environment variables,
+no functions, and `vercel.json` stays as it is. The page calls the Neon
+Function directly from the browser, and the only setting it needs, the
+Function's public URL, is in `GIFT.backend.apiUrl`. That URL is not a secret.
+What Vercel's domain does need is to be on the Function's CORS allow-list
+(`ALLOWED_ORIGINS`, below).
+
+## Our own content (Neon backend)
+
+Signed in, Ben and Amie can add, edit and delete:
+
+| Content | Fields | Where it shows |
+| --- | --- | --- |
+| Letters | author, title, body, date | the mailbox, as a list of letters |
+| Milestones | date, title, caption, photo | "Our story" and the 3D polaroids |
+| Little things | author, text | the flower garden |
+| Plans | title, date, optional time, location, note, kind, done | the bench: a month calendar plus Coming up, Someday (no date) and Done together |
+
+Monthly anniversaries are marked on the calendar automatically from
+`togetherSince`. Every item shows who wrote it.
+
+Signed out, offline, or inside the Claude artifact preview (which can't reach
+the backend), the page uses the content in the `GIFT` block as before. The
+opening, island, finale, keyboard access, reduced motion and the no-WebGL
+version all work the same in both modes.
+
+### How it fits together
+
+```
+browser (static page on Vercel)
+   │  HTTPS + Authorization: Bearer <15-minute JWT>
+   ▼
+Neon Function "api"  (backend/api, Hono)
+   ├── Managed Neon Auth   accounts, password hashes, sessions (neon_auth schema)
+   ├── Postgres            members, letters, milestones, love_notes, events
+   └── Object Storage      private "photos" bucket
+```
+
+Everything Neon provisions is declared in `neon.ts` at the repo root:
+`auth: true`, the `api` function and the private `photos` bucket.
+The schema is in `backend/db/migrations/`.
+
+- **Postgres** is reached through a single `pg` pool created at module scope
+  (max 5 connections, `attachDatabasePool`), as the Neon Functions skill
+  recommends for long-lived isolates. It uses the pooled `DATABASE_URL`, which
+  Neon injects.
+- **Photos** are shrunk in the browser to at most 1600 px (JPEG) and uploaded
+  to the API, which checks the file type and stores the file in the private
+  bucket under a random key. The bucket is never public: photos are only served
+  back through the API to a signed-in member, and deleting a milestone deletes
+  its photo.
+
+### Why this sign-in
+
+The Neon skills recommend **Managed Neon Auth** when an app has no login yet,
+and a **JWT verified against the Neon Auth JWKS** at the top of a Function that
+browsers call directly. That's what this uses:
+
+- Accounts and password hashes live in Neon Auth, never in our tables. Sign-up
+  is **disabled** after our two accounts exist, so nobody else can register.
+- On top of that, the API only accepts users listed in the `members` table
+  (Ben and Amie). Any other valid account gets `403`.
+- Every data route verifies the JWT's signature, issuer and audience against
+  the Neon Auth JWKS before it touches Postgres or the bucket. Without a token
+  every route returns `401`, including the photo download.
+
+One adjustment: Neon Auth keeps its session in a cookie on its own domain.
+From our Vercel page that would be a third-party cookie, which Safari (so every
+iPhone) blocks. So the Function relays sign-in to Neon Auth server-to-server
+and gives the page two tokens. The first is the 15-minute JWT, kept only in
+memory. The second is the Neon Auth session token, kept in `localStorage`, and
+its only use is minting new JWTs. Signing out revokes that session in Neon
+Auth. Sign-in attempts are also rate-limited per visitor.
+
+## Setting up the backend
+
+All commands run from the **repo root**. You need Node 20.19+ and a Neon API key
+for the org that owns project `cool-mode-83922959`. In a cloud container,
+browser `neon login` doesn't work, so use the key:
+
+```bash
+export NEON_API_KEY=napi_...      # never commit this
+npm install
+```
+
+1. **Link the folder** (once per checkout; `.neon` is gitignored):
+
+   ```bash
+   npx neonctl link --project-id cool-mode-83922959 --branch production
+   ```
+
+2. **Allow the page's origins.** Put this line in `.env.local` (also
+   gitignored), adding any custom domain you use:
+
+   ```bash
+   ALLOWED_ORIGINS=https://amiee.vercel.app,https://amiee-khoi-dos-projects-cd46277e.vercel.app,https://amiee-*-khoi-dos-projects-cd46277e.vercel.app,http://localhost:*,http://127.0.0.1:*
+   ```
+
+   `*` matches any characters within the host, so the last Vercel entry
+   covers preview deployments.
+
+3. **Deploy the Neon services** (Auth, the `api` function and the `photos`
+   bucket). This also writes `DATABASE_URL`, `NEON_AUTH_*`, `AWS_*` and
+   `NEON_FUNCTION_API_BASE_URL` into `.env.local`:
+
+   ```bash
+   npm run neon:deploy
+   ```
+
+   It prints the function URL. If it ever changes, update
+   `GIFT.backend.apiUrl` in `our-little-world.html`. After a deploy, isolates
+   that are already warm can keep serving the old code for a minute.
+   `curl <function URL>` shows the `version` that is answering.
+
+4. **Create the tables:**
+
+   ```bash
+   npm run db:migrate
+   ```
+
+   Each file in `backend/db/migrations/` runs once, in order, inside a
+   transaction. Add new changes as new numbered files; never edit an applied one.
+
+5. **Create our two logins.** Turn sign-up on for a minute, add both of us,
+   then turn it off again:
+
+   ```bash
+   npx neonctl neon-auth config email-password update --disable-sign-up false
+   ```
+
+   ```bash
+   MEMBER_PASSWORD='choose-a-long-one' npm run db:add-member -- --name Ben --email ben@example.com
+   ```
+
+   ```bash
+   MEMBER_PASSWORD='another-long-one' npm run db:add-member -- --name Amie --email amie@example.com
+   ```
+
+   ```bash
+   npx neonctl neon-auth config email-password update --disable-sign-up true
+   ```
+
+   If an email already has a Neon Auth account, `db:add-member` just links it
+   (no password needed). To change a password, delete that user with
+   `npx neonctl neon-auth user delete <user-id>` and add them again.
+
+6. **Publish the page:** run `./make-standalone.sh` in this folder if you edited
+   the source, then push. Vercel redeploys the static files.
+
+### Checking it
+
+```bash
+E2E_BEN_EMAIL=… E2E_BEN_PASSWORD=… E2E_AMIE_EMAIL=… E2E_AMIE_PASSWORD=… npm run test:e2e
+```
+
+This runs 78 checks against the deployed API: sign-in and sign-out, refusal of
+signed-out and forged requests, create/read/update/delete for every content
+type, photo upload and download, and that the bucket isn't public. It deletes
+everything it creates.
+
+To try the page locally against the real backend, serve this folder on
+`localhost` (for example `python3 -m http.server 5173`) and open
+`http://localhost:5173/`.
+
+### Files
+
+- `neon.ts`: the Neon services (repo root)
+- `backend/api/`: the Function (`index.ts` routes, `auth.ts`, `db.ts`,
+  `storage.ts`, `resources.ts`)
+- `backend/db/migrations/`: SQL schema
+- `backend/scripts/`: `migrate.mjs`, `add-member.mjs` and `e2e.mjs`. These
+  talk to Postgres over Neon's HTTPS SQL endpoint, so they also work on
+  networks that block port 5432.
