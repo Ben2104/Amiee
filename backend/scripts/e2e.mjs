@@ -1,5 +1,6 @@
 // End-to-end check against the deployed API (real Neon Auth, Postgres and Object Storage).
-//   E2E_BEN_EMAIL=… E2E_BEN_PASSWORD=… E2E_AMIE_EMAIL=… E2E_AMIE_PASSWORD=… npm run test:e2e
+//   E2E_USERNAME=… E2E_PASSWORD=… npm run test:e2e
+// Uses the shared login twice: once signed in as Ben, once as Amie.
 // Every row and photo it creates is deleted again before it exits.
 import { deflateSync } from "node:zlib";
 import { loadEnv } from "./lib.mjs";
@@ -19,9 +20,14 @@ process.on("uncaughtException", async (err) => {
   console.error(err.message);
   process.exit(1);
 });
-async function call(method, path, { token, body, raw, type } = {}) {
+// token is a JWT string, or { t, who } for a session signed in as Ben or Amie.
+// (Two sign-ins of the same login in the same second get the identical JWT.)
+async function call(method, path, { token, body, raw, type, author } = {}) {
   const headers = {};
-  if (token) headers.authorization = `Bearer ${token}`;
+  const jwt = token && typeof token === "object" ? token.t : token;
+  if (jwt) headers.authorization = `Bearer ${jwt}`;
+  const who = author === undefined ? token && token.who : author;
+  if (who) headers["x-author"] = who;
   if (body !== undefined) headers["content-type"] = "application/json";
   if (raw) headers["content-type"] = type;
   const res = await fetch(API + path, { method, headers, body: raw ?? (body !== undefined ? JSON.stringify(body) : undefined) });
@@ -47,15 +53,21 @@ for (const p of ["/content", "/letters", "/milestones", "/notes", "/events", "/p
 }
 ok((await call("POST", "/letters", { body: { title: "x", body: "y" } })).status === 401, "signed-out POST /letters is refused (401)");
 ok((await call("GET", "/letters", { token: "not-a-jwt" })).status === 401, "a forged token is refused (401)");
-ok((await call("POST", "/auth/sign-in", { body: { email: need("E2E_BEN_EMAIL"), password: "wrong-password-123" } })).status === 401, "wrong password is refused (401)");
+const USER = need("E2E_USERNAME"), PASS = need("E2E_PASSWORD");
+ok((await call("POST", "/auth/sign-in", { body: { username: USER, password: "wrong-password-123", as: "Ben" } })).status === 401, "wrong password is refused (401)");
+ok((await call("POST", "/auth/sign-in", { body: { username: "nobody-here", password: PASS, as: "Ben" } })).status === 401, "unknown username is refused (401)");
+ok((await call("POST", "/auth/sign-in", { body: { username: USER, password: PASS } })).status === 400, "the shared login must say who is signing in (400)");
+ok((await call("POST", "/auth/sign-in", { body: { username: USER, password: PASS, as: "Stranger" } })).status === 400, "only Ben or Amie can be chosen (400)");
 
 // ── sign in as both of us ──
-const ben = await call("POST", "/auth/sign-in", { body: { email: need("E2E_BEN_EMAIL"), password: need("E2E_BEN_PASSWORD") } });
-ok(ben.status === 200 && ben.data.member.name === "Ben" && ben.data.accessToken, "Ben signs in");
-const amie = await call("POST", "/auth/sign-in", { body: { email: need("E2E_AMIE_EMAIL"), password: need("E2E_AMIE_PASSWORD") } });
-ok(amie.status === 200 && amie.data.member.name === "Amie", "Amie signs in");
-const B = ben.data.accessToken, A = amie.data.accessToken;
+const ben = await call("POST", "/auth/sign-in", { body: { username: USER.toUpperCase(), password: PASS, as: "Ben" } });
+ok(ben.status === 200 && ben.data.member.name === "Ben" && ben.data.accessToken, "Ben signs in with the username (case-insensitive)");
+const amie = await call("POST", "/auth/sign-in", { body: { username: USER, password: PASS, as: "Amie" } });
+ok(amie.status === 200 && amie.data.member.name === "Amie", "Amie signs in with the same username");
+const B = { t: ben.data.accessToken, who: "Ben" }, A = { t: amie.data.accessToken, who: "Amie" };
 ok((await call("GET", "/me", { token: B })).data.name === "Ben", "GET /me knows who is signed in");
+ok((await call("POST", "/notes", { token: B, author: null, body: { text: "x" } })).status === 400, "a write without saying who wrote it is rejected (400)");
+ok((await call("POST", "/notes", { token: B, author: "Stranger", body: { text: "x" } })).status === 400, "a write as anyone but Ben or Amie is rejected (400)");
 
 // ── CRUD for every content type ──
 const cases = {
@@ -111,7 +123,7 @@ ok((await call("GET", `/photos/${file}`, { token: B })).status === 404, "... als
 // ── content bundle, refresh and sign-out ──
 const all = await call("GET", "/content", { token: A });
 ok(all.status === 200 && ["letters", "milestones", "notes", "events"].every(k => Array.isArray(all.data[k])) && all.data.me.name === "Amie", "GET /content returns everything for the page");
-const ref = await call("POST", "/auth/refresh", { body: { refreshToken: ben.data.refreshToken } });
+const ref = await call("POST", "/auth/refresh", { body: { refreshToken: ben.data.refreshToken, as: "Ben" } });
 ok(ref.status === 200 && ref.data.accessToken && ref.data.member.name === "Ben", "refresh mints a new access token");
 ok((await call("POST", "/auth/sign-out", { body: { refreshToken: ref.data.refreshToken } })).status === 204, "Ben signs out");
 ok((await call("POST", "/auth/refresh", { body: { refreshToken: ref.data.refreshToken } })).status === 401, "after sign-out the session cannot be refreshed");

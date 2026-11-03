@@ -248,6 +248,11 @@ h1,h2,h3{font-family:var(--font-display);font-variation-settings:"SOFT" 100;text
 #signin form{display:grid;gap:14px;padding:24px}
 #signin h2{font-size:1.7rem}
 #signin .lede{margin:0}
+.who{border:0;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.who legend{font-weight:700;font-size:.92rem;padding:0;margin-bottom:6px;width:100%}
+.who-opt{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;background:#FFFDF8;box-shadow:inset 0 0 0 2px var(--line);font-weight:700;cursor:pointer}
+.who-opt:has(input:checked){background:var(--rose);color:#fff;box-shadow:none}
+.who-opt input{width:18px;height:18px;accent-color:var(--rose);margin:0}
 .field{display:grid;gap:6px;font-weight:700;font-size:.92rem}
 .field input,.field textarea,.field select{font:inherit;font-weight:400;font-size:1rem;color:var(--ink);background:#FFFDF8;border:2px solid var(--line);border-radius:14px;padding:.6rem .8rem;min-height:46px;width:100%}
 .field textarea{resize:vertical;line-height:1.5}
@@ -407,8 +412,12 @@ h1,h2,h3{font-family:var(--font-display);font-variation-settings:"SOFT" 100;text
     <form id="signinForm" novalidate>
       <h2 id="signinTitle">Sign in</h2>
       <p class="lede">Just for the two of us. Signed in, you can add, edit and delete our letters, milestones, little things and plans.</p>
-      <div class="field"><label for="signinEmail">Email</label><input id="signinEmail" name="email" type="email" autocomplete="username" required></div>
+      <div class="field"><label for="signinEmail">Username</label><input id="signinEmail" name="username" type="text" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required></div>
       <div class="field"><label for="signinPassword">Password</label><input id="signinPassword" name="password" type="password" autocomplete="current-password" required></div>
+      <fieldset class="who"><legend>Who's signing in?</legend>
+        <label class="who-opt"><input type="radio" name="as" value="Ben"> Ben</label>
+        <label class="who-opt"><input type="radio" name="as" value="Amie"> Amie</label>
+      </fieldset>
       <p class="form-error" id="signinError" role="alert"></p>
       <div class="form-actions"><button class="btn btn-ghost" type="button" id="signinCancel">Not now</button><button class="btn btn-primary" type="submit" id="signinSubmit">Sign in</button></div>
     </form>
@@ -760,7 +769,7 @@ const GIFT = {
     try { if (auth.refresh) localStorage.setItem(SESSION_KEY, JSON.stringify({ refresh: auth.refresh, name: auth.name })); else localStorage.removeItem(SESSION_KEY); } catch (e) { /* storage unavailable */ }
   }
   function jwtExp(t) { try { return JSON.parse(atob(t.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))).exp * 1000; } catch (e) { return 0; } }
-  function setTokens(d) { auth.access = d.accessToken; auth.exp = jwtExp(d.accessToken); auth.refresh = d.refreshToken; auth.name = d.member.name; saveSession(); }
+  function setTokens(d) { auth.access = d.accessToken; auth.exp = jwtExp(d.accessToken); auth.refresh = d.refreshToken; auth.name = d.member.name || auth.name; saveSession(); }
   function forget() {
     auth.access = auth.refresh = auth.name = ""; auth.exp = 0; saveSession();
     live = null; editing = null;
@@ -789,7 +798,7 @@ const GIFT = {
     if (!force && auth.access && auth.exp - 30000 > Date.now()) return auth.access;
     if (!auth.refresh) throw new ApiError(401, "Please sign in");
     if (!refreshing) {
-      refreshing = raw("POST", "/auth/refresh", { refreshToken: auth.refresh })
+      refreshing = raw("POST", "/auth/refresh", { refreshToken: auth.refresh, as: auth.name })
         .then(setTokens)
         .catch(e => { if (e.status === 401 || e.status === 403) { forget(); contentChanged(); } throw e; })
         .finally(() => { refreshing = null; });
@@ -798,10 +807,11 @@ const GIFT = {
     return auth.access;
   }
   async function api(method, path, body) {
-    try { return await raw(method, path, body, { Authorization: "Bearer " + await token() }); }
+    // X-Author: which of us is writing (the shared login can be either)
+    try { return await raw(method, path, body, { Authorization: "Bearer " + await token(), "X-Author": auth.name }); }
     catch (e) {
       if (e.status !== 401 || !auth.refresh) throw e;
-      return raw(method, path, body, { Authorization: "Bearer " + await token(true) });
+      return raw(method, path, body, { Authorization: "Bearer " + await token(true), "X-Author": auth.name });
     }
   }
   async function photoUrl(key) {
@@ -1293,11 +1303,13 @@ const GIFT = {
   on($("#signinForm"), "submit", async e => {
     e.preventDefault();
     const f = e.currentTarget, err = $("#signinError"), btn = $("#signinSubmit");
-    const email = f.elements.email.value.trim(), password = f.elements.password.value;
-    if (!email || !password) { err.textContent = "Enter your email and password."; (email ? f.elements.password : f.elements.email).focus(); return; }
+    const username = f.elements.username.value.trim(), password = f.elements.password.value;
+    const as = (f.querySelector('input[name="as"]:checked') || {}).value;
+    if (!username || !password) { err.textContent = "Enter your username and password."; (username ? f.elements.password : f.elements.username).focus(); return; }
+    if (!as) { err.textContent = "Choose who is signing in: Ben or Amie."; f.querySelector('input[name="as"]').focus(); return; }
     err.textContent = ""; btn.disabled = true; btn.textContent = "Signing in…";
     try {
-      setTokens(await raw("POST", "/auth/sign-in", { email, password }));
+      setTokens(await raw("POST", "/auth/sign-in", { username, password, as }));
       closeSignIn();
       announce("Signed in as " + auth.name + ".");
       await loadLive().catch(x => notify(x.message));
