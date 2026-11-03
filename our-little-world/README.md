@@ -21,3 +21,14 @@ Set `showExampleBadges: false` once the sample content has been replaced.
 
 Photos: use a `data:` URI (it travels inside the file) or a relative file name
 published next to the page. Claude artifacts block images from other websites.
+
+## Deploying to Vercel
+
+This folder is a static site with no build step. In the Vercel project:
+
+1. Settings → Build and Deployment → **Root Directory**: `our-little-world`
+2. **Framework Preset**: Other (the `vercel.json` here already sets this, with
+   no install or build command)
+3. Redeploy. `index.html` is served at the site's root URL.
+
+Rebuild `index.html` with `./make-standalone.sh` after editing the source.
