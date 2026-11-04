@@ -11,6 +11,31 @@ anniversary finale.
   anywhere (for example GitHub Pages). Run `./make-standalone.sh` after you
   edit the source to rebuild it.
 
+## Mochi, our bunny
+
+A little white bunny with a pink bow lives on the island.
+
+- **Walk her around:** tap the grass, or use the arrow keys / WASD (Q and E
+  turn the island). Each place has a glowing circle in front of it; hop into
+  one and that part of our world opens. Opening a place from the dock sends
+  her there too.
+- **Take care of her:** the bar under our names shows her tummy and love,
+  with Hug and Feed. Her own page (tap the bar, or her name tag) has three
+  treats (carrot, strawberry, matcha mochi), who gave the last hug and
+  treat, and a way to rename her. Tummy and love go down slowly while we're
+  away (about a day from full to empty), and her ears droop when she's
+  hungry or lonely. Tapping her on the island is a pat.
+- **Our anniversary:** also on her page. Pick the day we started and
+  whether to celebrate every month or once a year. On that day the sky
+  fills with fireworks and a "Happy 4 months!" banner. "Preview the
+  fireworks" shows them any day, and signed in, a plan marked Celebration
+  gets fireworks on its day too. The date also drives the days-together
+  counter and the calendar's monthly anniversaries.
+
+Her name starts as `GIFT.pet.name`. Her care, her name and the anniversary
+are saved in the browser (`localStorage`), so each phone or laptop has its
+own Mochi.
+
 ## Personalising
 
 Everything personal is in the `GIFT` object near the top of the `<script>`

@@ -121,6 +121,10 @@ h1,h2,h3{font-family:var(--font-display);font-variation-settings:"SOFT" 100;text
 .tag.visited .pip{background:var(--sage)}
 .tag.visited .pip::before{border-color:var(--sage);animation:none;opacity:0}
 @keyframes pulse{0%{transform:scale(.6);opacity:.8}100%{transform:scale(1.7);opacity:0}}
+.pet-tag{padding:.32rem .75rem .32rem .55rem;font-size:.8rem;background:rgba(255,255,255,.92);color:var(--rose-deep);transition:opacity .3s ease, background .2s}
+.pet-tag .pet-heart{color:var(--rose);font-size:.95rem;line-height:1}
+.pet-tag.talking{background:var(--rose);color:#fff}
+.pet-tag.talking .pet-heart{color:#FFD7E1}
 
 /* ───── dock ───── */
 #dock{position:absolute;left:50%;bottom:calc(var(--safe-b) + 14px);transform:translateX(-50%);display:flex;gap:4px;padding:6px;border-radius:24px;background:var(--glass);
@@ -223,6 +227,69 @@ h1,h2,h3{font-family:var(--font-display);font-variation-settings:"SOFT" 100;text
 .ticket[aria-pressed="true"]{background:#FCE0E6}
 .ticket[aria-pressed="true"] .yes{color:#fff;background:var(--rose);border-color:var(--rose)}
 @media (max-width:400px){.ticket{grid-template-columns:40px 1fr;}.ticket .yes{grid-column:2;justify-self:start}}
+
+/* ───── our bunny ───── */
+#petBar{position:absolute;left:var(--gutter-l);top:calc(var(--safe-t) + 66px);z-index:20;display:flex;align-items:center;gap:2px;padding:5px;border-radius:22px;background:var(--glass);
+  box-shadow:0 4px 0 rgba(200,150,140,.45),0 14px 30px rgba(120,60,60,.14);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.pet-me{display:flex;align-items:center;gap:8px;border:0;background:transparent;padding:3px 10px 3px 3px;border-radius:18px;min-height:48px;text-align:left}
+.pet-me:hover,.pet-act:hover{background:rgba(242,167,184,.22)}
+.pet-face{width:42px;height:42px;flex:none;border-radius:50%;background:#FFF1F4;display:grid;place-items:center;overflow:hidden;box-shadow:inset 0 0 0 2px #F7D3DC}
+.pet-face svg{width:40px;height:40px}
+.pet-info{display:grid;gap:5px}
+.pet-name{font-weight:800;font-size:.9rem;line-height:1}
+.pet-bars{display:grid;gap:3px;width:70px}
+.bar,.track{display:block;height:6px;border-radius:3px;background:rgba(74,44,54,.12);overflow:hidden}
+.bar i,.track i{display:block;height:100%;width:0;border-radius:inherit;transition:width .6s ease}
+i.food{background:#F0904A}
+i.love{background:var(--rose)}
+.pet-act{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:0;background:transparent;border-radius:16px;padding:5px 9px;min-width:50px;min-height:48px;font-weight:800;font-size:.75rem;color:var(--ink)}
+.pet-act svg{width:22px;height:22px;color:var(--rose)}
+#fx{position:absolute;inset:0;pointer-events:none;z-index:40;overflow:hidden}
+.fheart{position:absolute;color:var(--rose);font-size:20px;line-height:1;animation:fheart 1.3s ease-out forwards}
+@keyframes fheart{0%{transform:translate(-50%,-50%) scale(.5);opacity:0}15%{opacity:1}100%{transform:translate(calc(-50% + var(--dx,0px)),-110px) scale(1.25);opacity:0}}
+.pet-card{display:grid;justify-items:center;gap:12px;text-align:center}
+.pet-portrait{width:min(190px,52vw);aspect-ratio:200/230;filter:drop-shadow(0 12px 18px rgba(184,68,102,.18))}
+.pet-portrait svg{width:100%;height:100%;overflow:visible}
+.pet-portrait.hug svg{animation:phug .9s cubic-bezier(.3,1.5,.5,1)}
+.pet-portrait.eat svg{animation:peat .32s ease-in-out 5}
+.pet-portrait.full svg{animation:pfull .5s ease-in-out}
+@keyframes phug{30%{transform:translateY(-18px) scale(1.06,.96)}60%{transform:translateY(0) scale(.95,1.05)}}
+@keyframes peat{50%{transform:translateY(5px) rotate(2deg)}}
+@keyframes pfull{25%{transform:rotate(-6deg)}75%{transform:rotate(6deg)}}
+.b-eyes{animation:blink 4.6s infinite}
+@keyframes blink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+.b-eyes{transform-origin:100px 124px}
+.b-happy{opacity:0}
+.pet-portrait.hug .b-eyes,.pet-portrait.eat .b-eyes{animation:shut .95s steps(1) 1}
+.pet-portrait.hug .b-happy,.pet-portrait.eat .b-happy{animation:shut .95s steps(1) 1 reverse}
+@keyframes shut{0%{opacity:0}100%{opacity:1}}
+.pet-mood{margin:0;font-family:var(--font-hand);font-size:1.3rem;color:var(--rose-deep);max-width:30ch}
+.meters{display:grid;gap:8px;width:100%;max-width:22rem}
+.meter{display:grid;grid-template-columns:4.2rem 1fr 2.6rem;align-items:center;gap:10px;font-weight:800;font-size:.88rem;text-align:left}
+.meter .track{height:12px;border-radius:6px}
+.meter b{font-variant-numeric:tabular-nums;text-align:right;color:var(--ink-soft)}
+.pet-do{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.treat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:24rem}
+.treat{display:grid;justify-items:center;gap:4px;border:0;border-radius:16px;padding:10px 6px;background:#FFF1E2;box-shadow:0 3px 0 #EBD3BE;font-weight:800;font-size:.85rem;min-height:72px}
+.treat:active{transform:translateY(2px)}
+.treat svg{width:30px;height:30px}
+.treat-lbl{font-weight:800;font-size:.92rem;margin:4px 0 -4px}
+.pet-log{margin:0;color:var(--ink-soft);font-size:.9rem;max-width:34ch}
+.pet-form{display:grid;gap:10px;padding:8px 0 4px}
+
+#fireworks{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:6}
+#annBanner{position:absolute;left:50%;bottom:calc(var(--safe-b) + 104px);transform:translateX(-50%);z-index:21;display:flex;align-items:center;gap:10px;
+  width:max-content;max-width:calc(100% - 32px);padding:10px 10px 10px 18px;border-radius:22px;background:rgba(74,44,54,.9);color:var(--cream);box-shadow:0 14px 30px rgba(74,44,54,.3)}
+#annBanner .ann-txt{min-width:0}
+.ann-title{margin:0;font-family:var(--font-display);font-size:1.2rem;line-height:1.15;font-weight:600;font-variation-settings:"SOFT" 100}
+.ann-sub{margin:2px 0 0;font-size:.85rem;color:#F7D3DC}
+#annBanner .icon-btn{width:40px;height:40px;flex:none;background:rgba(255,246,234,.14);color:var(--cream);box-shadow:none}
+#annBanner .btn{flex:none}
+@media (max-width:440px){#annBanner{flex-wrap:wrap;justify-content:flex-end}#annBanner .ann-txt{flex:1 1 calc(100% - 50px)}}
+.ann-set{width:100%;text-align:left;margin-top:20px;padding-top:18px;border-top:1px dashed var(--line)}
+.ann-set h3{font-size:1.3rem}
+.ann-set .lede{margin:.25rem 0 .5rem}
+.ann-next{margin:6px 0 0;background:#FCE0E6;color:var(--rose-deep);border-radius:14px;padding:.6rem .85rem;font-weight:700;font-size:.92rem}
 
 /* ───── finale ───── */
 #finale{position:absolute;inset:0;z-index:25;display:flex;align-items:flex-end;justify-content:center;pointer-events:none;
@@ -343,6 +410,7 @@ h1,h2,h3{font-family:var(--font-display);font-variation-settings:"SOFT" 100;text
   <canvas id="scene" aria-hidden="true" tabindex="-1"></canvas>
   <div id="fallbackArt" hidden aria-hidden="true"></div>
   <div id="cssLanterns" aria-hidden="true"></div>
+  <canvas id="fireworks" aria-hidden="true" hidden></canvas>
   <div id="tags" aria-hidden="true"></div>
 
   <!-- 1 · The invitation -->
@@ -380,7 +448,24 @@ h1,h2,h3{font-family:var(--font-display);font-variation-settings:"SOFT" 100;text
 
   <!-- 2 · Explore -->
   <nav id="dock" class="fade" hidden aria-label="Explore our little world"></nav>
+  <section id="petBar" class="fade" hidden aria-labelledby="petBarName">
+    <button class="pet-me" id="petOpen" type="button" aria-describedby="petStatus">
+      <span class="pet-face" id="petFace" aria-hidden="true"></span>
+      <span class="pet-info"><span class="pet-name" id="petBarName">Mochi</span>
+        <span class="pet-bars" aria-hidden="true"><span class="bar"><i class="food" id="petFoodBar"></i></span><span class="bar"><i class="love" id="petLoveBar"></i></span></span></span>
+    </button>
+    <button class="pet-act" id="petHug" type="button"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.7c0 5.6-7.5 10.2-7.5 10.2z"/></svg><span>Hug</span></button>
+    <button class="pet-act" id="petFeed" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15.5 8.5L5 19c-.8.8-2 0-1.4-1L9.5 8a4 4 0 0 1 6 .5z" fill="#F0904A" stroke="#C9692A"/><path d="M15 9l4-4M15 6.5L17 3M17.5 9L21 7" stroke="#6E9A55"/></svg><span>Feed</span></button>
+    <span class="sr-only" id="petStatus"></span>
+  </section>
   <p id="hint" class="fade" hidden role="status"></p>
+  <section id="annBanner" class="fade" hidden role="status" aria-labelledby="annBannerTitle">
+    <div class="ann-txt"><p class="ann-title" id="annBannerTitle"></p><p class="ann-sub" id="annBannerSub"></p></div>
+    <button class="btn btn-soft btn-sm" id="annAgain" type="button">More fireworks</button>
+    <button class="icon-btn" id="annClose" type="button" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </section>
   <p id="notice" hidden></p>
 
   <aside id="panel" class="fade" hidden role="dialog" aria-modal="false" aria-labelledby="panelTitle">
@@ -431,6 +516,7 @@ h1,h2,h3{font-family:var(--font-display);font-variation-settings:"SOFT" 100;text
     </form>
   </dialog>
   <p id="liveStatus" class="sr-only" role="status" aria-live="polite"></p>
+  <div id="fx" aria-hidden="true"></div>
 
   <audio id="songAudio" loop preload="none"></audio>
 </div>
@@ -454,6 +540,11 @@ const GIFT = {
   herName: "Amie",                   // her name or nickname — used on the envelope and in the finale
   togetherSince: "2026-07-11",       // YYYY-MM-DD
   anniversaryMessage: "I love you",
+
+  // Our bunny. Tap the island to hop her around; hop into a glowing circle to open that part of our world.
+  pet: {
+    name: "Mochi"                    // you can also rename her from her own page on the island
+  },
   showExampleBadges: true,           // set to false once you've replaced the sample content
 
   // Our own content. With apiUrl set, the page shows a "Sign in" button; once one of us
@@ -538,7 +629,7 @@ const GIFT = {
     inviteFrom: "with love, from {you}",
     openButton: "Open your surprise",
     brand: "{you} & {her}",
-    hint: "Tap a glowing tag on the island, or use the buttons below. Drag to look around.",
+    hint: "Tap the grass to hop {pet} around (or use the arrow keys). Hop into a glowing circle to peek inside.",
     hintSimple: "Use the buttons below to explore our little world.",
     finaleTitle: "Happy anniversary, {her}",
     daysUnit: "days together",
@@ -550,7 +641,8 @@ const GIFT = {
 (function () {
   "use strict";
   const $ = (s, r = document) => r.querySelector(s);
-  const fill = s => String(s).replace(/\{her\}/g, GIFT.herName).replace(/\{you\}/g, GIFT.yourName);
+  const PET = { name: GIFT.pet.name };   // the bunny's name (she can be renamed on her page)
+  const fill = s => String(s).replace(/\{her\}/g, GIFT.herName).replace(/\{you\}/g, GIFT.yourName).replace(/\{pet\}/g, PET.name);
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const reduceMQ = window.matchMedia("(prefers-reduced-motion: reduce)");
   let reduced = reduceMQ.matches;
@@ -640,9 +732,21 @@ const GIFT = {
     const anchor = { y: anchorY, mo: anchorM, d: Math.min(a.d, lastDay) };
     return { months, days: dayDiff(anchor, b) };
   }
-  const startDate = parseYMD(GIFT.togetherSince);
-  const daysTogether = startDate ? dayDiff(startDate, todayYMD()) : null;
-  const showCounter = daysTogether !== null && daysTogether >= 0;
+  // Our anniversary can be changed on Mochi's page (saved in this browser); it starts as togetherSince.
+  const ANN_KEY = "olw-anniversary";
+  const annSet = { date: GIFT.togetherSince, monthly: true };   // monthly: fireworks on the day every month, not just once a year
+  try {
+    const v = JSON.parse(localStorage.getItem(ANN_KEY) || "null");
+    if (v && parseYMD(v.date)) annSet.date = v.date;
+    if (v && typeof v.monthly === "boolean") annSet.monthly = v.monthly;
+  } catch (e) { /* storage unavailable */ }
+  let startDate, daysTogether, showCounter;
+  function setStart() {
+    startDate = parseYMD(annSet.date);
+    daysTogether = startDate ? dayDiff(startDate, todayYMD()) : null;
+    showCounter = daysTogether !== null && daysTogether >= 0;
+  }
+  setStart();
 
   /* ── fill static text ── */
   $("#inviteTo").textContent = fill(GIFT.text.inviteTo);
@@ -654,6 +758,8 @@ const GIFT = {
   $("#finaleNames").textContent = GIFT.yourName + " & " + GIFT.herName;
   $("#finaleTitle").textContent = fill(GIFT.text.finaleTitle);
   $("#finaleMsg").textContent = GIFT.anniversaryMessage;
+  function refreshCounter() {
+  $("#counterWrap").hidden = !showCounter;
   if (showCounter) {
     const md = monthsAndDays(startDate, todayYMD());
     const fmt = new Intl.DateTimeFormat("en-US", { month: "long", day: "numeric", year: "numeric" });
@@ -662,9 +768,9 @@ const GIFT = {
     if (md.months >= 1) extra = " · that's " + md.months + (md.months === 1 ? " month" : " months") + (md.days ? " and " + md.days + (md.days === 1 ? " day" : " days") : "");
     $("#sinceLine").textContent = "since " + sinceStr + extra;
     $("#dayUnit").textContent = daysTogether === 1 ? "day together" : daysTogether === 0 ? GIFT.text.dayOneUnit : GIFT.text.daysUnit;
-  } else {
-    $("#counterWrap").hidden = true;
   }
+  }
+  refreshCounter();
 
   /* ── visibility helpers with fade ── */
   function show(el) { clearTimeout(el._ft); el.hidden = false; void el.offsetWidth; el.classList.add("on"); }
@@ -678,7 +784,7 @@ const GIFT = {
     { key: "future", short: "Adventures",    title: "More adventures together",      eyebrow: "under our tree" },
     { key: "finale", short: "Our day",       title: "Our anniversary",               eyebrow: "" }
   ];
-  const byKey = k => SECTIONS.find(s => s.key === k);
+  const byKey = k => SECTIONS.find(s => s.key === k) || (k === "pet" ? { key: "pet", short: PET.name, title: PET.name, eyebrow: "our bunny" } : null);
   const visited = new Set();
 
   const dock = $("#dock");
@@ -689,6 +795,9 @@ const GIFT = {
   let current = null;        // open panel key
   let lastOpener = null;
   let world = null;          // 3D controller (null without WebGL)
+
+  function showDock() { show(dock); show($("#petBar")); }
+  function hideDock() { hide(dock); hide($("#petBar")); }
 
   function markVisited(k) {
     visited.add(k);
@@ -711,18 +820,19 @@ const GIFT = {
     const sec = byKey(key);
     if (!sec) return;
     if (mode === "finale") closeFinale(true);
+    hide(annBanner);
     lastOpener = opener || document.activeElement;
     current = key; mode = "panel";
     $("#panelTitle").textContent = sec.title;
     $("#panelEyebrow").textContent = sec.eyebrow;
     renderPanel(key);
     const idx = SECTIONS.findIndex(s => s.key === key);
-    const next = SECTIONS[idx + 1];
+    const next = idx < 0 ? null : SECTIONS[idx + 1];
     const nextBtn = $("#panelNext");
     nextBtn.textContent = next ? "Next: " + next.short + " →" : "";
     nextBtn.hidden = !next;
     nextBtn.dataset.next = next ? next.key : "";
-    hide(dock);
+    hideDock();
     app.classList.add("panel-open");
     show(panel);
     pBody.scrollTop = 0;
@@ -736,7 +846,7 @@ const GIFT = {
     app.classList.remove("panel-open");
     hide(panel);
     if (!silent) {
-      show(dock);
+      showDock();
       if (world) world.overview();
       const target = lastOpener && document.body.contains(lastOpener) && lastOpener.offsetParent ? lastOpener : dock.querySelector("button");
       setTimeout(() => target && target.focus({ preventScroll: true }), reduced ? 0 : 80);
@@ -842,6 +952,7 @@ const GIFT = {
     if (world) { world.setMemories(memories()); world.setFlowerCount(noteList().length); }
     updateAccount();
     if (mode === "panel" && current && !editing) renderPanel(current);
+    maybeCelebrate();          // a plan marked Celebration today
   }
 
   /* ── content accessors: live rows when signed in, the GIFT config otherwise ── */
@@ -1089,6 +1200,7 @@ const GIFT = {
       return;
     }
     if (key === "letter") { renderLetters(); return; }
+    if (key === "pet") { renderPet(); return; }
     if (key === "future") renderFuture();
   }
 
@@ -1343,11 +1455,13 @@ const GIFT = {
     if (mode === "panel") closePanel(true);
     mode = "finale"; current = "finale";
     markVisited("finale");
-    hide(dock); hideHint();
+    hideDock(); hideHint();
     app.classList.add("dusk");
     show(finale);
     runCounter();
     if (world) world.finale(true); else cssLanterns();
+    hide(annBanner);
+    if (celebrationToday()) Fireworks.start(12);
     setTimeout(() => $("#finaleTitle").focus({ preventScroll: true }), reduced ? 0 : 80);
   }
   function closeFinale(silent) {
@@ -1358,7 +1472,7 @@ const GIFT = {
     hide(finale);
     if (world) world.finale(false);
     $("#cssLanterns").innerHTML = "";
-    if (!silent) { show(dock); if (world) world.overview(); setTimeout(() => dock.querySelector('[data-go="finale"]').focus({ preventScroll: true }), 80); }
+    if (!silent) { showDock(); if (world) world.overview(); setTimeout(() => dock.querySelector('[data-go="finale"]').focus({ preventScroll: true }), 80); }
   }
   function runCounter() {
     if (!showCounter) return;
@@ -1388,14 +1502,402 @@ const GIFT = {
     }
   }
   on($("#finaleBack"), "click", () => closeFinale());
-  on($("#finaleAgain"), "click", () => { runCounter(); if (world) world.finale(true); else cssLanterns(); });
+  on($("#finaleAgain"), "click", () => { runCounter(); if (world) world.finale(true); else cssLanterns(); if (celebrationToday()) Fireworks.start(10); });
   on($("#finaleReplay"), "click", () => replay());
 
   /* ── hint ── */
   const hint = $("#hint");
   let hintTimer = 0;
-  function showHint() { hint.textContent = world ? GIFT.text.hint : GIFT.text.hintSimple; show(hint); hintTimer = setTimeout(hideHint, 7000); }
+  function showHint() { hint.textContent = fill(world ? GIFT.text.hint : GIFT.text.hintSimple); show(hint); hintTimer = setTimeout(hideHint, 7000); }
   function hideHint() { clearTimeout(hintTimer); if (!hint.hidden) hide(hint); }
+
+  /* ════════════════ our bunny: taking care of her ════════════════
+     Tummy and love go down slowly while we're away (about a day from full to
+     empty), so come back for hugs and treats. Saved on this device. */
+  const TREATS = {
+    carrot:     { label: "Carrot",       food: 26, love: 3, say: "crunch crunch!", a: "a carrot" },
+    strawberry: { label: "Strawberry",   food: 18, love: 8, say: "so sweet! ♡",    a: "a strawberry" },
+    matcha:     { label: "Matcha mochi", food: 22, love: 6, say: "matcha!!",       a: "a matcha mochi" }
+  };
+  const TREAT_ICON = {
+    carrot: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M21 11L7 27c-1.2 1.2-3 0-2.2-1.4L13 10.5a5.5 5.5 0 0 1 8 .5z" fill="#F0904A" stroke="#B85E25" stroke-width="1.6" stroke-linejoin="round"/><path d="M11 17l3 1.5M9 21.5l2.5 1" stroke="#B85E25" stroke-width="1.4" stroke-linecap="round"/><path d="M20 11.5l5-5M20 8l2.5-5M22.5 13l5-2.5" stroke="#6E9A55" stroke-width="2.4" stroke-linecap="round"/></svg>',
+    strawberry: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 29C9 25 5 18 7 13c2-4 16-4 18 0 2 5-2 12-9 16z" fill="#E8505B" stroke="#A8303A" stroke-width="1.6" stroke-linejoin="round"/><g fill="#FFE3A6"><circle cx="12" cy="16" r="1"/><circle cx="17" cy="15" r="1"/><circle cx="21" cy="17" r="1"/><circle cx="14" cy="21" r="1"/><circle cx="19" cy="22" r="1"/><circle cx="16" cy="26" r="1"/></g><path d="M9 11c3 1 5 0 7-3 2 3 4 4 7 3-2 3-12 3-14 0z" fill="#7FB069" stroke="#4F7A3E" stroke-width="1.4" stroke-linejoin="round"/></svg>',
+    matcha: '<svg viewBox="0 0 32 32" aria-hidden="true"><ellipse cx="16" cy="25" rx="12" ry="3.5" fill="#FFF6EA" stroke="#D9BFA6" stroke-width="1.4"/><path d="M6 21c0-7 4.5-11 10-11s10 4 10 11c0 2-4 3.5-10 3.5S6 23 6 21z" fill="#A8C97F" stroke="#6E8F4E" stroke-width="1.6"/><path d="M11 15.5c1.5-1.5 3-2 4.5-2" stroke="#fff" stroke-width="1.8" stroke-linecap="round" opacity=".7"/><path d="M14 19.5c1 .8 3 .8 4 0" stroke="#4A2C36" stroke-width="1.4" stroke-linecap="round" fill="none"/><circle cx="12.5" cy="18" r="1" fill="#4A2C36"/><circle cx="19.5" cy="18" r="1" fill="#4A2C36"/></svg>'
+  };
+  let svgId = 0;
+  function bunnySvg(viewBox) {
+    const o = "#E7B3BF", w = "#FFFFFF", pk = "#F9C6D2", pad = "#F4A3B8", ink = "#2A1720", id = "iris" + (++svgId);
+    const eye = (x, s) => `<ellipse cx="${x}" cy="124" rx="17.5" ry="23.5" fill="#103231"/>
+      <ellipse cx="${x}" cy="125" rx="15.5" ry="21.5" fill="url(#${id})"/>
+      <ellipse cx="${x}" cy="125" rx="8" ry="11.5" fill="#0A2423"/>
+      <ellipse cx="${x}" cy="137.5" rx="9" ry="4" fill="#D2FFF3" opacity=".55"/>
+      <ellipse cx="${x - 5}" cy="115" rx="6.8" ry="5.2" fill="#fff" transform="rotate(-25 ${x - 5} 115)"/>
+      <circle cx="${x + 7}" cy="131" r="2.7" fill="#fff"/><circle cx="${x - 2}" cy="137" r="1.4" fill="#fff" opacity=".85"/>
+      <path d="M${x + 6} 106q0 3.5 3.5 3.5q-3.5 0-3.5 3.5q0-3.5-3.5-3.5q3.5 0 3.5-3.5z" fill="#fff"/>
+      <path d="M${x - 19.5} 121Q${x} 79 ${x + 19.5} 121" fill="none" stroke="${ink}" stroke-width="5" stroke-linecap="round"/>
+      <path d="M${x + s * 18.5} 115q${s * 5} -1 ${s * 9} -6M${x + s * 15} 108.5q${s * 4} -3 ${s * 5} -10M${x + s * 17} 133q${s * 2} 1 ${s * 4} 0" fill="none" stroke="${ink}" stroke-width="3" stroke-linecap="round"/>`;
+    const happy = x => `<path d="M${x - 15} 128Q${x} 106 ${x + 15} 128" fill="none" stroke="${ink}" stroke-width="5" stroke-linecap="round"/>`;
+    const foot = x => `<ellipse cx="${x}" cy="211" rx="20" ry="15" fill="${w}"/><ellipse cx="${x}" cy="215" rx="8.5" ry="6.5" fill="${pad}" stroke="none"/>
+      <g fill="${pad}" stroke="none"><circle cx="${x - 8}" cy="205" r="3.2"/><circle cx="${x}" cy="202.5" r="3.2"/><circle cx="${x + 8}" cy="205" r="3.2"/></g>`;
+    const ear = (x, r) => `<g transform="rotate(${r} ${x} 92)"><ellipse cx="${x}" cy="56" rx="21" ry="50" fill="${w}"/><ellipse cx="${x}" cy="62" rx="11" ry="36" fill="${pk}" stroke="none"/></g>`;
+    return `<svg viewBox="${viewBox || "0 0 200 230"}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <g stroke="${o}" stroke-width="3.5" stroke-linejoin="round">
+        ${ear(72, -10)}${ear(128, 10)}
+        <circle cx="50" cy="196" r="13" fill="${w}"/>
+        <ellipse cx="100" cy="186" rx="50" ry="40" fill="${w}"/>
+        <ellipse cx="100" cy="193" rx="27" ry="25" fill="${pk}" stroke="none"/>
+        ${foot(66)}${foot(134)}
+        <ellipse cx="80" cy="172" rx="11.5" ry="22" fill="${w}" transform="rotate(-28 80 172)"/><ellipse cx="120" cy="172" rx="11.5" ry="22" fill="${w}" transform="rotate(28 120 172)"/>
+        <ellipse cx="100" cy="122" rx="70" ry="57" fill="${w}"/>
+      </g>
+      <g fill="#F48FA8" stroke="#E07090" stroke-width="2.5" stroke-linejoin="round"><path d="M143 74L121 62q-5 12 0 25z"/><path d="M143 74l22-12q5 12 0 25z"/><path d="M140 78l-6 14M146 78l6 14" fill="none" stroke-width="4" stroke-linecap="round"/><circle cx="143" cy="75" r="6.5"/></g>
+      <defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#164B48"/><stop offset=".45" stop-color="#22968A"/><stop offset=".8" stop-color="#4ED3B9"/><stop offset="1" stop-color="#B5F5E4"/></linearGradient></defs>
+      <ellipse cx="50" cy="146" rx="14" ry="8" fill="#FF9AB6" opacity=".6"/><ellipse cx="150" cy="146" rx="14" ry="8" fill="#FF9AB6" opacity=".6"/>
+      <path d="M45 142l-3 8M51 142l-3 8M57 142l-3 8M145 142l-3 8M151 142l-3 8M157 142l-3 8" stroke="#E85A82" stroke-width="2" stroke-linecap="round" opacity=".75"/>
+      <g class="b-eyes">${eye(72, -1)}${eye(128, 1)}</g>
+      <g class="b-happy">${happy(72)}${happy(128)}</g>
+      <path d="M96 139h8l-4 4.5z" fill="#F08AA2" stroke="#F08AA2" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M100 143.5v3" stroke="${ink}" stroke-width="2" stroke-linecap="round"/>
+      <path d="M91 147q9 13 18 0z" fill="#C64F6C" stroke="#C64F6C" stroke-width="2" stroke-linejoin="round"/><ellipse cx="100" cy="153" rx="5" ry="3" fill="#F59AAE"/>
+    </svg>`;
+  }
+
+  const PET_KEY = "olw-pet";
+  const clamp100 = v => Math.max(0, Math.min(100, v));
+  const petState = (() => {
+    const d = { name: "", food: 72, love: 72, t: Date.now(), hugs: 0, treats: 0, since: todayStr(), lastHug: null, lastFeed: null, nextTreat: 0 };
+    try { const v = JSON.parse(localStorage.getItem(PET_KEY) || "null"); if (v && typeof v === "object") Object.assign(d, v); } catch (e) { /* storage unavailable */ }
+    ["food", "love", "hugs", "treats", "t"].forEach(k => { d[k] = Number(d[k]) || 0; });
+    if (!d.t) d.t = Date.now();
+    return d;
+  })();
+  if (petState.name) PET.name = String(petState.name).slice(0, 24);
+  function petSave() { try { localStorage.setItem(PET_KEY, JSON.stringify(petState)); } catch (e) { /* storage unavailable */ } }
+  function petTick() {
+    const now = Date.now(), h = Math.max(0, Math.min(24 * 60, (now - petState.t) / 36e5));
+    petState.food = clamp100(petState.food - h * 4);
+    petState.love = clamp100(petState.love - h * 3);
+    petState.t = now;
+  }
+  function petMood() {
+    const s = petState;
+    if (s.food < 25) return "hungry";
+    if (s.love < 25) return "lonely";
+    if (s.food >= 70 && s.love >= 70) return "happy";
+    return "okay";
+  }
+  const MOOD = {
+    happy:  "{pet} is happy and full of love.",
+    okay:   "{pet} is doing fine. A hug or a treat would make the day.",
+    hungry: "{pet}'s tummy is rumbling. Time for a treat?",
+    lonely: "{pet} misses you and could really use a hug."
+  };
+  const pickOne = a => a[Math.floor(Math.random() * a.length)];
+  function ago(ms) {
+    const m = Math.round((Date.now() - ms) / 6e4);
+    if (m < 1) return "just now";
+    if (m < 60) return m + (m === 1 ? " minute ago" : " minutes ago");
+    const h = Math.round(m / 60);
+    if (h < 24) return h + (h === 1 ? " hour ago" : " hours ago");
+    const d = Math.round(h / 24);
+    return d === 1 ? "yesterday" : d + " days ago";
+  }
+  function petLog() {
+    const s = petState, out = [];
+    if (s.lastHug) out.push("Last hug" + (s.lastHug.by ? " from " + s.lastHug.by : "") + ", " + ago(s.lastHug.at) + ".");
+    if (s.lastFeed) out.push("Last treat: " + ((TREATS[s.lastFeed.kind] || TREATS.carrot).a) + (s.lastFeed.by ? " from " + s.lastFeed.by : "") + ", " + ago(s.lastFeed.at) + ".");
+    const since = fmtLong(s.since);
+    out.push(s.hugs + (s.hugs === 1 ? " hug" : " hugs") + " and " + s.treats + (s.treats === 1 ? " treat" : " treats") + (since ? " since " + since : "") + ".");
+    return out.join(" ");
+  }
+  function refreshPetUI() {
+    const f = Math.round(petState.food), l = Math.round(petState.love), mood = petMood();
+    $("#petBarName").textContent = PET.name;
+    $("#petFoodBar").style.width = f + "%";
+    $("#petLoveBar").style.width = l + "%";
+    $("#petStatus").textContent = "Tummy " + f + " of 100, love " + l + " of 100. " + fill(MOOD[mood]);
+    $("#petOpen").setAttribute("aria-label", "Open " + PET.name + "'s page");
+    $("#petHug").setAttribute("aria-label", "Give " + PET.name + " a hug");
+    const nt = Object.keys(TREATS)[petState.nextTreat % 3];
+    $("#petFeed").setAttribute("aria-label", "Feed " + PET.name + " " + TREATS[nt].a);
+    if (current === "pet") {
+      const set = (id, v) => { const el = $("#" + id); if (el) el.textContent = v; };
+      const w = (id, v) => { const el = $("#" + id); if (el) el.style.width = v + "%"; };
+      w("pmFood", f); w("pmLove", l); set("pmFoodN", f); set("pmLoveN", l);
+      set("petMood", fill(MOOD[mood])); set("petLog", petLog());
+    }
+    if (world) world.pet.mood(mood);
+  }
+  function hearts(fromEl, n) {
+    const fx = $("#fx"), r = fromEl && fromEl.getBoundingClientRect && fromEl.getBoundingClientRect();
+    if (!r || reduced) return;
+    const ar = app.getBoundingClientRect();
+    for (let i = 0; i < (n || 5); i++) {
+      const h = document.createElement("span");
+      h.className = "fheart"; h.textContent = "♥";
+      h.style.left = (r.left - ar.left + r.width / 2 + (Math.random() - 0.5) * r.width * 0.6) + "px";
+      h.style.top = (r.top - ar.top + r.height * 0.3) + "px";
+      h.style.setProperty("--dx", ((Math.random() - 0.5) * 60).toFixed(0) + "px");
+      h.style.animationDelay = (i * 0.09).toFixed(2) + "s";
+      h.style.fontSize = (14 + Math.random() * 12).toFixed(0) + "px";
+      fx.appendChild(h);
+      setTimeout(() => h.remove(), 1700);
+    }
+  }
+  function portrait(cls) {
+    const p = $("#petPortrait");
+    if (!p) return;
+    p.classList.remove("hug", "eat", "full"); void p.offsetWidth; p.classList.add(cls);
+  }
+  let petBusy = 0;
+  function hugPet(fromEl) {
+    if (performance.now() < petBusy) return;
+    petBusy = performance.now() + (reduced ? 300 : 1250);
+    petTick();
+    petState.love = clamp100(petState.love + 18); petState.hugs++;
+    petState.lastHug = { by: auth.name || "", at: Date.now() };
+    petSave();
+    if (world) { world.pet.hug(); world.pet.say(pickOne(["squeeze! ♡", "more hugs!", "love you too!", "so warm ♡"])); }
+    portrait("hug"); hearts(fromEl, 6);
+    refreshPetUI();
+    announce(PET.name + " loved that hug. Love is " + Math.round(petState.love) + " of 100.");
+  }
+  function feedPet(kind, fromEl) {
+    if (!TREATS[kind]) kind = Object.keys(TREATS)[petState.nextTreat % 3];
+    const tr = TREATS[kind];
+    if (performance.now() < petBusy) return;
+    petTick();
+    if (petState.food >= 95) {
+      petBusy = performance.now() + 800;
+      if (world) { world.pet.full(); world.pet.say("I'm full!"); }
+      portrait("full");
+      announce(PET.name + " is full. Maybe a hug instead?");
+      return;
+    }
+    petBusy = performance.now() + (reduced ? 300 : 2300);
+    petState.food = clamp100(petState.food + tr.food); petState.love = clamp100(petState.love + tr.love); petState.treats++;
+    petState.lastFeed = { by: auth.name || "", at: Date.now(), kind };
+    petState.nextTreat = (Object.keys(TREATS).indexOf(kind) + 1) % 3;
+    petSave();
+    if (world) { world.pet.feed(kind); world.pet.say(tr.say, 2.8); }
+    portrait("eat"); hearts(fromEl, 3);
+    refreshPetUI();
+    announce(PET.name + " ate " + tr.a + ". Tummy is " + Math.round(petState.food) + " of 100.");
+  }
+  function onPetPat() {      // tapping her on the island
+    petTick(); petState.love = clamp100(petState.love + 2); petSave(); refreshPetUI();
+    if (world) world.pet.say(pickOne(["hehe ♡", "hi!", "pat pat", "♡"]), 1.6);
+  }
+  function renderPet() {
+    petTick();
+    const n = esc(PET.name);
+    pBody.innerHTML = `<div class="pet-card">
+      <div class="pet-portrait" id="petPortrait">${bunnySvg()}</div>
+      <p class="pet-mood" id="petMood"></p>
+      <div class="meters">
+        <div class="meter"><span>Tummy</span><span class="track" aria-hidden="true"><i class="food" id="pmFood"></i></span><b id="pmFoodN"></b></div>
+        <div class="meter"><span>Love</span><span class="track" aria-hidden="true"><i class="love" id="pmLove"></i></span><b id="pmLoveN"></b></div>
+      </div>
+      <div class="pet-do"><button class="btn btn-primary" type="button" data-pet="hug">&#9829; Give ${n} a hug</button></div>
+      <p class="treat-lbl" id="treatLbl">Or a treat:</p>
+      <div class="treat-row" role="group" aria-labelledby="treatLbl">${Object.keys(TREATS).map(k =>
+        `<button class="treat" type="button" data-pet="feed" data-kind="${k}">${TREAT_ICON[k]}<span>${esc(TREATS[k].label)}</span></button>`).join("")}</div>
+      <p class="pet-log" id="petLog"></p>
+      <details class="manage"><summary>Rename ${n}</summary>
+        <form class="pet-form" id="petNameForm"><div class="field"><label for="petNameIn">Name</label><input id="petNameIn" name="name" maxlength="24" autocomplete="off" value="${n}" required></div>
+        <div class="form-actions"><button class="btn btn-primary btn-sm" type="submit">Save name</button></div></form></details>
+      <section class="ann-set" aria-labelledby="annTitle">
+        <h3 id="annTitle">Our anniversary</h3>
+        <p class="lede">On our day, the sky over the island fills with fireworks.${live ? " Plans marked Celebration get fireworks on their day too." : ""}</p>
+        <form class="pet-form" id="annForm" novalidate>
+          <div class="field"><label for="annDate">The day we started</label><input id="annDate" name="date" type="date" value="${esc(annSet.date || "")}" required></div>
+          <label class="check"><input type="checkbox" name="monthly"${annSet.monthly ? " checked" : ""}> Fireworks every month on that day, not just once a year</label>
+          <p class="form-error" id="annErr" role="alert"></p>
+          <div class="form-actions"><button class="btn btn-soft btn-sm" type="button" data-ann="preview">Preview the fireworks</button><button class="btn btn-primary btn-sm" type="submit">Save our day</button></div>
+        </form>
+        <p class="ann-next" id="annNext"></p>
+      </section>
+    </div>`;
+    refreshPetUI();
+    refreshAnnNext();
+  }
+  on(pBody, "click", e => {
+    if (e.target.closest('[data-ann="preview"]')) {
+      closePanel();
+      celebrate({ title: "A little preview ✨", sub: "This is what our day looks like" }, 8);
+      return;
+    }
+    const b = e.target.closest("[data-pet]");
+    if (!b || !pBody.contains(b)) return;
+    if (b.dataset.pet === "hug") hugPet(b); else feedPet(b.dataset.kind, b);
+  });
+  on(pBody, "submit", e => {
+    if (e.target.id === "annForm") { e.preventDefault(); saveAnniversary(e.target); return; }
+    if (e.target.id !== "petNameForm") return;
+    e.preventDefault();
+    const v = e.target.elements.name.value.trim().slice(0, 24);
+    if (!v) return;
+    PET.name = petState.name = v; petSave();
+    $("#panelTitle").textContent = v;
+    if (world) world.pet.rename(v);
+    renderPet();
+    announce("Our bunny is now called " + v + ".");
+  });
+  $("#petFace").innerHTML = bunnySvg("26 46 148 150");
+  on($("#petOpen"), "click", e => go("pet", e.currentTarget));
+  on($("#petHug"), "click", e => hugPet(e.currentTarget));
+  on($("#petFeed"), "click", e => feedPet(null, e.currentTarget));
+  setInterval(() => {                    // she gets a little hungry while we look around
+    petTick(); petSave(); refreshPetUI();
+    const m = petMood();
+    if (world && mode === "island" && (m === "hungry" || m === "lonely")) world.pet.say(m === "hungry" ? "I'm hungry…" : "hug me?", 3);
+  }, 60000);
+
+  /* ════════════════ our anniversary: fireworks ════════════════ */
+  function celebrationToday() {
+    const t = todayYMD(), a = startDate && anniversaryIn(t.y, t.mo);
+    const names = GIFT.yourName + " & " + GIFT.herName;
+    if (a && a.d === t.d && (a.months % 12 === 0 || annSet.monthly)) {
+      const yrs = a.months % 12 === 0;
+      return { title: yrs ? "Happy anniversary! 🎆" : "Happy " + a.months + (a.months === 1 ? " month" : " months") + "! 🎆", sub: annLabel(a.months) + " today · " + names };
+    }
+    const ev = live && live.events.find(e => e.date === todayStr() && e.kind === "celebration" && !e.done);
+    if (ev) return { title: ev.title + " 🎆", sub: "Today's celebration · " + names };
+    return null;
+  }
+  function nextFireworks() {
+    const t = todayYMD(), today = todayStr();
+    for (let k = 0; k < 26; k++) {
+      const d = new Date(t.y, t.mo - 1 + k, 1), y = d.getFullYear(), mo = d.getMonth() + 1, a = anniversaryIn(y, mo);
+      if (!a || !(a.months % 12 === 0 || annSet.monthly)) continue;
+      const s = ymd(y, mo, a.d);
+      if (s >= today) return { date: s, months: a.months, inDays: dayDiff(t, parseYMD(s)) };
+    }
+    return null;
+  }
+  function refreshAnnNext() {
+    const el = $("#annNext");
+    if (!el) return;
+    const n = nextFireworks();
+    if (!n) { el.textContent = startDate ? "Fireworks start one month after the day we started." : "Pick the day we started to see when the next fireworks are."; return; }
+    const when = new Date(...(d => [d.y, d.mo - 1, d.d])(parseYMD(n.date))).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+    el.textContent = "Next fireworks: " + when + ", " + annLabel(n.months) + (n.inDays === 0 ? ". That's today!" : n.inDays === 1 ? ", tomorrow." : ", in " + n.inDays + " days.");
+  }
+  function saveAnniversary(f) {
+    const d = f.elements.date.value, err = $("#annErr");
+    if (!parseYMD(d)) { err.textContent = "Pick the day we started."; f.elements.date.focus(); return; }
+    if (d > todayStr()) { err.textContent = "Pick a day that has already happened."; f.elements.date.focus(); return; }
+    err.textContent = "";
+    annSet.date = d; annSet.monthly = f.elements.monthly.checked;
+    try { localStorage.setItem(ANN_KEY, JSON.stringify(annSet)); } catch (e) { /* storage unavailable */ }
+    setStart(); refreshCounter(); refreshAnnNext();
+    const c = celebrationToday();
+    announce("Saved our anniversary: " + fmtLong(d) + "." + (c ? " That's today!" : ""));
+    if (c) { closePanel(); celebrate(c); }
+  }
+
+  const Fireworks = (() => {
+    const cv = $("#fireworks"), g = cv.getContext("2d");
+    const COLS = ["#FF3F7F", "#FFAE1A", "#FFFFFF", "#FF6FA5", "#FF7A2E", "#9B6BFF", "#E0306A", "#2DBE95", "#FFD23F"];
+    let W = 0, H = 0, raf = 0, last = 0, until = 0, nextLaunch = 0, stillT = 0, rockets = [], sparks = [];
+    const K = () => Math.max(0.55, Math.min(W, H) / 700);
+    function size() {
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      W = app.clientWidth; H = app.clientHeight;
+      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+      g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    function burst(x, y, heart) {
+      const c1 = pickOne(COLS), c2 = pickOne(COLS), k = K(), n = heart ? 84 : 70;
+      for (let i = 0; i < n; i++) {
+        let vx, vy;
+        if (heart) {
+          const t = (i / n) * Math.PI * 2;
+          vx = 16 * Math.pow(Math.sin(t), 3) * 14 * k;
+          vy = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)) * 14 * k;
+        } else {
+          const a = Math.random() * Math.PI * 2, sp = (110 + Math.random() * 220) * k;
+          vx = Math.cos(a) * sp; vy = Math.sin(a) * sp;
+        }
+        sparks.push({ x, y, vx, vy, life: 1, decay: 0.42 + Math.random() * 0.3, col: i % 3 ? c1 : c2, r: (1.5 + Math.random() * 1.7) * k });
+      }
+    }
+    function launch() {
+      rockets.push({ x: W * (0.12 + Math.random() * 0.76), y: H + 6, vy: -H * (1.05 + Math.random() * 0.4), stop: H * (0.1 + Math.random() * 0.32), col: pickOne(COLS), heart: Math.random() < 0.35, w: Math.random() * 6 });
+    }
+    function frame(now) {
+      raf = requestAnimationFrame(frame);
+      const dt = Math.min(0.05, (now - last) / 1000), k = K(); last = now;
+      g.globalCompositeOperation = "destination-out";
+      g.fillStyle = "rgba(0,0,0,0.24)"; g.fillRect(0, 0, W, H);
+      g.globalCompositeOperation = "source-over";
+      if (now < until && now >= nextLaunch) { launch(); if (Math.random() < 0.35) launch(); nextLaunch = now + 420 + Math.random() * 560; }
+      rockets = rockets.filter(r => {
+        r.y += r.vy * dt; r.vy += 320 * k * dt; r.x += Math.sin(now / 120 + r.w) * 0.4;
+        g.globalAlpha = 1; g.fillStyle = r.col; g.beginPath(); g.arc(r.x, r.y, 2.3 * k, 0, 6.283); g.fill();
+        if (r.y <= r.stop || r.vy > -60) { burst(r.x, r.y, r.heart); return false; }
+        return true;
+      });
+      sparks = sparks.filter(p => {
+        const drag = 1 - 1.7 * dt;
+        p.vx *= drag; p.vy = p.vy * drag + 85 * k * dt;
+        p.x += p.vx * dt; p.y += p.vy * dt; p.life -= p.decay * dt;
+        if (p.life <= 0) return false;
+        g.globalAlpha = Math.min(1, p.life * 1.5); g.fillStyle = p.col;
+        g.beginPath(); g.arc(p.x, p.y, p.r * (0.55 + p.life * 0.45), 0, 6.283); g.fill();
+        return true;
+      });
+      g.globalAlpha = 1;
+      if (now > until && !rockets.length && !sparks.length) stop();
+    }
+    function still() {   // reduced motion: a few bursts that stay put for a moment
+      g.clearRect(0, 0, W, H);
+      const k = K();
+      [[0.22, 0.2], [0.5, 0.13], [0.78, 0.22], [0.36, 0.36], [0.66, 0.34]].forEach(([fx, fy], i) => {
+        const cx = W * fx, cy = H * fy, col = COLS[i % COLS.length];
+        for (let j = 0; j < 36; j++) {
+          const a = (j / 36) * Math.PI * 2;
+          for (let s = 1; s <= 3; s++) {
+            g.globalAlpha = 0.35 + s * 0.2; g.fillStyle = s === 3 ? "#FFFFFF" : col;
+            g.beginPath(); g.arc(cx + Math.cos(a) * s * 22 * k, cy + Math.sin(a) * s * 22 * k, (1 + s * 0.5) * k, 0, 6.283); g.fill();
+          }
+        }
+      });
+      g.globalAlpha = 1;
+    }
+    function start(secs) {
+      size(); cv.hidden = false;
+      until = performance.now() + (secs || 12) * 1000;
+      clearTimeout(stillT);
+      if (reduced) { still(); stillT = setTimeout(stop, 6000); return; }
+      nextLaunch = 0;
+      if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); }
+    }
+    function stop() {
+      cancelAnimationFrame(raf); raf = 0; rockets = []; sparks = [];
+      g.clearRect(0, 0, W, H); cv.hidden = true;
+    }
+    return { start, stop };
+  })();
+
+  const annBanner = $("#annBanner");
+  let celebrated = false;
+  function celebrate(c, secs) {
+    celebrated = true;
+    hideHint();
+    $("#annBannerTitle").textContent = c.title;
+    $("#annBannerSub").textContent = c.sub;
+    show(annBanner);
+    Fireworks.start(secs || 14);
+    if (world) { world.pet.hug(); world.pet.say("fireworks!! ✨", 3.5); }
+  }
+  function maybeCelebrate() {
+    if (celebrated || mode !== "island") return;
+    const c = celebrationToday();
+    if (c) celebrate(c);
+  }
+  on($("#annAgain"), "click", () => { Fireworks.start(10); if (world) world.pet.hug(); });
+  on($("#annClose"), "click", () => { hide(annBanner); Fireworks.stop(); });
 
   /* ── opening / replay ── */
   const invite = $("#invite");
@@ -1407,17 +1909,20 @@ const GIFT = {
       mode = "island";
       $("#brand").hidden = false;
       $("#replayBtn").hidden = false;
-      show(dock);
+      showDock();
       showHint();
+      maybeCelebrate();
+      if (world && !celebrated) setTimeout(() => { const m = petMood(); world.pet.say(m === "hungry" ? "I'm hungry…" : m === "lonely" ? "hug me?" : "hi " + GIFT.herName + "!", 3); }, reduced ? 0 : 900);
       setTimeout(() => { const b = dock.querySelector("button"); b && b.focus({ preventScroll: true }); }, 50);
     };
     if (world) world.open(arrive); else setTimeout(arrive, reduced ? 0 : 500);
   }
   function replay() {
+    hide(annBanner); Fireworks.stop(); celebrated = false;
     if (mode === "panel") closePanel(true);
     if (mode === "finale") closeFinale(true);
     hideHint();
-    hide(dock);
+    hideDock();
     $("#replayBtn").hidden = true;
     $("#brand").hidden = true;
     mode = "invite";
@@ -1605,7 +2110,9 @@ const GIFT = {
       cap.setAttribute("color", new T.Float32BufferAttribute(colors, 3));
       cap.computeVertexNormals();
     }
-    world.add(mesh(cap, new T.MeshStandardMaterial({ vertexColors: true, roughness: 0.95 })));
+    const capMesh = mesh(cap, new T.MeshStandardMaterial({ vertexColors: true, roughness: 0.95 }));
+    capMesh.userData.ground = true;
+    world.add(capMesh);
 
     /* stepping stones */
     const stoneGeo = new T.CylinderGeometry(0.19, 0.21, 0.06, 14);
@@ -1625,7 +2132,8 @@ const GIFT = {
       }
     }
     const dotGeo = new T.SphereGeometry(0.035, 8, 6);
-    [[2.45, -0.4, 0.34], [-2.55, 0.05, 0.3], [0.3, -2.5, 0.36], [2.2, 1.9, 0.24], [-0.6, 2.55, 0.22]].forEach(([x, z, r], i) => {
+    const BUSHES = [[2.45, -0.4, 0.34], [-2.55, 0.05, 0.3], [0.3, -2.5, 0.36], [2.2, 1.9, 0.24], [-0.6, 2.55, 0.22]];
+    BUSHES.forEach(([x, z, r], i) => {
       const b = mesh(blobGeo, clay(tint(C.sage, -0.08, 0.05)), x, TOP + r * 0.55, z);
       b.scale.set(r, r * 0.82, r); world.add(b);
       for (let k = 0; k < 4; k++) {
@@ -1923,6 +2431,350 @@ const GIFT = {
     const tagEls = {};
     tagLayer.querySelectorAll(".tag").forEach(el => { tagEls[el.dataset.go] = el; on(el, "click", () => go(el.dataset.go, dock.querySelector(`[data-go="${el.dataset.go}"]`))); });
 
+    /* ── our bunny: a little pet we walk around the island ──
+       Tap the grass (or use the arrow keys / WASD) and the bunny hops there.
+       Hopping into one of the glowing circles opens that part of our world. */
+    const PET_HOME = { x: 0.7, z: 1.75 };
+    const ZONES = {                    // a glowing circle in front of each place
+      story:  { x: 1.6,   z: -0.7,  r: 0.4 },
+      notes:  { x: -0.5,  z: 1.6,   r: 0.4 },
+      letter: { x: 1.55,  z: 1.45,  r: 0.36 },
+      future: { x: -0.59, z: -0.02, r: 0.4 },
+      finale: { x: 0.9,   z: -0.3,  r: 0.34 }
+    };
+    const OBST = [[-1.55, -1.35, 0.28], [1.95, 1.15, 0.16], [-1.6, 1.2, 0.86]].concat(BUSHES.map(([x, z, r]) => [x, z, r + 0.04]));
+    [-0.4, 0, 0.4].forEach(lx => OBST.push([-0.85 + lx * Math.cos(0.55), -0.45 - lx * Math.sin(0.55), 0.26]));            // bench
+    [-0.75, -0.375, 0, 0.375, 0.75].forEach(lx => OBST.push([1.35 + lx * Math.cos(0.15), -1.3 - lx * Math.sin(0.15), 0.12])); // photo line
+    const PET_R = 0.13, EDGE = 2.55;
+
+    const bunnyG = new T.Group(); world.add(bunnyG);       // where the bunny stands and which way it faces
+    const bunny = new T.Group(); bunnyG.add(bunny);         // hops, squashes and spins inside that
+    const BUN_K = 0.85;
+    const furWhite = clay("#FFFAF8"), furPink = clay("#F9C3CF"), padPink = clay("#F3A0B6"), bowPink = clay("#F27C9B", { roughness: 0.5 });
+    const sphGeo = new T.SphereGeometry(1, 24, 18);
+    const blob = (parent, mat, x, y, z, sx, sy, sz, noShadow) => { const m = mesh(sphGeo, mat, x, y, z, noShadow); m.scale.set(sx, sy, sz); parent.add(m); return m; };
+    blob(bunny, furWhite, 0, 0.15, 0, 0.16, 0.15, 0.14);                       // body
+    blob(bunny, furPink, 0, 0.13, 0.085, 0.1, 0.1, 0.065, true);               // tummy
+    blob(bunny, furWhite, 0, 0.09, -0.14, 0.055, 0.055, 0.055);                // tail
+    [-1, 1].forEach(s => {
+      blob(bunny, furWhite, s * 0.085, 0.035, 0.07, 0.06, 0.04, 0.085);        // foot
+      blob(bunny, padPink, s * 0.085, 0.036, 0.15, 0.032, 0.022, 0.012, true); // paw pad
+      [-1, 0, 1].forEach(k => blob(bunny, padPink, s * 0.085 + k * 0.021, 0.058 - Math.abs(k) * 0.005, 0.132, 0.01, 0.009, 0.008, true));
+    });
+    /* longer arms that hug her tummy (they open wide for hugs) */
+    const arms = [-1, 1].map(s => {
+      const pv = new T.Group(); pv.position.set(s * 0.11, 0.24, 0.07); bunny.add(pv);
+      blob(pv, furWhite, 0, -0.068, 0, 0.042, 0.09, 0.044);
+      blob(pv, furWhite, 0, -0.142, 0.004, 0.047, 0.042, 0.047);
+      pv.userData.s = s; return pv;
+    });
+    const headG = new T.Group(); headG.position.set(0, 0.41, 0.01); bunny.add(headG);
+    const HEAD = [0.205, 0.178, 0.18];
+    blob(headG, furWhite, 0, 0, 0, HEAD[0], HEAD[1], HEAD[2]);
+    [-1, 1].forEach(s => blob(headG, furWhite, s * 0.15, -0.06, 0.01, 0.07, 0.062, 0.07));   // chubby cheeks
+    const ears = [-1, 1].map(s => {
+      const pv = new T.Group(); pv.position.set(s * 0.078, 0.13, -0.02); headG.add(pv);
+      blob(pv, furWhite, 0, 0.155, 0, 0.052, 0.17, 0.035);
+      blob(pv, furPink, 0, 0.155, 0.023, 0.03, 0.128, 0.014, true);
+      pv.userData.s = s; return pv;
+    });
+    const bowG = new T.Group(); bowG.position.set(0.128, 0.14, 0.05); bowG.rotation.set(0.15, 0.35, -0.4); headG.add(bowG);
+    [-1, 1].forEach(s => { const l = blob(bowG, bowPink, s * 0.042, 0, 0, 0.045, 0.03, 0.02); l.rotation.z = s * 0.35; });
+    blob(bowG, bowPink, 0, 0, 0.012, 0.018, 0.018, 0.018);
+    const ribbonGeo = new T.BoxGeometry(0.014, 0.05, 0.008);
+    [-1, 1].forEach(s => { const r = mesh(ribbonGeo, bowPink, s * 0.016, -0.032, 0.006); r.rotation.z = s * 0.45; bowG.add(r); });
+
+    /* an anime face, painted onto a thin shell over the front of her head:
+       big glossy eyes, thick lashes, sparkles, "///" blush and an open smile.
+       Three versions: eyes open, blinking, and happy ^ ^ for hugs and treats. */
+    const FACE = { lon: 70, top: 40, bottom: -50 }, FPX = 1024 / (FACE.lon * 2);
+    const fpt = (lon, lat) => [(lon + FACE.lon) * FPX, (FACE.top - lat) * FPX];
+    function drawFace(kind) {
+      const c = document.createElement("canvas"); c.width = 1024; c.height = Math.round((FACE.top - FACE.bottom) * FPX);
+      const g = c.getContext("2d"), ell = (x, y, rx, ry, rot) => { g.beginPath(); g.ellipse(x, y, rx, ry, rot || 0, 0, Math.PI * 2); };
+      const ink = "#2A1720";
+      g.lineCap = g.lineJoin = "round";
+      /* blush with little hatch lines */
+      [-1, 1].forEach(s => {
+        const [x, y] = fpt(s * 47, -21);
+        const gr = g.createRadialGradient(x, y, 4, x, y, 78);
+        gr.addColorStop(0, "rgba(255,120,160,.9)"); gr.addColorStop(1, "rgba(255,140,170,0)");
+        g.fillStyle = gr; ell(x, y, 88, 52); g.fill();
+        g.strokeStyle = "rgba(232,90,130,.7)"; g.lineWidth = 6;
+        [-22, 0, 22].forEach(dx => { g.beginPath(); g.moveTo(x + dx + 8, y - 14); g.lineTo(x + dx - 8, y + 14); g.stroke(); });
+      });
+      /* eyes */
+      [-1, 1].forEach(s => {
+        const [cx, cy] = fpt(s * 26, 1), rx = 96, ry = 128;
+        if (kind === "open") {
+          g.fillStyle = "#103231"; ell(cx, cy, rx, ry); g.fill();
+          const ir = g.createLinearGradient(0, cy - ry, 0, cy + ry);
+          ir.addColorStop(0, "#164B48"); ir.addColorStop(0.45, "#22968A"); ir.addColorStop(0.8, "#4ED3B9"); ir.addColorStop(1, "#B5F5E4");
+          g.fillStyle = ir; ell(cx, cy + 3, rx - 8, ry - 8); g.fill();
+          const pu = g.createRadialGradient(cx, cy, 2, cx, cy + 6, rx * 0.5);
+          pu.addColorStop(0, "#06191A"); pu.addColorStop(1, "#0F3836");
+          g.fillStyle = pu; ell(cx, cy + ry * 0.04, rx * 0.46, ry * 0.52); g.fill();
+          g.globalAlpha = 0.55; g.fillStyle = "#D2FFF3"; ell(cx, cy + ry * 0.58, rx * 0.52, ry * 0.2); g.fill(); g.globalAlpha = 1;
+          g.fillStyle = "#fff";
+          ell(cx - rx * 0.3, cy - ry * 0.36, rx * 0.36, ry * 0.27, -0.45); g.fill();
+          ell(cx + rx * 0.4, cy + ry * 0.3, rx * 0.14, rx * 0.14); g.fill();
+          g.globalAlpha = 0.85; ell(cx - rx * 0.1, cy + ry * 0.56, rx * 0.07, rx * 0.07); g.fill(); g.globalAlpha = 1;
+          const sx = cx + rx * 0.32, sy = cy - ry * 0.52, k = rx * 0.2;   // a four-point sparkle
+          g.beginPath(); g.moveTo(sx, sy - k); g.quadraticCurveTo(sx, sy, sx + k, sy); g.quadraticCurveTo(sx, sy, sx, sy + k); g.quadraticCurveTo(sx, sy, sx - k, sy); g.quadraticCurveTo(sx, sy, sx, sy - k); g.fill();
+          /* thick upper lash line with flicks at the outer corner */
+          g.strokeStyle = ink; g.lineWidth = 17;
+          g.beginPath(); g.ellipse(cx, cy + 4, rx + 6, ry + 4, 0, Math.PI * 1.1, Math.PI * 1.9); g.stroke();
+          const oa = s > 0 ? Math.PI * 1.9 : Math.PI * 1.1, px = cx + (rx + 6) * Math.cos(oa), py = cy + 4 + (ry + 4) * Math.sin(oa);
+          g.lineWidth = 9;
+          g.beginPath(); g.moveTo(px, py); g.quadraticCurveTo(px + s * 22, py - 2, px + s * 38, py - 22); g.stroke();
+          g.beginPath(); g.moveTo(px - s * 10, py - 14); g.quadraticCurveTo(px + s * 8, py - 26, px + s * 20, py - 46); g.stroke();
+          g.lineWidth = 6;
+          g.beginPath(); g.ellipse(cx, cy, rx + 2, ry + 2, 0, s > 0 ? Math.PI * 0.08 : Math.PI * 0.8, s > 0 ? Math.PI * 0.2 : Math.PI * 0.92); g.stroke();
+        } else if (kind === "blink") {
+          g.strokeStyle = ink; g.lineWidth = 15;
+          g.beginPath(); g.ellipse(cx, cy + 6, rx * 0.95, ry * 0.32, 0, Math.PI * 0.1, Math.PI * 0.9); g.stroke();
+          const px = cx + s * rx * 0.92, py = cy + 6 + ry * 0.1;
+          g.lineWidth = 8; g.beginPath(); g.moveTo(px, py); g.quadraticCurveTo(px + s * 18, py - 6, px + s * 30, py - 22); g.stroke();
+        } else {
+          g.strokeStyle = ink; g.lineWidth = 17;
+          g.beginPath(); g.ellipse(cx, cy + ry * 0.3, rx * 0.85, ry * 0.55, 0, Math.PI * 1.12, Math.PI * 1.88); g.stroke();
+        }
+      });
+      /* nose and open smile */
+      const [nx, ny] = fpt(0, -17);
+      g.fillStyle = "#F07D99"; g.beginPath(); g.moveTo(nx - 14, ny - 6); g.lineTo(nx + 14, ny - 6); g.quadraticCurveTo(nx + 2, ny + 12, nx, ny + 12); g.quadraticCurveTo(nx - 2, ny + 12, nx - 14, ny - 6); g.fill();
+      const my = ny + 32;
+      g.fillStyle = "#C8456A"; g.strokeStyle = ink; g.lineWidth = 6;
+      g.beginPath(); g.moveTo(nx - 34, my); g.quadraticCurveTo(nx - 17, my + 8, nx, my); g.quadraticCurveTo(nx + 17, my + 8, nx + 34, my);
+      g.quadraticCurveTo(nx + 26, my + 50, nx, my + 52); g.quadraticCurveTo(nx - 26, my + 50, nx - 34, my); g.closePath(); g.fill(); g.stroke();
+      g.fillStyle = "#FF9DB5"; ell(nx, my + 38, 17, 11); g.fill();
+      g.beginPath(); g.moveTo(nx, ny + 12); g.lineTo(nx, my + 2); g.stroke();
+      const tex = new T.CanvasTexture(c);
+      tex.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+      return tex;
+    }
+    const faceTex = { open: drawFace("open"), blink: drawFace("blink"), happy: drawFace("happy") };
+    const faceMat = new T.MeshStandardMaterial({ map: faceTex.open, transparent: true, roughness: 0.55, depthWrite: false,
+      emissive: new T.Color(0xffffff), emissiveMap: faceTex.open, emissiveIntensity: 0.18 });
+    const faceGeo = new T.SphereGeometry(1, 48, 32, Math.PI / 2 - T.MathUtils.degToRad(FACE.lon), T.MathUtils.degToRad(FACE.lon * 2),
+      T.MathUtils.degToRad(90 - FACE.top), T.MathUtils.degToRad(FACE.top - FACE.bottom));
+    const face = new T.Mesh(faceGeo, faceMat); face.scale.set(HEAD[0] * 1.006, HEAD[1] * 1.006, HEAD[2] * 1.006); face.renderOrder = 2;
+    headG.add(face);
+    let faceNow = "open";
+    function setFace(k) { if (k === faceNow) return; faceNow = k; faceMat.map = faceMat.emissiveMap = faceTex[k]; faceMat.needsUpdate = true; }
+    bunnyG.traverse(o => { o.userData.pet = true; });
+
+    /* little hearts that float up from the bunny */
+    const petHearts = [];
+    for (let i = 0; i < 12; i++) {
+      const h = new T.Mesh(heartGeo, new T.MeshStandardMaterial({ color: new T.Color("#F06B8E"), emissive: new T.Color("#B83A5E"), emissiveIntensity: 0.5, roughness: 0.4, transparent: true }));
+      h.visible = false; h.userData.live = false; world.add(h); petHearts.push(h);
+    }
+    function puffHeart(delay, big) {
+      const h = petHearts.find(x => !x.userData.live);
+      if (!h) return;
+      h.userData = { live: true, delay: delay || 0, t: 0, vx: (Math.random() - 0.5) * 0.3, vz: (Math.random() - 0.5) * 0.3, k: big ? 0.2 : 0.13 };
+    }
+
+    /* glowing circles on the grass */
+    const ringGeo = new T.RingGeometry(0.74, 1, 40), discGeo = new T.CircleGeometry(0.74, 32);
+    const rings = {};
+    Object.keys(ZONES).forEach((k, i) => {
+      const zn = ZONES[k];
+      const ring = new T.Mesh(ringGeo, new T.MeshBasicMaterial({ color: new T.Color("#FF7FA6"), transparent: true, opacity: 0.85, depthWrite: false, fog: false }));
+      const disc = new T.Mesh(discGeo, new T.MeshBasicMaterial({ color: new T.Color("#FFE3EA"), transparent: true, opacity: 0.5, depthWrite: false, fog: false }));
+      [ring, disc].forEach(m => { m.rotation.x = -Math.PI / 2; m.position.set(zn.x, TOP + 0.045, zn.z); m.scale.setScalar(zn.r); m.renderOrder = 1; m.userData.hot = k; world.add(m); });
+      rings[k] = { ring, disc, ph: i * 1.3 };
+    });
+
+    const pet = { x: PET_HOME.x, z: PET_HOME.z, h: 0.55, target: null, user: false, arrive: null, hopT: 0, idle: 0, stuckT: 0,
+                  act: null, zone: null, blink: 2.5, droop: 0, droopTo: 0 };
+    const keys = new Set();
+    function collide(p) {
+      for (let i = 0; i < OBST.length; i++) {
+        const [ox, oz, or] = OBST[i], dx = p.x - ox, dz = p.z - oz, d = Math.hypot(dx, dz), m = or + PET_R;
+        if (d < m && d > 1e-4) { p.x = ox + dx / d * m; p.z = oz + dz / d * m; }
+      }
+      const r = Math.hypot(p.x, p.z);
+      if (r > EDGE) { p.x *= EDGE / r; p.z *= EDGE / r; }
+      return p;
+    }
+    function petWalk(x, z, user, arrive) {
+      const p = collide({ x, z });
+      pet.user = user; pet.arrive = arrive || null; pet.stuckT = 0;
+      if (!user && reduced) { pet.x = p.x; pet.z = p.z; pet.target = null; pet.zone = zoneAt(p.x, p.z); arrive && arrive(); return; }
+      pet.target = p;
+    }
+    function petToZone(key) { const zn = ZONES[key]; if (zn) petWalk(zn.x, zn.z, false); }
+    function zoneAt(x, z) {
+      for (const k in ZONES) { const zn = ZONES[k]; if (Math.hypot(x - zn.x, z - zn.z) < zn.r) return k; }
+      return null;
+    }
+    /* treats she nibbles */
+    const treatG = new T.Group(); treatG.position.set(0, 0.03, 0.24); treatG.visible = false; bunnyG.add(treatG);
+    const TREAT3D = {};
+    {
+      const c = new T.Group(), body = mesh(new T.ConeGeometry(0.035, 0.17, 12), clay("#F0904A"), 0, 0.01, 0);
+      body.rotation.z = -Math.PI / 2; c.add(body);
+      [-0.55, 0, 0.55].forEach(a => { const l = mesh(new T.ConeGeometry(0.012, 0.075, 6), clay("#7FB069"), -0.115 - Math.abs(a) * 0.01, 0.01, 0); l.rotation.z = Math.PI / 2 + a; c.add(l); });
+      TREAT3D.carrot = c;
+      const s = new T.Group(), red = clay("#E8505B", { roughness: 0.45 });
+      const tip = mesh(new T.ConeGeometry(0.045, 0.06, 14), red, 0, 0.03, 0); tip.rotation.x = Math.PI; s.add(tip);
+      blob(s, red, 0, 0.062, 0, 0.045, 0.026, 0.045);
+      const top = mesh(new T.ConeGeometry(0.035, 0.016, 7), clay("#7FB069"), 0, 0.09, 0); s.add(top);
+      TREAT3D.strawberry = s;
+      const m = new T.Group();
+      m.add(mesh(new T.CylinderGeometry(0.075, 0.07, 0.01, 22), clay("#FFF6EA"), 0, 0.005, 0));
+      blob(m, clay("#A8C97F", { roughness: 0.7 }), 0, 0.04, 0, 0.055, 0.036, 0.055);
+      TREAT3D.matcha = m;
+      Object.keys(TREAT3D).forEach(k => { TREAT3D[k].visible = false; treatG.add(TREAT3D[k]); });
+    }
+    let petName = PET.name;
+
+    function petAct(kind, dur, end) { pet.target = null; pet.act = { kind, t: 0, dur: reduced ? Math.min(dur, 1.2) : dur, end, fired: 0 }; pet.idle = 2; }
+    function petPat() { if (pet.act) return; petAct("pat", 0.5); puffHeart(0.1); onPetPat(); }
+
+    const petTag = document.createElement("button");
+    petTag.className = "tag pet-tag"; petTag.type = "button"; petTag.tabIndex = -1;
+    petTag.innerHTML = '<span class="pet-heart" aria-hidden="true">♡</span><span class="pet-say"></span>';
+    tagLayer.appendChild(petTag);
+    const petSay = petTag.querySelector(".pet-say");
+    let sayTimer = 0;
+    function say(text, secs) {
+      clearTimeout(sayTimer);
+      petSay.textContent = text;
+      petTag.classList.add("talking");
+      sayTimer = setTimeout(() => { petSay.textContent = petName; petTag.classList.remove("talking"); }, (secs || 2.4) * 1000);
+    }
+    petSay.textContent = petName;
+    on(petTag, "click", () => go("pet", $("#petOpen")));
+
+    function stepPet(mx, mz, step) {
+      // walk, sliding around anything in the way; try a few angles if we bump straight into it
+      for (const a of [0, 0.9, -0.9, 1.6, -1.6]) {
+        const c = Math.cos(a), s = Math.sin(a), dx = mx * c - mz * s, dz = mx * s + mz * c;
+        const p = collide({ x: pet.x + dx * step, z: pet.z + dz * step });
+        const moved = Math.hypot(p.x - pet.x, p.z - pet.z);
+        if (moved > step * 0.5 || a === -1.6) return { p, moved, dx, dz };
+      }
+    }
+    function updatePet(dt, t, calm) {
+      let mx = 0, mz = 0, dist = Infinity;
+      if (state === "island" && keys.size) {
+        const f = (keys.has("up") ? 1 : 0) - (keys.has("down") ? 1 : 0), s = (keys.has("right") ? 1 : 0) - (keys.has("left") ? 1 : 0);
+        if (f || s) {
+          const st = Math.sin(cam.theta), ct = Math.cos(cam.theta);
+          mx = -st * f + ct * s; mz = -ct * f - st * s;
+          const n = Math.hypot(mx, mz); mx /= n; mz /= n;
+          pet.target = null; pet.arrive = null; pet.user = true;
+        }
+      }
+      if (!mx && !mz && pet.target) {
+        const dx = pet.target.x - pet.x, dz = pet.target.z - pet.z;
+        dist = Math.hypot(dx, dz);
+        if (dist < 0.02) { pet.target = null; const a = pet.arrive; pet.arrive = null; a && a(); }
+        else { mx = dx / dist; mz = dz / dist; }
+      }
+      const moving = !!(mx || mz) && !pet.act && (state === "island" || state === "panel" || state === "finale");
+      if (moving) {
+        const step = Math.min(dist, (pet.user ? 1.45 : 2.4) * dt);
+        const r = stepPet(mx, mz, step);
+        pet.x = r.p.x; pet.z = r.p.z;
+        if (pet.target) {
+          pet.stuckT = r.moved < step * 0.25 ? pet.stuckT + dt : 0;
+          if (pet.stuckT > 0.45) {          // properly stuck: give up (or, when we were sent somewhere, hop over)
+            if (!pet.user) { pet.x = pet.target.x; pet.z = pet.target.z; }
+            pet.target = null; const a = pet.arrive; pet.arrive = null; a && a();
+          }
+        }
+        pet.h += wrapA(Math.atan2(r.dx, r.dz) - pet.h) * Math.min(1, dt * 12);
+        pet.hopT += dt * 10; pet.idle = 0;
+      } else {
+        pet.idle += dt; pet.hopT = 0;
+        if (pet.idle > 1.2 || pet.act) {   // turn to look at us
+          const want = Math.atan2(camera.position.x - pet.x, camera.position.z - pet.z);
+          pet.h += wrapA(want - pet.h) * Math.min(1, dt * 3);
+        }
+      }
+
+      /* hopping into a glowing circle opens it */
+      const z = zoneAt(pet.x, pet.z);
+      if (z !== pet.zone) {
+        pet.zone = z;
+        if (z && moving && pet.user && (state === "island" || state === "panel") && current !== z) {
+          pet.target = null; pet.arrive = null;
+          go(z, dock.querySelector(`[data-go="${z}"]`));
+        }
+      }
+
+      /* pose */
+      bunnyG.position.set(pet.x, TOP + 0.012, pet.z);
+      bunnyG.rotation.y = pet.h;
+      let y = 0, sq = Math.sin(t * 2.2) * 0.012 * calm, spin = 0, nod = 0, shake = 0;
+      if (moving && calm) { const s = Math.abs(Math.sin(pet.hopT)); y = s * 0.09; sq = (s - 0.4) * 0.1; }
+      const a = pet.act;
+      if (a) {
+        a.t += dt;
+        const k = a.t;
+        if (a.kind === "hug") {
+          const j = Math.min(1, k / 0.75);
+          y = Math.sin(j * Math.PI) * 0.28 * calm; spin = ease(j) * Math.PI * 2 * calm;
+          sq = j < 1 ? 0.05 : -Math.sin(Math.min(1, (k - 0.75) / 0.3) * Math.PI) * 0.12 * calm;
+          if (a.fired < 6 && k > 0.25 + a.fired * 0.15) { a.fired++; puffHeart(0, a.fired % 2 === 0); }
+        } else if (a.kind === "pat") {
+          const j = Math.min(1, k / 0.4); y = Math.sin(j * Math.PI) * 0.1 * calm; sq = Math.sin(j * Math.PI * 2) * 0.06 * calm;
+        } else if (a.kind === "feed") {
+          nod = k < a.dur - 0.5 ? Math.max(0, Math.sin(k * 8)) * 0.32 * calm : 0;
+          if (a.onTick) a.onTick(k / a.dur);
+          if (a.fired < 3 && k > a.dur - 0.6 + a.fired * 0.15) { a.fired++; puffHeart(0, a.fired === 2); }
+        } else if (a.kind === "full") {
+          shake = Math.sin(k * 20) * 0.35 * Math.max(0, 1 - k / a.dur) * calm;
+        }
+        if (k >= a.dur) { pet.act = null; a.end && a.end(); }
+      }
+      bunny.position.y = y; bunny.rotation.y = spin;
+      bunny.scale.set(BUN_K * (1 - sq * 0.5), BUN_K * (1 + sq), BUN_K * (1 - sq * 0.5));
+      headG.rotation.x = nod; headG.rotation.y = shake;
+      pet.blink -= dt;
+      const shut = pet.blink < 0;
+      if (pet.blink < -0.13) pet.blink = 2 + Math.random() * 3.5;
+      const happy = a && (a.kind === "hug" || a.kind === "pat" || (a.kind === "feed" && a.t > a.dur - 0.7));
+      setFace(happy ? "happy" : shut ? "blink" : "open");
+      let open = 0;                       // arms open wide for a hug
+      if (a && a.kind === "hug") open = Math.sin(Math.min(1, a.t / 1.0) * Math.PI);
+      arms.forEach(pv => {
+        const s = pv.userData.s, swing = moving && calm ? Math.sin(pet.hopT + s * 1.5) * 0.18 : 0;
+        pv.rotation.set(-0.75 - open * 0.5 + swing, 0, -s * (0.5 - open * 2.1));
+      });
+      pet.droop += (pet.droopTo - pet.droop) * Math.min(1, dt * 3);
+      ears.forEach(e => {
+        const s = e.userData.s;
+        e.rotation.x = -pet.droop * 0.9 + (moving && calm ? Math.sin(pet.hopT + s) * 0.14 : Math.sin(t * 1.7 + s) * 0.03 * calm);
+        e.rotation.z = -s * (0.16 + pet.droop * 0.55);
+      });
+
+      /* hearts */
+      petHearts.forEach(h => {
+        const u = h.userData;
+        if (!u.live) return;
+        if (u.delay > 0) { u.delay -= dt; return; }
+        if (!h.visible) { h.visible = true; h.position.set(pet.x, TOP + 0.62 + bunny.position.y, pet.z); }
+        u.t += dt;
+        h.position.x += u.vx * dt * calm; h.position.z += u.vz * dt * calm; h.position.y += (0.12 + 0.4 * calm) * dt;
+        h.lookAt(camera.position);
+        h.scale.setScalar(u.k * Math.min(1, u.t * 5));
+        h.material.opacity = 1 - Math.max(0, (u.t - 1) / 0.6);
+        if (u.t > 1.6) { u.live = false; h.visible = false; }
+      });
+
+      /* glowing circles breathe */
+      Object.keys(rings).forEach(k => {
+        const g = rings[k], zn = ZONES[k], here = pet.zone === k;
+        g.ring.scale.setScalar(zn.r * (here ? 1.08 : 1 + Math.sin(t * 2.4 + g.ph) * 0.05 * calm));
+        g.disc.material.opacity = here ? 0.75 : 0.45 + Math.sin(t * 2.4 + g.ph) * 0.12 * calm;
+      });
+    }
+
     /* ── camera rig ── */
     let W = 1, H = 1, aspect = 1;
     const cam = { tx: 0, ty: 3, tz: 0, theta: 0, phi: 1.47, r: 26 };
@@ -1934,6 +2786,10 @@ const GIFT = {
     const inviteView = () => ({ tx: 0, ty: 3.2, tz: 0, theta: 0, phi: 1.47, r: 26 });
     const finaleView = () => ({ tx: 0, ty: 3.4, tz: 0, theta: cam.theta, phi: 1.5, r: fitR(14) });
     function focusView(key) {
+      if (key === "pet") {
+        const p = bunnyG.getWorldPosition(new T.Vector3());
+        return { tx: p.x, ty: p.y + 0.38, tz: p.z, theta: Math.atan2(camera.position.x - p.x, camera.position.z - p.z), phi: 1.25, r: fitR(3.4) };
+      }
       const g = HOT[key].group, p = g.getWorldPosition(new T.Vector3());
       return { tx: p.x, ty: p.y + HOT[key].lift, tz: p.z, theta: g.rotation.y + HOT[key].face, phi: HOT[key].phi || 1.14, r: fitR(HOT[key].dist) };
     }
@@ -1976,14 +2832,16 @@ const GIFT = {
     const pointers = new Map();
     let downInfo = null, pinch0 = 0, idleT = 0;
     const ray = new T.Raycaster(), ndc = new T.Vector2();
-    function pick(ex, ey, objs) {
+    function pickHit(ex, ey, objs) {
       const rect = canvas.getBoundingClientRect();
       ndc.set(((ex - rect.left) / rect.width) * 2 - 1, -((ey - rect.top) / rect.height) * 2 + 1);
       ray.setFromCamera(ndc, camera);
-      const hit = ray.intersectObjects(objs, true)[0];
-      return hit ? hit.object : null;
+      return ray.intersectObjects(objs, true)[0] || null;
     }
+    function pick(ex, ey, objs) { const hit = pickHit(ex, ey, objs); return hit ? hit.object : null; }
     const hotList = Object.keys(HOT).map(k => HOT[k].group);
+    Object.keys(rings).forEach(k => hotList.push(rings[k].ring, rings[k].disc));
+    const tapList = hotList.concat([bunnyG, capMesh]);
     on(canvas, "pointerdown", e => {
       pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
       try { canvas.setPointerCapture(e.pointerId); } catch (err) { }
@@ -1995,8 +2853,8 @@ const GIFT = {
       const p = pointers.get(e.pointerId);
       if (!p) {
         if (e.pointerType === "mouse" && (state === "island" || state === "panel")) {
-          const o = pick(e.clientX, e.clientY, hotList);
-          canvas.className = o ? "point" : "grab";
+          const o = pick(e.clientX, e.clientY, tapList);
+          canvas.className = o && (o.userData.hot || o.userData.pet) ? "point" : "grab";
         } else if (e.pointerType === "mouse" && state === "invite") {
           canvas.className = pick(e.clientX, e.clientY, [envG]) ? "point" : "";
         }
@@ -2033,19 +2891,28 @@ const GIFT = {
       cam.r = Math.min(o * 1.45, Math.max(o * 0.5, cam.r * (1 + Math.sign(e.deltaY) * 0.08)));
       tween = null;
     }, { passive: false });
+    // arrow keys / WASD hop the bunny around; Q and E turn the island
+    const KEYMAP = { ArrowUp: "up", KeyW: "up", ArrowDown: "down", KeyS: "down", ArrowLeft: "left", KeyA: "left", ArrowRight: "right", KeyD: "right" };
     on(window, "keydown", e => {
-      if (state !== "island" || e.target.closest && e.target.closest("input,textarea")) return;
-      if (e.key === "ArrowLeft") { tween = null; vel.th = 0.06; }
-      if (e.key === "ArrowRight") { tween = null; vel.th = -0.06; }
+      if (state !== "island" || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.target.closest && e.target.closest("input,textarea,select,dialog,#panel")) return;
+      if (e.code === "KeyQ") { tween = null; vel.th = 0.06; return; }
+      if (e.code === "KeyE") { tween = null; vel.th = -0.06; return; }
+      const k = KEYMAP[e.code];
+      if (k) { keys.add(k); if (e.key.startsWith("Arrow")) e.preventDefault(); }
     });
+    on(window, "keyup", e => { const k = KEYMAP[e.code]; if (k) keys.delete(k); });
+    on(window, "blur", () => keys.clear());
     function onTap(x, y) {
       if (state === "invite") { if (pick(x, y, [envG])) openSurprise(); return; }
       if (state === "island" || state === "panel") {
-        const o = pick(x, y, hotList);
-        if (o && o.userData.hot) {
+        const hit = pickHit(x, y, tapList), o = hit && hit.object;
+        if (!o) return;
+        if (o.userData.hot) {
           if (o.userData.hot === "notes" && current === "notes") { nextNote(); return; }
           go(o.userData.hot, dock.querySelector(`[data-go="${o.userData.hot}"]`));
-        }
+        } else if (o.userData.pet) petPat();
+        else if (o.userData.ground) { const p = world.worldToLocal(hit.point.clone()); petWalk(p.x, p.z, true); }
       }
     }
 
@@ -2114,6 +2981,7 @@ const GIFT = {
         flagG.rotation.z = Math.sin(t * 2.4) * 0.05;
         steam.position.y = 0.18 + Math.sin(t * 1.5) * 0.02; steamMat.opacity = 0.25 + Math.sin(t * 1.5) * 0.1;
       }
+      updatePet(dt, t, calm);
       heartG.rotation.y = calm ? t * 0.7 : 0.4;
       heartG.position.y = 2.85 + Math.sin(t * 1.4) * 0.1 * calm;
       heartGlow.material.opacity = 0.55 + Math.sin(t * 2) * 0.15 * calm;
@@ -2206,6 +3074,9 @@ const GIFT = {
         el.style.opacity = behind ? 0 : far ? 0.45 : 1;
         el.style.pointerEvents = behind ? "none" : "auto";
       });
+      tmpV.set(pet.x, TOP + 0.8 + bunny.position.y, pet.z); world.localToWorld(tmpV);
+      tmpV.project(camera);
+      petTag.style.transform = `translate3d(${((tmpV.x * 0.5 + 0.5) * W).toFixed(1)}px, ${((-tmpV.y * 0.5 + 0.5) * H - 6).toFixed(1)}px, 0) translate(-50%, -100%)`;
     }
 
     /* visibility: pause when hidden */
@@ -2231,13 +3102,29 @@ const GIFT = {
         envMats.forEach(m => { m.opacity = m === envShadow.material ? 0.55 : 1; m.transparent = m === envShadow.material; });
         sealG.scale.setScalar(1); sealG.position.z = ED / 2 + 0.04;
         flapPivot.rotation.x = 0; card.position.y = CARD_Y0;
+        pet.x = PET_HOME.x; pet.z = PET_HOME.z; pet.h = 0.55; pet.target = null; pet.act = null; pet.zone = null; keys.clear();
         placeEnvelope();
         canvas.className = "";
         goTo(inviteView(), 2.2, () => { state = "invite"; });
         if (reduced) state = "invite";
       },
+      pet: {
+        hug() { petAct("hug", 1.25); },
+        feed(kind) {
+          const m = TREAT3D[kind] || TREAT3D.carrot;
+          Object.keys(TREAT3D).forEach(k => (TREAT3D[k].visible = TREAT3D[k] === m));
+          treatG.visible = true; treatG.scale.setScalar(1);
+          petAct("feed", 2.2, () => { treatG.visible = false; });
+          pet.act.onTick = k => treatG.scale.setScalar(Math.max(0.05, 1 - Math.floor(k * 4) * 0.3));
+        },
+        full() { petAct("full", 0.8); },
+        say,
+        mood(m) { pet.droopTo = m === "hungry" || m === "lonely" ? 1 : 0; },
+        rename(n) { petName = n; if (!petTag.classList.contains("talking")) petSay.textContent = n; }
+      },
       focus(key, inset) {
-        state = "panel";
+        state = "panel"; keys.clear();
+        petToZone(key);
         viewOff.tx = inset.x; viewOff.ty = inset.y;
         goTo(focusView(key), 1.6);
         if (key === "story") polaroids.forEach(p => (p.userData.boost = 1));
@@ -2256,9 +3143,13 @@ const GIFT = {
           viewOff.tx = 0; viewOff.ty = app.clientWidth < 820 ? Math.min(app.clientHeight * 0.18, 150) : 60;
           goTo(finaleView(), 2.2);
           startLanterns();
+          keys.clear(); petToZone("finale");
         } else { lanternsOn = false; state = "island"; }
       },
-      markVisited(k) { tagEls[k] && tagEls[k].classList.add("visited"); },
+      markVisited(k) {
+        tagEls[k] && tagEls[k].classList.add("visited");
+        if (rings[k]) { rings[k].ring.material.color.set(tint(C.sage, -0.06, 0.1)); rings[k].disc.material.color.set(tint(C.sage, 0.2)); }
+      },
       highlightPhoto(i) { const p = polaroids[photoSlots[i % photoSlots.length]]; if (p && i !== focusedPhoto) { p.userData.boost = 1.2; focusedPhoto = i; } },
       wiggleFlowers() { flowers.forEach(f => (f.userData.wig = 1)); },
       setMemories,
@@ -2306,6 +3197,7 @@ const GIFT = {
 
   updateAccount();
   if (world) world.setFlowerCount(noteList().length);
+  petTick(); petSave(); refreshPetUI();
   if (API.enabled && auth.refresh) {
     loadLive().catch(e => { if (e.status !== 401 && e.status !== 403) notify("Couldn't reach our little server, so this is the saved version."); });
   }
