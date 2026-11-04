@@ -3,7 +3,7 @@ import { defineConfig } from "@neon/config/v1";
 // Neon services for "Our Little World" (our-little-world/).
 // Apply with:  npx neonctl deploy --env .env.local
 export default defineConfig({
-  // Managed Better Auth: email + password logins for Ben and Amie only.
+  // Managed Better Auth: email + password logins for Ben and Amiee only.
   auth: true,
   functions: {
     // REST API the gift page calls from the browser (Hono + pg).

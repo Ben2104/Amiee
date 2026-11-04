@@ -67,7 +67,7 @@ What Vercel's domain does need is to be on the Function's CORS allow-list
 
 ## Our own content (Neon backend)
 
-Signed in, Ben and Amie can add, edit and delete:
+Signed in, Ben and Amiee can add, edit and delete:
 
 | Content | Fields | Where it shows |
 | --- | --- | --- |
@@ -119,7 +119,7 @@ browsers call directly. That's what this uses:
 - We sign in with a **username and password**. Neon Auth accounts are keyed by
   email, so the API maps a username to `<username>@login.our-little-world.invalid`.
   `.invalid` is a reserved domain, so no mail is ever sent to it.
-- We share **one login**. The sign-in form asks "Who's signing in? Ben / Amie",
+- We share **one login**. The sign-in form asks "Who's signing in? Ben / Amiee",
   and that name is saved as the author of everything you add in that session.
   To switch, sign out and back in. A personal login fixed to one name also
   works (`--name`, below).
@@ -208,7 +208,7 @@ npm install
    ```
 
    Usernames are 3 to 32 characters (`a-z 0-9 . _ -`) and not case-sensitive;
-   passwords need 8 or more. Add `--name Ben` or `--name Amie` for a personal
+   passwords need 8 or more. Add `--name Ben` or `--name Amiee` for a personal
    login that always writes as that person. An existing username is linked
    as-is. To change a password, delete the user with
    `npx neonctl neon-auth user delete <user-id>` (the id is in the Neon Console,
@@ -224,7 +224,7 @@ E2E_USERNAME=… E2E_PASSWORD=… npm run test:e2e
 ```
 
 This runs 83 checks against the deployed API, signing in once as Ben and once
-as Amie: sign-in and sign-out, refusal of wrong passwords, unknown usernames,
+as Amiee: sign-in and sign-out, refusal of wrong passwords, unknown usernames,
 signed-out and forged requests, and writes that don't say who wrote them, create/read/update/delete for every content
 type, photo upload and download, and that the bucket isn't public. It deletes
 everything it creates.

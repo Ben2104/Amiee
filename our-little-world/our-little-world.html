@@ -1,6 +1,6 @@
-<title>Ben &amp; Amie · Our Little World</title>
+<title>Ben &amp; Amiee · Our Little World</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="A little floating world Ben made for Amie.">
+<meta name="description" content="A little floating world Ben made for Amiee.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,400..700,100;1,9..144,400..700,100&family=Nunito:wght@400;600;700;800&family=Patrick+Hand&display=swap">
@@ -501,7 +501,7 @@ i.love{background:var(--rose)}
       <div class="field"><label for="signinPassword">Password</label><input id="signinPassword" name="password" type="password" autocomplete="current-password" required></div>
       <fieldset class="who"><legend>Who's signing in?</legend>
         <label class="who-opt"><input type="radio" name="as" value="Ben"> Ben</label>
-        <label class="who-opt"><input type="radio" name="as" value="Amie"> Amie</label>
+        <label class="who-opt"><input type="radio" name="as" value="Amiee"> Amiee</label>
       </fieldset>
       <p class="form-error" id="signinError" role="alert"></p>
       <div class="form-actions"><button class="btn btn-ghost" type="button" id="signinCancel">Not now</button><button class="btn btn-primary" type="submit" id="signinSubmit">Sign in</button></div>
@@ -529,7 +529,7 @@ i.love{background:var(--rose)}
    ════════════════════════════════════════════════════════════════════════ */
 const GIFT = {
   yourName: "Ben",
-  herName: "Amie",                   // her name or nickname — used on the envelope and in the finale
+  herName: "Amiee",                   // her name or nickname — used on the envelope and in the finale
   togetherSince: "2026-07-11",       // YYYY-MM-DD
   anniversaryMessage: "I love you",
 
@@ -593,7 +593,7 @@ const GIFT = {
   // "A letter for you"
   letter: {
     date: "",                        // e.g. "November 3, 2026" — leave "" to hide
-    greeting: "Dear Amie,",
+    greeting: "Dear Amiee,",
     paragraphs: [
       "Happy anniversary. I wanted to give you something I made myself, so I built us a little world: a tree to sit under, a garden full of notes, and a mailbox with this letter inside.",
       "Every day since July 11 has made me a little more sure about us. Thank you for your patience, your laugh, and the way you turn ordinary days into ones I want to remember.",
@@ -1418,7 +1418,7 @@ const GIFT = {
     const username = f.elements.username.value.trim(), password = f.elements.password.value;
     const as = (f.querySelector('input[name="as"]:checked') || {}).value;
     if (!username || !password) { err.textContent = "Enter your username and password."; (username ? f.elements.password : f.elements.username).focus(); return; }
-    if (!as) { err.textContent = "Choose who is signing in: Ben or Amie."; f.querySelector('input[name="as"]').focus(); return; }
+    if (!as) { err.textContent = "Choose who is signing in: Ben or Amiee."; f.querySelector('input[name="as"]').focus(); return; }
     err.textContent = ""; btn.disabled = true; btn.textContent = "Signing in…";
     try {
       setTokens(await raw("POST", "/auth/sign-in", { username, password, as }));

@@ -16,8 +16,8 @@ const AUTH_ORIGIN = new URL(AUTH_BASE).origin;
 const COOKIE = "__Secure-neon-auth.session_token";
 const jwks = createRemoteJWKSet(new URL(JWKS_URL));
 
-export type Name = "Ben" | "Amie";
-// name is null for a shared login: whoever signs in picks Ben or Amie.
+export type Name = "Ben" | "Amiee";
+// name is null for a shared login: whoever signs in picks Ben or Amiee.
 export type Member = { userId: string; name: Name | null };
 
 // Neon Auth accounts are keyed by email. We sign in with a username instead and map
