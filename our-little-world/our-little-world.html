@@ -113,6 +113,10 @@ h1,h2,h3{font-family:var(--font-display);font-variation-settings:"SOFT" 100;text
 .tag.visited .pip{background:var(--sage)}
 .tag.visited .pip::before{border-color:var(--sage);animation:none;opacity:0}
 @keyframes pulse{0%{transform:scale(.6);opacity:.8}100%{transform:scale(1.7);opacity:0}}
+.pet-tag{padding:.32rem .75rem .32rem .55rem;font-size:.8rem;background:rgba(255,255,255,.92);color:var(--rose-deep);transition:opacity .3s ease, background .2s}
+.pet-tag .pet-heart{color:var(--rose);font-size:.95rem;line-height:1}
+.pet-tag.talking{background:var(--rose);color:#fff}
+.pet-tag.talking .pet-heart{color:#FFD7E1}
 
 /* ───── dock ───── */
 #dock{position:absolute;left:50%;bottom:calc(var(--safe-b) + 14px);transform:translateX(-50%);display:flex;gap:4px;padding:6px;border-radius:24px;background:var(--glass);
@@ -446,6 +450,11 @@ const GIFT = {
   herName: "Amie",                   // her name or nickname — used on the envelope and in the finale
   togetherSince: "2026-07-11",       // YYYY-MM-DD
   anniversaryMessage: "I love you",
+
+  // Our bunny. Tap the island to hop her around; hop into a glowing circle to open that part of our world.
+  pet: {
+    name: "Mochi"
+  },
   showExampleBadges: true,           // set to false once you've replaced the sample content
 
   // Our own content. With apiUrl set, the page shows a "Sign in" button; once one of us
@@ -530,7 +539,7 @@ const GIFT = {
     inviteFrom: "with love, from {you}",
     openButton: "Open your surprise",
     brand: "{you} & {her}",
-    hint: "Tap a glowing tag on the island, or use the buttons below. Drag to look around.",
+    hint: "Tap the grass to hop {pet} around (or use the arrow keys). Hop into a glowing circle to peek inside.",
     hintSimple: "Use the buttons below to explore our little world.",
     finaleTitle: "Happy anniversary, {her}",
     daysUnit: "days together",
@@ -542,7 +551,7 @@ const GIFT = {
 (function () {
   "use strict";
   const $ = (s, r = document) => r.querySelector(s);
-  const fill = s => String(s).replace(/\{her\}/g, GIFT.herName).replace(/\{you\}/g, GIFT.yourName);
+  const fill = s => String(s).replace(/\{her\}/g, GIFT.herName).replace(/\{you\}/g, GIFT.yourName).replace(/\{pet\}/g, GIFT.pet.name);
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const reduceMQ = window.matchMedia("(prefers-reduced-motion: reduce)");
   let reduced = reduceMQ.matches;
@@ -1386,7 +1395,7 @@ const GIFT = {
   /* ── hint ── */
   const hint = $("#hint");
   let hintTimer = 0;
-  function showHint() { hint.textContent = world ? GIFT.text.hint : GIFT.text.hintSimple; show(hint); hintTimer = setTimeout(hideHint, 7000); }
+  function showHint() { hint.textContent = fill(world ? GIFT.text.hint : GIFT.text.hintSimple); show(hint); hintTimer = setTimeout(hideHint, 7000); }
   function hideHint() { clearTimeout(hintTimer); if (!hint.hidden) hide(hint); }
 
   /* ── opening / replay ── */
@@ -1597,7 +1606,9 @@ const GIFT = {
       cap.setAttribute("color", new T.Float32BufferAttribute(colors, 3));
       cap.computeVertexNormals();
     }
-    world.add(mesh(cap, new T.MeshStandardMaterial({ vertexColors: true, roughness: 0.95 })));
+    const capMesh = mesh(cap, new T.MeshStandardMaterial({ vertexColors: true, roughness: 0.95 }));
+    capMesh.userData.ground = true;
+    world.add(capMesh);
 
     /* stepping stones */
     const stoneGeo = new T.CylinderGeometry(0.19, 0.21, 0.06, 14);
@@ -1617,7 +1628,8 @@ const GIFT = {
       }
     }
     const dotGeo = new T.SphereGeometry(0.035, 8, 6);
-    [[2.45, -0.4, 0.34], [-2.55, 0.05, 0.3], [0.3, -2.5, 0.36], [2.2, 1.9, 0.24], [-0.6, 2.55, 0.22]].forEach(([x, z, r], i) => {
+    const BUSHES = [[2.45, -0.4, 0.34], [-2.55, 0.05, 0.3], [0.3, -2.5, 0.36], [2.2, 1.9, 0.24], [-0.6, 2.55, 0.22]];
+    BUSHES.forEach(([x, z, r], i) => {
       const b = mesh(blobGeo, clay(tint(C.sage, -0.08, 0.05)), x, TOP + r * 0.55, z);
       b.scale.set(r, r * 0.82, r); world.add(b);
       for (let k = 0; k < 4; k++) {
@@ -1915,6 +1927,254 @@ const GIFT = {
     const tagEls = {};
     tagLayer.querySelectorAll(".tag").forEach(el => { tagEls[el.dataset.go] = el; on(el, "click", () => go(el.dataset.go, dock.querySelector(`[data-go="${el.dataset.go}"]`))); });
 
+    /* ── our bunny: a little pet we walk around the island ──
+       Tap the grass (or use the arrow keys / WASD) and the bunny hops there.
+       Hopping into one of the glowing circles opens that part of our world. */
+    const PET_HOME = { x: 0.7, z: 1.75 };
+    const ZONES = {                    // a glowing circle in front of each place
+      story:  { x: 1.6,   z: -0.7,  r: 0.4 },
+      notes:  { x: -0.5,  z: 1.6,   r: 0.4 },
+      letter: { x: 1.55,  z: 1.45,  r: 0.36 },
+      future: { x: -0.59, z: -0.02, r: 0.4 },
+      finale: { x: 0.9,   z: -0.3,  r: 0.34 }
+    };
+    const OBST = [[-1.55, -1.35, 0.28], [1.95, 1.15, 0.16], [-1.6, 1.2, 0.86]].concat(BUSHES.map(([x, z, r]) => [x, z, r + 0.04]));
+    [-0.4, 0, 0.4].forEach(lx => OBST.push([-0.85 + lx * Math.cos(0.55), -0.45 - lx * Math.sin(0.55), 0.26]));            // bench
+    [-0.75, -0.375, 0, 0.375, 0.75].forEach(lx => OBST.push([1.35 + lx * Math.cos(0.15), -1.3 - lx * Math.sin(0.15), 0.12])); // photo line
+    const PET_R = 0.13, EDGE = 2.55;
+
+    const bunnyG = new T.Group(); world.add(bunnyG);       // where the bunny stands and which way it faces
+    const bunny = new T.Group(); bunnyG.add(bunny);         // hops, squashes and spins inside that
+    const BUN_K = 0.85;
+    const furWhite = clay("#FFFAF8"), furPink = clay("#F9C3CF"), padPink = clay("#F3A0B6"), bowPink = clay("#F27C9B", { roughness: 0.5 });
+    const sphGeo = new T.SphereGeometry(1, 24, 18);
+    const blob = (parent, mat, x, y, z, sx, sy, sz, noShadow) => { const m = mesh(sphGeo, mat, x, y, z, noShadow); m.scale.set(sx, sy, sz); parent.add(m); return m; };
+    blob(bunny, furWhite, 0, 0.15, 0, 0.16, 0.15, 0.14);                       // body
+    blob(bunny, furPink, 0, 0.13, 0.085, 0.1, 0.1, 0.065, true);               // tummy
+    blob(bunny, furWhite, 0, 0.09, -0.14, 0.055, 0.055, 0.055);                // tail
+    [-1, 1].forEach(s => {
+      blob(bunny, furWhite, s * 0.085, 0.035, 0.07, 0.06, 0.04, 0.085);        // foot
+      blob(bunny, padPink, s * 0.085, 0.036, 0.15, 0.032, 0.022, 0.012, true); // paw pad
+      [-1, 0, 1].forEach(k => blob(bunny, padPink, s * 0.085 + k * 0.021, 0.058 - Math.abs(k) * 0.005, 0.132, 0.01, 0.009, 0.008, true));
+      blob(bunny, furWhite, s * 0.085, 0.2, 0.105, 0.045, 0.055, 0.045);       // front paw
+    });
+    const headG = new T.Group(); headG.position.set(0, 0.4, 0.01); bunny.add(headG);
+    blob(headG, furWhite, 0, 0, 0, 0.19, 0.165, 0.17);
+    [-1, 1].forEach(s => blob(headG, furWhite, s * 0.14, -0.05, 0.01, 0.07, 0.065, 0.07));   // chubby cheeks
+    const ears = [-1, 1].map(s => {
+      const pv = new T.Group(); pv.position.set(s * 0.075, 0.12, -0.02); headG.add(pv);
+      blob(pv, furWhite, 0, 0.14, 0, 0.05, 0.155, 0.034);
+      blob(pv, furPink, 0, 0.14, 0.022, 0.029, 0.115, 0.014, true);
+      pv.userData.s = s; return pv;
+    });
+    const bowG = new T.Group(); bowG.position.set(0.118, 0.13, 0.05); bowG.rotation.set(0.15, 0.35, -0.4); headG.add(bowG);
+    [-1, 1].forEach(s => { const l = blob(bowG, bowPink, s * 0.042, 0, 0, 0.045, 0.03, 0.02); l.rotation.z = s * 0.35; });
+    blob(bowG, bowPink, 0, 0, 0.012, 0.018, 0.018, 0.018);
+    const ribbonGeo = new T.BoxGeometry(0.014, 0.05, 0.008);
+    [-1, 1].forEach(s => { const r = mesh(ribbonGeo, bowPink, s * 0.016, -0.032, 0.006); r.rotation.z = s * 0.45; bowG.add(r); });
+    const irisMat = clay("#2A9D8F", { roughness: 0.25 }), pupilMat = clay("#16403E", { roughness: 0.3 }), lashMat = clay("#3B2530");
+    const shineMat = new T.MeshBasicMaterial({ color: 0xffffff });
+    const lidGeo = new T.TorusGeometry(0.043, 0.0045, 6, 18, Math.PI * 0.85), lashGeo = new T.BoxGeometry(0.022, 0.005, 0.005);
+    const eyes = [-1, 1].map(s => {
+      const e = new T.Group(); e.position.set(s * 0.075, 0.005, 0.15); e.rotation.y = s * 0.37; headG.add(e);
+      blob(e, irisMat, 0, 0, 0, 0.04, 0.048, 0.016, true);
+      blob(e, pupilMat, 0, -0.004, 0.01, 0.024, 0.03, 0.009, true);
+      blob(e, shineMat, -0.012, 0.017, 0.017, 0.012, 0.013, 0.006, true);
+      blob(e, shineMat, 0.013, -0.017, 0.016, 0.006, 0.006, 0.004, true);
+      const lid = new T.Mesh(lidGeo, lashMat); lid.rotation.z = Math.PI * 0.075; lid.position.z = 0.008; lid.scale.y = 1.12; e.add(lid);
+      [[0.045, 0.03, 0.6], [0.036, 0.044, 1.0]].forEach(([x, y, r]) => { const l = mesh(lashGeo, lashMat, s * x, y, 0.006, true); l.rotation.z = s * r; e.add(l); });
+      return e;
+    });
+    blob(headG, clay("#F08AA2"), 0, -0.032, 0.167, 0.013, 0.009, 0.008, true);  // nose
+    blob(headG, clay("#C64F6C"), 0, -0.064, 0.153, 0.024, 0.02, 0.012, true);    // open smile
+    blob(headG, clay("#F59AAE"), 0, -0.073, 0.16, 0.013, 0.008, 0.006, true);    // tongue
+    const blushMat = new T.MeshBasicMaterial({ color: new T.Color("#F7A5BA"), transparent: true, opacity: 0.75, depthWrite: false });
+    [-1, 1].forEach(s => { const b = blob(headG, blushMat, s * 0.118, -0.048, 0.122, 0.036, 0.02, 0.01, true); b.rotation.y = s * 0.78; });
+    bunnyG.traverse(o => { o.userData.pet = true; });
+
+    /* little hearts that float up from the bunny */
+    const petHearts = [];
+    for (let i = 0; i < 12; i++) {
+      const h = new T.Mesh(heartGeo, new T.MeshStandardMaterial({ color: new T.Color("#F06B8E"), emissive: new T.Color("#B83A5E"), emissiveIntensity: 0.5, roughness: 0.4, transparent: true }));
+      h.visible = false; h.userData.live = false; world.add(h); petHearts.push(h);
+    }
+    function puffHeart(delay, big) {
+      const h = petHearts.find(x => !x.userData.live);
+      if (!h) return;
+      h.userData = { live: true, delay: delay || 0, t: 0, vx: (Math.random() - 0.5) * 0.3, vz: (Math.random() - 0.5) * 0.3, k: big ? 0.2 : 0.13 };
+    }
+
+    /* glowing circles on the grass */
+    const ringGeo = new T.RingGeometry(0.74, 1, 40), discGeo = new T.CircleGeometry(0.74, 32);
+    const rings = {};
+    Object.keys(ZONES).forEach((k, i) => {
+      const zn = ZONES[k];
+      const ring = new T.Mesh(ringGeo, new T.MeshBasicMaterial({ color: new T.Color("#FF7FA6"), transparent: true, opacity: 0.85, depthWrite: false, fog: false }));
+      const disc = new T.Mesh(discGeo, new T.MeshBasicMaterial({ color: new T.Color("#FFE3EA"), transparent: true, opacity: 0.5, depthWrite: false, fog: false }));
+      [ring, disc].forEach(m => { m.rotation.x = -Math.PI / 2; m.position.set(zn.x, TOP + 0.045, zn.z); m.scale.setScalar(zn.r); m.renderOrder = 1; m.userData.hot = k; world.add(m); });
+      rings[k] = { ring, disc, ph: i * 1.3 };
+    });
+
+    const pet = { x: PET_HOME.x, z: PET_HOME.z, h: 0.55, target: null, user: false, arrive: null, hopT: 0, idle: 0, stuckT: 0,
+                  act: null, zone: null, blink: 2.5, droop: 0, droopTo: 0 };
+    const keys = new Set();
+    function collide(p) {
+      for (let i = 0; i < OBST.length; i++) {
+        const [ox, oz, or] = OBST[i], dx = p.x - ox, dz = p.z - oz, d = Math.hypot(dx, dz), m = or + PET_R;
+        if (d < m && d > 1e-4) { p.x = ox + dx / d * m; p.z = oz + dz / d * m; }
+      }
+      const r = Math.hypot(p.x, p.z);
+      if (r > EDGE) { p.x *= EDGE / r; p.z *= EDGE / r; }
+      return p;
+    }
+    function petWalk(x, z, user, arrive) {
+      const p = collide({ x, z });
+      pet.user = user; pet.arrive = arrive || null; pet.stuckT = 0;
+      if (!user && reduced) { pet.x = p.x; pet.z = p.z; pet.target = null; pet.zone = zoneAt(p.x, p.z); arrive && arrive(); return; }
+      pet.target = p;
+    }
+    function petToZone(key) { const zn = ZONES[key]; if (zn) petWalk(zn.x, zn.z, false); }
+    function zoneAt(x, z) {
+      for (const k in ZONES) { const zn = ZONES[k]; if (Math.hypot(x - zn.x, z - zn.z) < zn.r) return k; }
+      return null;
+    }
+    function petAct(kind, dur, end) { pet.target = null; pet.act = { kind, t: 0, dur: reduced ? Math.min(dur, 1.2) : dur, end, fired: 0 }; pet.idle = 2; }
+    function petPat() { if (pet.act) return; petAct("pat", 0.5); puffHeart(0.1); }
+
+    const petTag = document.createElement("button");
+    petTag.className = "tag pet-tag"; petTag.type = "button"; petTag.tabIndex = -1;
+    petTag.innerHTML = '<span class="pet-heart" aria-hidden="true">♡</span><span class="pet-say"></span>';
+    tagLayer.appendChild(petTag);
+    const petSay = petTag.querySelector(".pet-say");
+    let sayTimer = 0;
+    function say(text, secs) {
+      clearTimeout(sayTimer);
+      petSay.textContent = text;
+      petTag.classList.add("talking");
+      sayTimer = setTimeout(() => { petSay.textContent = GIFT.pet.name; petTag.classList.remove("talking"); }, (secs || 2.4) * 1000);
+    }
+    petSay.textContent = GIFT.pet.name;
+    on(petTag, "click", petPat);
+
+    function stepPet(mx, mz, step) {
+      // walk, sliding around anything in the way; try a few angles if we bump straight into it
+      for (const a of [0, 0.9, -0.9, 1.6, -1.6]) {
+        const c = Math.cos(a), s = Math.sin(a), dx = mx * c - mz * s, dz = mx * s + mz * c;
+        const p = collide({ x: pet.x + dx * step, z: pet.z + dz * step });
+        const moved = Math.hypot(p.x - pet.x, p.z - pet.z);
+        if (moved > step * 0.5 || a === -1.6) return { p, moved, dx, dz };
+      }
+    }
+    function updatePet(dt, t, calm) {
+      let mx = 0, mz = 0, dist = Infinity;
+      if (state === "island" && keys.size) {
+        const f = (keys.has("up") ? 1 : 0) - (keys.has("down") ? 1 : 0), s = (keys.has("right") ? 1 : 0) - (keys.has("left") ? 1 : 0);
+        if (f || s) {
+          const st = Math.sin(cam.theta), ct = Math.cos(cam.theta);
+          mx = -st * f + ct * s; mz = -ct * f - st * s;
+          const n = Math.hypot(mx, mz); mx /= n; mz /= n;
+          pet.target = null; pet.arrive = null; pet.user = true;
+        }
+      }
+      if (!mx && !mz && pet.target) {
+        const dx = pet.target.x - pet.x, dz = pet.target.z - pet.z;
+        dist = Math.hypot(dx, dz);
+        if (dist < 0.02) { pet.target = null; const a = pet.arrive; pet.arrive = null; a && a(); }
+        else { mx = dx / dist; mz = dz / dist; }
+      }
+      const moving = !!(mx || mz) && !pet.act && (state === "island" || state === "panel" || state === "finale");
+      if (moving) {
+        const step = Math.min(dist, (pet.user ? 1.45 : 2.4) * dt);
+        const r = stepPet(mx, mz, step);
+        pet.x = r.p.x; pet.z = r.p.z;
+        if (pet.target) {
+          pet.stuckT = r.moved < step * 0.25 ? pet.stuckT + dt : 0;
+          if (pet.stuckT > 0.45) {          // properly stuck: give up (or, when we were sent somewhere, hop over)
+            if (!pet.user) { pet.x = pet.target.x; pet.z = pet.target.z; }
+            pet.target = null; const a = pet.arrive; pet.arrive = null; a && a();
+          }
+        }
+        pet.h += wrapA(Math.atan2(r.dx, r.dz) - pet.h) * Math.min(1, dt * 12);
+        pet.hopT += dt * 10; pet.idle = 0;
+      } else {
+        pet.idle += dt; pet.hopT = 0;
+        if (pet.idle > 1.2 || pet.act) {   // turn to look at us
+          const want = Math.atan2(camera.position.x - pet.x, camera.position.z - pet.z);
+          pet.h += wrapA(want - pet.h) * Math.min(1, dt * 3);
+        }
+      }
+
+      /* hopping into a glowing circle opens it */
+      const z = zoneAt(pet.x, pet.z);
+      if (z !== pet.zone) {
+        pet.zone = z;
+        if (z && moving && pet.user && (state === "island" || state === "panel") && current !== z) {
+          pet.target = null; pet.arrive = null;
+          go(z, dock.querySelector(`[data-go="${z}"]`));
+        }
+      }
+
+      /* pose */
+      bunnyG.position.set(pet.x, TOP + 0.012, pet.z);
+      bunnyG.rotation.y = pet.h;
+      let y = 0, sq = Math.sin(t * 2.2) * 0.012 * calm, spin = 0, nod = 0, shake = 0;
+      if (moving && calm) { const s = Math.abs(Math.sin(pet.hopT)); y = s * 0.09; sq = (s - 0.4) * 0.1; }
+      const a = pet.act;
+      if (a) {
+        a.t += dt;
+        const k = a.t;
+        if (a.kind === "hug") {
+          const j = Math.min(1, k / 0.75);
+          y = Math.sin(j * Math.PI) * 0.28 * calm; spin = ease(j) * Math.PI * 2 * calm;
+          sq = j < 1 ? 0.05 : -Math.sin(Math.min(1, (k - 0.75) / 0.3) * Math.PI) * 0.12 * calm;
+          if (a.fired < 6 && k > 0.25 + a.fired * 0.15) { a.fired++; puffHeart(0, a.fired % 2 === 0); }
+        } else if (a.kind === "pat") {
+          const j = Math.min(1, k / 0.4); y = Math.sin(j * Math.PI) * 0.1 * calm; sq = Math.sin(j * Math.PI * 2) * 0.06 * calm;
+        } else if (a.kind === "feed") {
+          nod = k < a.dur - 0.5 ? Math.max(0, Math.sin(k * 8)) * 0.32 * calm : 0;
+          if (a.onTick) a.onTick(k / a.dur);
+          if (a.fired < 3 && k > a.dur - 0.6 + a.fired * 0.15) { a.fired++; puffHeart(0, a.fired === 2); }
+        } else if (a.kind === "full") {
+          shake = Math.sin(k * 20) * 0.35 * Math.max(0, 1 - k / a.dur) * calm;
+        }
+        if (k >= a.dur) { pet.act = null; a.end && a.end(); }
+      }
+      bunny.position.y = y; bunny.rotation.y = spin;
+      bunny.scale.set(BUN_K * (1 - sq * 0.5), BUN_K * (1 + sq), BUN_K * (1 - sq * 0.5));
+      headG.rotation.x = nod; headG.rotation.y = shake;
+      pet.blink -= dt;
+      const shut = pet.blink < 0;
+      if (pet.blink < -0.13) pet.blink = 2 + Math.random() * 3.5;
+      eyes.forEach(e => (e.scale.y = shut ? 0.12 : 1));
+      pet.droop += (pet.droopTo - pet.droop) * Math.min(1, dt * 3);
+      ears.forEach(e => {
+        const s = e.userData.s;
+        e.rotation.x = -pet.droop * 0.9 + (moving && calm ? Math.sin(pet.hopT + s) * 0.14 : Math.sin(t * 1.7 + s) * 0.03 * calm);
+        e.rotation.z = -s * (0.16 + pet.droop * 0.55);
+      });
+
+      /* hearts */
+      petHearts.forEach(h => {
+        const u = h.userData;
+        if (!u.live) return;
+        if (u.delay > 0) { u.delay -= dt; return; }
+        if (!h.visible) { h.visible = true; h.position.set(pet.x, TOP + 0.62 + bunny.position.y, pet.z); }
+        u.t += dt;
+        h.position.x += u.vx * dt * calm; h.position.z += u.vz * dt * calm; h.position.y += (0.12 + 0.4 * calm) * dt;
+        h.lookAt(camera.position);
+        h.scale.setScalar(u.k * Math.min(1, u.t * 5));
+        h.material.opacity = 1 - Math.max(0, (u.t - 1) / 0.6);
+        if (u.t > 1.6) { u.live = false; h.visible = false; }
+      });
+
+      /* glowing circles breathe */
+      Object.keys(rings).forEach(k => {
+        const g = rings[k], zn = ZONES[k], here = pet.zone === k;
+        g.ring.scale.setScalar(zn.r * (here ? 1.08 : 1 + Math.sin(t * 2.4 + g.ph) * 0.05 * calm));
+        g.disc.material.opacity = here ? 0.75 : 0.45 + Math.sin(t * 2.4 + g.ph) * 0.12 * calm;
+      });
+    }
+
     /* ── camera rig ── */
     let W = 1, H = 1, aspect = 1;
     const cam = { tx: 0, ty: 3, tz: 0, theta: 0, phi: 1.47, r: 26 };
@@ -1968,14 +2228,16 @@ const GIFT = {
     const pointers = new Map();
     let downInfo = null, pinch0 = 0, idleT = 0;
     const ray = new T.Raycaster(), ndc = new T.Vector2();
-    function pick(ex, ey, objs) {
+    function pickHit(ex, ey, objs) {
       const rect = canvas.getBoundingClientRect();
       ndc.set(((ex - rect.left) / rect.width) * 2 - 1, -((ey - rect.top) / rect.height) * 2 + 1);
       ray.setFromCamera(ndc, camera);
-      const hit = ray.intersectObjects(objs, true)[0];
-      return hit ? hit.object : null;
+      return ray.intersectObjects(objs, true)[0] || null;
     }
+    function pick(ex, ey, objs) { const hit = pickHit(ex, ey, objs); return hit ? hit.object : null; }
     const hotList = Object.keys(HOT).map(k => HOT[k].group);
+    Object.keys(rings).forEach(k => hotList.push(rings[k].ring, rings[k].disc));
+    const tapList = hotList.concat([bunnyG, capMesh]);
     on(canvas, "pointerdown", e => {
       pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
       try { canvas.setPointerCapture(e.pointerId); } catch (err) { }
@@ -1987,8 +2249,8 @@ const GIFT = {
       const p = pointers.get(e.pointerId);
       if (!p) {
         if (e.pointerType === "mouse" && (state === "island" || state === "panel")) {
-          const o = pick(e.clientX, e.clientY, hotList);
-          canvas.className = o ? "point" : "grab";
+          const o = pick(e.clientX, e.clientY, tapList);
+          canvas.className = o && (o.userData.hot || o.userData.pet) ? "point" : "grab";
         } else if (e.pointerType === "mouse" && state === "invite") {
           canvas.className = pick(e.clientX, e.clientY, [envG]) ? "point" : "";
         }
@@ -2025,19 +2287,28 @@ const GIFT = {
       cam.r = Math.min(o * 1.45, Math.max(o * 0.5, cam.r * (1 + Math.sign(e.deltaY) * 0.08)));
       tween = null;
     }, { passive: false });
+    // arrow keys / WASD hop the bunny around; Q and E turn the island
+    const KEYMAP = { ArrowUp: "up", KeyW: "up", ArrowDown: "down", KeyS: "down", ArrowLeft: "left", KeyA: "left", ArrowRight: "right", KeyD: "right" };
     on(window, "keydown", e => {
-      if (state !== "island" || e.target.closest && e.target.closest("input,textarea")) return;
-      if (e.key === "ArrowLeft") { tween = null; vel.th = 0.06; }
-      if (e.key === "ArrowRight") { tween = null; vel.th = -0.06; }
+      if (state !== "island" || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.target.closest && e.target.closest("input,textarea,select,dialog,#panel")) return;
+      if (e.code === "KeyQ") { tween = null; vel.th = 0.06; return; }
+      if (e.code === "KeyE") { tween = null; vel.th = -0.06; return; }
+      const k = KEYMAP[e.code];
+      if (k) { keys.add(k); if (e.key.startsWith("Arrow")) e.preventDefault(); }
     });
+    on(window, "keyup", e => { const k = KEYMAP[e.code]; if (k) keys.delete(k); });
+    on(window, "blur", () => keys.clear());
     function onTap(x, y) {
       if (state === "invite") { if (pick(x, y, [envG])) openSurprise(); return; }
       if (state === "island" || state === "panel") {
-        const o = pick(x, y, hotList);
-        if (o && o.userData.hot) {
+        const hit = pickHit(x, y, tapList), o = hit && hit.object;
+        if (!o) return;
+        if (o.userData.hot) {
           if (o.userData.hot === "notes" && current === "notes") { nextNote(); return; }
           go(o.userData.hot, dock.querySelector(`[data-go="${o.userData.hot}"]`));
-        }
+        } else if (o.userData.pet) petPat();
+        else if (o.userData.ground) { const p = world.worldToLocal(hit.point.clone()); petWalk(p.x, p.z, true); }
       }
     }
 
@@ -2106,6 +2377,7 @@ const GIFT = {
         flagG.rotation.z = Math.sin(t * 2.4) * 0.05;
         steam.position.y = 0.18 + Math.sin(t * 1.5) * 0.02; steamMat.opacity = 0.25 + Math.sin(t * 1.5) * 0.1;
       }
+      updatePet(dt, t, calm);
       heartG.rotation.y = calm ? t * 0.7 : 0.4;
       heartG.position.y = 2.85 + Math.sin(t * 1.4) * 0.1 * calm;
       heartGlow.material.opacity = 0.55 + Math.sin(t * 2) * 0.15 * calm;
@@ -2198,6 +2470,9 @@ const GIFT = {
         el.style.opacity = behind ? 0 : far ? 0.45 : 1;
         el.style.pointerEvents = behind ? "none" : "auto";
       });
+      tmpV.set(pet.x, TOP + 0.8 + bunny.position.y, pet.z); world.localToWorld(tmpV);
+      tmpV.project(camera);
+      petTag.style.transform = `translate3d(${((tmpV.x * 0.5 + 0.5) * W).toFixed(1)}px, ${((-tmpV.y * 0.5 + 0.5) * H - 6).toFixed(1)}px, 0) translate(-50%, -100%)`;
     }
 
     /* visibility: pause when hidden */
@@ -2223,13 +2498,15 @@ const GIFT = {
         envMats.forEach(m => { m.opacity = m === envShadow.material ? 0.55 : 1; m.transparent = m === envShadow.material; });
         sealG.scale.setScalar(1); sealG.position.z = ED / 2 + 0.04;
         flapPivot.rotation.x = 0; card.position.y = CARD_Y0;
+        pet.x = PET_HOME.x; pet.z = PET_HOME.z; pet.h = 0.55; pet.target = null; pet.act = null; pet.zone = null; keys.clear();
         placeEnvelope();
         canvas.className = "";
         goTo(inviteView(), 2.2, () => { state = "invite"; });
         if (reduced) state = "invite";
       },
       focus(key, inset) {
-        state = "panel";
+        state = "panel"; keys.clear();
+        petToZone(key);
         viewOff.tx = inset.x; viewOff.ty = inset.y;
         goTo(focusView(key), 1.6);
         if (key === "story") polaroids.forEach(p => (p.userData.boost = 1));
@@ -2248,9 +2525,13 @@ const GIFT = {
           viewOff.tx = 0; viewOff.ty = app.clientWidth < 820 ? Math.min(app.clientHeight * 0.18, 150) : 60;
           goTo(finaleView(), 2.2);
           startLanterns();
+          keys.clear(); petToZone("finale");
         } else { lanternsOn = false; state = "island"; }
       },
-      markVisited(k) { tagEls[k] && tagEls[k].classList.add("visited"); },
+      markVisited(k) {
+        tagEls[k] && tagEls[k].classList.add("visited");
+        if (rings[k]) { rings[k].ring.material.color.set(tint(C.sage, -0.06, 0.1)); rings[k].disc.material.color.set(tint(C.sage, 0.2)); }
+      },
       highlightPhoto(i) { const p = polaroids[photoSlots[i % photoSlots.length]]; if (p && i !== focusedPhoto) { p.userData.boost = 1.2; focusedPhoto = i; } },
       wiggleFlowers() { flowers.forEach(f => (f.userData.wig = 1)); },
       setMemories,
