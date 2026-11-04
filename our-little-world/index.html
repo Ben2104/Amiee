@@ -259,6 +259,10 @@ i.love{background:var(--rose)}
 .b-eyes{animation:blink 4.6s infinite}
 @keyframes blink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
 .b-eyes{transform-origin:100px 124px}
+.b-happy{opacity:0}
+.pet-portrait.hug .b-eyes,.pet-portrait.eat .b-eyes{animation:shut .95s steps(1) 1}
+.pet-portrait.hug .b-happy,.pet-portrait.eat .b-happy{animation:shut .95s steps(1) 1 reverse}
+@keyframes shut{0%{opacity:0}100%{opacity:1}}
 .pet-mood{margin:0;font-family:var(--font-hand);font-size:1.3rem;color:var(--rose-deep);max-width:30ch}
 .meters{display:grid;gap:8px;width:100%;max-width:22rem}
 .meter{display:grid;grid-template-columns:4.2rem 1fr 2.6rem;align-items:center;gap:10px;font-weight:800;font-size:.88rem;text-align:left}
@@ -1520,12 +1524,19 @@ const GIFT = {
     strawberry: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 29C9 25 5 18 7 13c2-4 16-4 18 0 2 5-2 12-9 16z" fill="#E8505B" stroke="#A8303A" stroke-width="1.6" stroke-linejoin="round"/><g fill="#FFE3A6"><circle cx="12" cy="16" r="1"/><circle cx="17" cy="15" r="1"/><circle cx="21" cy="17" r="1"/><circle cx="14" cy="21" r="1"/><circle cx="19" cy="22" r="1"/><circle cx="16" cy="26" r="1"/></g><path d="M9 11c3 1 5 0 7-3 2 3 4 4 7 3-2 3-12 3-14 0z" fill="#7FB069" stroke="#4F7A3E" stroke-width="1.4" stroke-linejoin="round"/></svg>',
     matcha: '<svg viewBox="0 0 32 32" aria-hidden="true"><ellipse cx="16" cy="25" rx="12" ry="3.5" fill="#FFF6EA" stroke="#D9BFA6" stroke-width="1.4"/><path d="M6 21c0-7 4.5-11 10-11s10 4 10 11c0 2-4 3.5-10 3.5S6 23 6 21z" fill="#A8C97F" stroke="#6E8F4E" stroke-width="1.6"/><path d="M11 15.5c1.5-1.5 3-2 4.5-2" stroke="#fff" stroke-width="1.8" stroke-linecap="round" opacity=".7"/><path d="M14 19.5c1 .8 3 .8 4 0" stroke="#4A2C36" stroke-width="1.4" stroke-linecap="round" fill="none"/><circle cx="12.5" cy="18" r="1" fill="#4A2C36"/><circle cx="19.5" cy="18" r="1" fill="#4A2C36"/></svg>'
   };
+  let svgId = 0;
   function bunnySvg(viewBox) {
-    const o = "#E7B3BF", w = "#FFFFFF", pk = "#F9C6D2", pad = "#F4A3B8", ink = "#3B2530";
-    const eye = (x, s) => `<circle cx="${x}" cy="124" r="16" fill="#2A9D8F"/><circle cx="${x}" cy="126" r="9.5" fill="#16403E"/>
-      <circle cx="${x - 5}" cy="117.5" r="5" fill="#fff"/><circle cx="${x + 5}" cy="131" r="2.2" fill="#fff"/>
-      <path d="M${x - 17} 114 Q${x} 99 ${x + 17} 114" fill="none" stroke="${ink}" stroke-width="3.6" stroke-linecap="round"/>
-      <path d="M${x + s * 16} 112 l${s * 7} -4 M${x + s * 12} 107.5 l${s * 5} -6" stroke="${ink}" stroke-width="3" stroke-linecap="round"/>`;
+    const o = "#E7B3BF", w = "#FFFFFF", pk = "#F9C6D2", pad = "#F4A3B8", ink = "#2A1720", id = "iris" + (++svgId);
+    const eye = (x, s) => `<ellipse cx="${x}" cy="124" rx="17.5" ry="23.5" fill="#103231"/>
+      <ellipse cx="${x}" cy="125" rx="15.5" ry="21.5" fill="url(#${id})"/>
+      <ellipse cx="${x}" cy="125" rx="8" ry="11.5" fill="#0A2423"/>
+      <ellipse cx="${x}" cy="137.5" rx="9" ry="4" fill="#D2FFF3" opacity=".55"/>
+      <ellipse cx="${x - 5}" cy="115" rx="6.8" ry="5.2" fill="#fff" transform="rotate(-25 ${x - 5} 115)"/>
+      <circle cx="${x + 7}" cy="131" r="2.7" fill="#fff"/><circle cx="${x - 2}" cy="137" r="1.4" fill="#fff" opacity=".85"/>
+      <path d="M${x + 6} 106q0 3.5 3.5 3.5q-3.5 0-3.5 3.5q0-3.5-3.5-3.5q3.5 0 3.5-3.5z" fill="#fff"/>
+      <path d="M${x - 19.5} 121Q${x} 79 ${x + 19.5} 121" fill="none" stroke="${ink}" stroke-width="5" stroke-linecap="round"/>
+      <path d="M${x + s * 18.5} 115q${s * 5} -1 ${s * 9} -6M${x + s * 15} 108.5q${s * 4} -3 ${s * 5} -10M${x + s * 17} 133q${s * 2} 1 ${s * 4} 0" fill="none" stroke="${ink}" stroke-width="3" stroke-linecap="round"/>`;
+    const happy = x => `<path d="M${x - 15} 128Q${x} 106 ${x + 15} 128" fill="none" stroke="${ink}" stroke-width="5" stroke-linecap="round"/>`;
     const foot = x => `<ellipse cx="${x}" cy="211" rx="20" ry="15" fill="${w}"/><ellipse cx="${x}" cy="215" rx="8.5" ry="6.5" fill="${pad}" stroke="none"/>
       <g fill="${pad}" stroke="none"><circle cx="${x - 8}" cy="205" r="3.2"/><circle cx="${x}" cy="202.5" r="3.2"/><circle cx="${x + 8}" cy="205" r="3.2"/></g>`;
     const ear = (x, r) => `<g transform="rotate(${r} ${x} 92)"><ellipse cx="${x}" cy="56" rx="21" ry="50" fill="${w}"/><ellipse cx="${x}" cy="62" rx="11" ry="36" fill="${pk}" stroke="none"/></g>`;
@@ -1536,12 +1547,15 @@ const GIFT = {
         <ellipse cx="100" cy="186" rx="50" ry="40" fill="${w}"/>
         <ellipse cx="100" cy="193" rx="27" ry="25" fill="${pk}" stroke="none"/>
         ${foot(66)}${foot(134)}
-        <ellipse cx="80" cy="168" rx="12" ry="14" fill="${w}"/><ellipse cx="120" cy="168" rx="12" ry="14" fill="${w}"/>
+        <ellipse cx="80" cy="172" rx="11.5" ry="22" fill="${w}" transform="rotate(-28 80 172)"/><ellipse cx="120" cy="172" rx="11.5" ry="22" fill="${w}" transform="rotate(28 120 172)"/>
         <ellipse cx="100" cy="122" rx="70" ry="57" fill="${w}"/>
       </g>
       <g fill="#F48FA8" stroke="#E07090" stroke-width="2.5" stroke-linejoin="round"><path d="M143 74L121 62q-5 12 0 25z"/><path d="M143 74l22-12q5 12 0 25z"/><path d="M140 78l-6 14M146 78l6 14" fill="none" stroke-width="4" stroke-linecap="round"/><circle cx="143" cy="75" r="6.5"/></g>
+      <defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#164B48"/><stop offset=".45" stop-color="#22968A"/><stop offset=".8" stop-color="#4ED3B9"/><stop offset="1" stop-color="#B5F5E4"/></linearGradient></defs>
+      <ellipse cx="50" cy="146" rx="14" ry="8" fill="#FF9AB6" opacity=".6"/><ellipse cx="150" cy="146" rx="14" ry="8" fill="#FF9AB6" opacity=".6"/>
+      <path d="M45 142l-3 8M51 142l-3 8M57 142l-3 8M145 142l-3 8M151 142l-3 8M157 142l-3 8" stroke="#E85A82" stroke-width="2" stroke-linecap="round" opacity=".75"/>
       <g class="b-eyes">${eye(72, -1)}${eye(128, 1)}</g>
-      <ellipse cx="54" cy="144" rx="12" ry="7" fill="#F7A5BA" opacity=".75"/><ellipse cx="146" cy="144" rx="12" ry="7" fill="#F7A5BA" opacity=".75"/>
+      <g class="b-happy">${happy(72)}${happy(128)}</g>
       <path d="M96 139h8l-4 4.5z" fill="#F08AA2" stroke="#F08AA2" stroke-width="2" stroke-linejoin="round"/>
       <path d="M100 143.5v3" stroke="${ink}" stroke-width="2" stroke-linecap="round"/>
       <path d="M91 147q9 13 18 0z" fill="#C64F6C" stroke="#C64F6C" stroke-width="2" stroke-linejoin="round"/><ellipse cx="100" cy="153" rx="5" ry="3" fill="#F59AAE"/>
@@ -2446,40 +2460,108 @@ const GIFT = {
       blob(bunny, furWhite, s * 0.085, 0.035, 0.07, 0.06, 0.04, 0.085);        // foot
       blob(bunny, padPink, s * 0.085, 0.036, 0.15, 0.032, 0.022, 0.012, true); // paw pad
       [-1, 0, 1].forEach(k => blob(bunny, padPink, s * 0.085 + k * 0.021, 0.058 - Math.abs(k) * 0.005, 0.132, 0.01, 0.009, 0.008, true));
-      blob(bunny, furWhite, s * 0.085, 0.2, 0.105, 0.045, 0.055, 0.045);       // front paw
     });
-    const headG = new T.Group(); headG.position.set(0, 0.4, 0.01); bunny.add(headG);
-    blob(headG, furWhite, 0, 0, 0, 0.19, 0.165, 0.17);
-    [-1, 1].forEach(s => blob(headG, furWhite, s * 0.14, -0.05, 0.01, 0.07, 0.065, 0.07));   // chubby cheeks
-    const ears = [-1, 1].map(s => {
-      const pv = new T.Group(); pv.position.set(s * 0.075, 0.12, -0.02); headG.add(pv);
-      blob(pv, furWhite, 0, 0.14, 0, 0.05, 0.155, 0.034);
-      blob(pv, furPink, 0, 0.14, 0.022, 0.029, 0.115, 0.014, true);
+    /* longer arms that hug her tummy (they open wide for hugs) */
+    const arms = [-1, 1].map(s => {
+      const pv = new T.Group(); pv.position.set(s * 0.11, 0.24, 0.07); bunny.add(pv);
+      blob(pv, furWhite, 0, -0.068, 0, 0.042, 0.09, 0.044);
+      blob(pv, furWhite, 0, -0.142, 0.004, 0.047, 0.042, 0.047);
       pv.userData.s = s; return pv;
     });
-    const bowG = new T.Group(); bowG.position.set(0.118, 0.13, 0.05); bowG.rotation.set(0.15, 0.35, -0.4); headG.add(bowG);
+    const headG = new T.Group(); headG.position.set(0, 0.41, 0.01); bunny.add(headG);
+    const HEAD = [0.205, 0.178, 0.18];
+    blob(headG, furWhite, 0, 0, 0, HEAD[0], HEAD[1], HEAD[2]);
+    [-1, 1].forEach(s => blob(headG, furWhite, s * 0.15, -0.06, 0.01, 0.07, 0.062, 0.07));   // chubby cheeks
+    const ears = [-1, 1].map(s => {
+      const pv = new T.Group(); pv.position.set(s * 0.078, 0.13, -0.02); headG.add(pv);
+      blob(pv, furWhite, 0, 0.155, 0, 0.052, 0.17, 0.035);
+      blob(pv, furPink, 0, 0.155, 0.023, 0.03, 0.128, 0.014, true);
+      pv.userData.s = s; return pv;
+    });
+    const bowG = new T.Group(); bowG.position.set(0.128, 0.14, 0.05); bowG.rotation.set(0.15, 0.35, -0.4); headG.add(bowG);
     [-1, 1].forEach(s => { const l = blob(bowG, bowPink, s * 0.042, 0, 0, 0.045, 0.03, 0.02); l.rotation.z = s * 0.35; });
     blob(bowG, bowPink, 0, 0, 0.012, 0.018, 0.018, 0.018);
     const ribbonGeo = new T.BoxGeometry(0.014, 0.05, 0.008);
     [-1, 1].forEach(s => { const r = mesh(ribbonGeo, bowPink, s * 0.016, -0.032, 0.006); r.rotation.z = s * 0.45; bowG.add(r); });
-    const irisMat = clay("#2A9D8F", { roughness: 0.25 }), pupilMat = clay("#16403E", { roughness: 0.3 }), lashMat = clay("#3B2530");
-    const shineMat = new T.MeshBasicMaterial({ color: 0xffffff });
-    const lidGeo = new T.TorusGeometry(0.043, 0.0045, 6, 18, Math.PI * 0.85), lashGeo = new T.BoxGeometry(0.022, 0.005, 0.005);
-    const eyes = [-1, 1].map(s => {
-      const e = new T.Group(); e.position.set(s * 0.075, 0.005, 0.15); e.rotation.y = s * 0.37; headG.add(e);
-      blob(e, irisMat, 0, 0, 0, 0.04, 0.048, 0.016, true);
-      blob(e, pupilMat, 0, -0.004, 0.01, 0.024, 0.03, 0.009, true);
-      blob(e, shineMat, -0.012, 0.017, 0.017, 0.012, 0.013, 0.006, true);
-      blob(e, shineMat, 0.013, -0.017, 0.016, 0.006, 0.006, 0.004, true);
-      const lid = new T.Mesh(lidGeo, lashMat); lid.rotation.z = Math.PI * 0.075; lid.position.z = 0.008; lid.scale.y = 1.12; e.add(lid);
-      [[0.045, 0.03, 0.6], [0.036, 0.044, 1.0]].forEach(([x, y, r]) => { const l = mesh(lashGeo, lashMat, s * x, y, 0.006, true); l.rotation.z = s * r; e.add(l); });
-      return e;
-    });
-    blob(headG, clay("#F08AA2"), 0, -0.032, 0.167, 0.013, 0.009, 0.008, true);  // nose
-    blob(headG, clay("#C64F6C"), 0, -0.064, 0.153, 0.024, 0.02, 0.012, true);    // open smile
-    blob(headG, clay("#F59AAE"), 0, -0.073, 0.16, 0.013, 0.008, 0.006, true);    // tongue
-    const blushMat = new T.MeshBasicMaterial({ color: new T.Color("#F7A5BA"), transparent: true, opacity: 0.75, depthWrite: false });
-    [-1, 1].forEach(s => { const b = blob(headG, blushMat, s * 0.118, -0.048, 0.122, 0.036, 0.02, 0.01, true); b.rotation.y = s * 0.78; });
+
+    /* an anime face, painted onto a thin shell over the front of her head:
+       big glossy eyes, thick lashes, sparkles, "///" blush and an open smile.
+       Three versions: eyes open, blinking, and happy ^ ^ for hugs and treats. */
+    const FACE = { lon: 70, top: 40, bottom: -50 }, FPX = 1024 / (FACE.lon * 2);
+    const fpt = (lon, lat) => [(lon + FACE.lon) * FPX, (FACE.top - lat) * FPX];
+    function drawFace(kind) {
+      const c = document.createElement("canvas"); c.width = 1024; c.height = Math.round((FACE.top - FACE.bottom) * FPX);
+      const g = c.getContext("2d"), ell = (x, y, rx, ry, rot) => { g.beginPath(); g.ellipse(x, y, rx, ry, rot || 0, 0, Math.PI * 2); };
+      const ink = "#2A1720";
+      g.lineCap = g.lineJoin = "round";
+      /* blush with little hatch lines */
+      [-1, 1].forEach(s => {
+        const [x, y] = fpt(s * 47, -21);
+        const gr = g.createRadialGradient(x, y, 4, x, y, 78);
+        gr.addColorStop(0, "rgba(255,120,160,.9)"); gr.addColorStop(1, "rgba(255,140,170,0)");
+        g.fillStyle = gr; ell(x, y, 88, 52); g.fill();
+        g.strokeStyle = "rgba(232,90,130,.7)"; g.lineWidth = 6;
+        [-22, 0, 22].forEach(dx => { g.beginPath(); g.moveTo(x + dx + 8, y - 14); g.lineTo(x + dx - 8, y + 14); g.stroke(); });
+      });
+      /* eyes */
+      [-1, 1].forEach(s => {
+        const [cx, cy] = fpt(s * 26, 1), rx = 96, ry = 128;
+        if (kind === "open") {
+          g.fillStyle = "#103231"; ell(cx, cy, rx, ry); g.fill();
+          const ir = g.createLinearGradient(0, cy - ry, 0, cy + ry);
+          ir.addColorStop(0, "#164B48"); ir.addColorStop(0.45, "#22968A"); ir.addColorStop(0.8, "#4ED3B9"); ir.addColorStop(1, "#B5F5E4");
+          g.fillStyle = ir; ell(cx, cy + 3, rx - 8, ry - 8); g.fill();
+          const pu = g.createRadialGradient(cx, cy, 2, cx, cy + 6, rx * 0.5);
+          pu.addColorStop(0, "#06191A"); pu.addColorStop(1, "#0F3836");
+          g.fillStyle = pu; ell(cx, cy + ry * 0.04, rx * 0.46, ry * 0.52); g.fill();
+          g.globalAlpha = 0.55; g.fillStyle = "#D2FFF3"; ell(cx, cy + ry * 0.58, rx * 0.52, ry * 0.2); g.fill(); g.globalAlpha = 1;
+          g.fillStyle = "#fff";
+          ell(cx - rx * 0.3, cy - ry * 0.36, rx * 0.36, ry * 0.27, -0.45); g.fill();
+          ell(cx + rx * 0.4, cy + ry * 0.3, rx * 0.14, rx * 0.14); g.fill();
+          g.globalAlpha = 0.85; ell(cx - rx * 0.1, cy + ry * 0.56, rx * 0.07, rx * 0.07); g.fill(); g.globalAlpha = 1;
+          const sx = cx + rx * 0.32, sy = cy - ry * 0.52, k = rx * 0.2;   // a four-point sparkle
+          g.beginPath(); g.moveTo(sx, sy - k); g.quadraticCurveTo(sx, sy, sx + k, sy); g.quadraticCurveTo(sx, sy, sx, sy + k); g.quadraticCurveTo(sx, sy, sx - k, sy); g.quadraticCurveTo(sx, sy, sx, sy - k); g.fill();
+          /* thick upper lash line with flicks at the outer corner */
+          g.strokeStyle = ink; g.lineWidth = 17;
+          g.beginPath(); g.ellipse(cx, cy + 4, rx + 6, ry + 4, 0, Math.PI * 1.1, Math.PI * 1.9); g.stroke();
+          const oa = s > 0 ? Math.PI * 1.9 : Math.PI * 1.1, px = cx + (rx + 6) * Math.cos(oa), py = cy + 4 + (ry + 4) * Math.sin(oa);
+          g.lineWidth = 9;
+          g.beginPath(); g.moveTo(px, py); g.quadraticCurveTo(px + s * 22, py - 2, px + s * 38, py - 22); g.stroke();
+          g.beginPath(); g.moveTo(px - s * 10, py - 14); g.quadraticCurveTo(px + s * 8, py - 26, px + s * 20, py - 46); g.stroke();
+          g.lineWidth = 6;
+          g.beginPath(); g.ellipse(cx, cy, rx + 2, ry + 2, 0, s > 0 ? Math.PI * 0.08 : Math.PI * 0.8, s > 0 ? Math.PI * 0.2 : Math.PI * 0.92); g.stroke();
+        } else if (kind === "blink") {
+          g.strokeStyle = ink; g.lineWidth = 15;
+          g.beginPath(); g.ellipse(cx, cy + 6, rx * 0.95, ry * 0.32, 0, Math.PI * 0.1, Math.PI * 0.9); g.stroke();
+          const px = cx + s * rx * 0.92, py = cy + 6 + ry * 0.1;
+          g.lineWidth = 8; g.beginPath(); g.moveTo(px, py); g.quadraticCurveTo(px + s * 18, py - 6, px + s * 30, py - 22); g.stroke();
+        } else {
+          g.strokeStyle = ink; g.lineWidth = 17;
+          g.beginPath(); g.ellipse(cx, cy + ry * 0.3, rx * 0.85, ry * 0.55, 0, Math.PI * 1.12, Math.PI * 1.88); g.stroke();
+        }
+      });
+      /* nose and open smile */
+      const [nx, ny] = fpt(0, -17);
+      g.fillStyle = "#F07D99"; g.beginPath(); g.moveTo(nx - 14, ny - 6); g.lineTo(nx + 14, ny - 6); g.quadraticCurveTo(nx + 2, ny + 12, nx, ny + 12); g.quadraticCurveTo(nx - 2, ny + 12, nx - 14, ny - 6); g.fill();
+      const my = ny + 32;
+      g.fillStyle = "#C8456A"; g.strokeStyle = ink; g.lineWidth = 6;
+      g.beginPath(); g.moveTo(nx - 34, my); g.quadraticCurveTo(nx - 17, my + 8, nx, my); g.quadraticCurveTo(nx + 17, my + 8, nx + 34, my);
+      g.quadraticCurveTo(nx + 26, my + 50, nx, my + 52); g.quadraticCurveTo(nx - 26, my + 50, nx - 34, my); g.closePath(); g.fill(); g.stroke();
+      g.fillStyle = "#FF9DB5"; ell(nx, my + 38, 17, 11); g.fill();
+      g.beginPath(); g.moveTo(nx, ny + 12); g.lineTo(nx, my + 2); g.stroke();
+      const tex = new T.CanvasTexture(c);
+      tex.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+      return tex;
+    }
+    const faceTex = { open: drawFace("open"), blink: drawFace("blink"), happy: drawFace("happy") };
+    const faceMat = new T.MeshStandardMaterial({ map: faceTex.open, transparent: true, roughness: 0.55, depthWrite: false,
+      emissive: new T.Color(0xffffff), emissiveMap: faceTex.open, emissiveIntensity: 0.18 });
+    const faceGeo = new T.SphereGeometry(1, 48, 32, Math.PI / 2 - T.MathUtils.degToRad(FACE.lon), T.MathUtils.degToRad(FACE.lon * 2),
+      T.MathUtils.degToRad(90 - FACE.top), T.MathUtils.degToRad(FACE.top - FACE.bottom));
+    const face = new T.Mesh(faceGeo, faceMat); face.scale.set(HEAD[0] * 1.006, HEAD[1] * 1.006, HEAD[2] * 1.006); face.renderOrder = 2;
+    headG.add(face);
+    let faceNow = "open";
+    function setFace(k) { if (k === faceNow) return; faceNow = k; faceMat.map = faceMat.emissiveMap = faceTex[k]; faceMat.needsUpdate = true; }
     bunnyG.traverse(o => { o.userData.pet = true; });
 
     /* little hearts that float up from the bunny */
@@ -2656,7 +2738,14 @@ const GIFT = {
       pet.blink -= dt;
       const shut = pet.blink < 0;
       if (pet.blink < -0.13) pet.blink = 2 + Math.random() * 3.5;
-      eyes.forEach(e => (e.scale.y = shut ? 0.12 : 1));
+      const happy = a && (a.kind === "hug" || a.kind === "pat" || (a.kind === "feed" && a.t > a.dur - 0.7));
+      setFace(happy ? "happy" : shut ? "blink" : "open");
+      let open = 0;                       // arms open wide for a hug
+      if (a && a.kind === "hug") open = Math.sin(Math.min(1, a.t / 1.0) * Math.PI);
+      arms.forEach(pv => {
+        const s = pv.userData.s, swing = moving && calm ? Math.sin(pet.hopT + s * 1.5) * 0.18 : 0;
+        pv.rotation.set(-0.75 - open * 0.5 + swing, 0, -s * (0.5 - open * 2.1));
+      });
       pet.droop += (pet.droopTo - pet.droop) * Math.min(1, dt * 3);
       ears.forEach(e => {
         const s = e.userData.s;
