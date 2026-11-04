@@ -273,6 +273,20 @@ i.love{background:var(--rose)}
 .pet-log{margin:0;color:var(--ink-soft);font-size:.9rem;max-width:34ch}
 .pet-form{display:grid;gap:10px;padding:8px 0 4px}
 
+#fireworks{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:6}
+#annBanner{position:absolute;left:50%;bottom:calc(var(--safe-b) + 104px);transform:translateX(-50%);z-index:21;display:flex;align-items:center;gap:10px;
+  width:max-content;max-width:calc(100% - 32px);padding:10px 10px 10px 18px;border-radius:22px;background:rgba(74,44,54,.9);color:var(--cream);box-shadow:0 14px 30px rgba(74,44,54,.3)}
+#annBanner .ann-txt{min-width:0}
+.ann-title{margin:0;font-family:var(--font-display);font-size:1.2rem;line-height:1.15;font-weight:600;font-variation-settings:"SOFT" 100}
+.ann-sub{margin:2px 0 0;font-size:.85rem;color:#F7D3DC}
+#annBanner .icon-btn{width:40px;height:40px;flex:none;background:rgba(255,246,234,.14);color:var(--cream);box-shadow:none}
+#annBanner .btn{flex:none}
+@media (max-width:440px){#annBanner{flex-wrap:wrap;justify-content:flex-end}#annBanner .ann-txt{flex:1 1 calc(100% - 50px)}}
+.ann-set{width:100%;text-align:left;margin-top:20px;padding-top:18px;border-top:1px dashed var(--line)}
+.ann-set h3{font-size:1.3rem}
+.ann-set .lede{margin:.25rem 0 .5rem}
+.ann-next{margin:6px 0 0;background:#FCE0E6;color:var(--rose-deep);border-radius:14px;padding:.6rem .85rem;font-weight:700;font-size:.92rem}
+
 /* ───── finale ───── */
 #finale{position:absolute;inset:0;z-index:25;display:flex;align-items:flex-end;justify-content:center;pointer-events:none;
   padding-bottom:calc(var(--safe-b) + 18px);padding-left:var(--gutter-l);padding-right:var(--gutter-r)}
@@ -392,6 +406,7 @@ i.love{background:var(--rose)}
   <canvas id="scene" aria-hidden="true" tabindex="-1"></canvas>
   <div id="fallbackArt" hidden aria-hidden="true"></div>
   <div id="cssLanterns" aria-hidden="true"></div>
+  <canvas id="fireworks" aria-hidden="true" hidden></canvas>
   <div id="tags" aria-hidden="true"></div>
 
   <!-- 1 · The invitation -->
@@ -440,6 +455,13 @@ i.love{background:var(--rose)}
     <span class="sr-only" id="petStatus"></span>
   </section>
   <p id="hint" class="fade" hidden role="status"></p>
+  <section id="annBanner" class="fade" hidden role="status" aria-labelledby="annBannerTitle">
+    <div class="ann-txt"><p class="ann-title" id="annBannerTitle"></p><p class="ann-sub" id="annBannerSub"></p></div>
+    <button class="btn btn-soft btn-sm" id="annAgain" type="button">More fireworks</button>
+    <button class="icon-btn" id="annClose" type="button" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </section>
   <p id="notice" hidden></p>
 
   <aside id="panel" class="fade" hidden role="dialog" aria-modal="false" aria-labelledby="panelTitle">
@@ -706,9 +728,21 @@ const GIFT = {
     const anchor = { y: anchorY, mo: anchorM, d: Math.min(a.d, lastDay) };
     return { months, days: dayDiff(anchor, b) };
   }
-  const startDate = parseYMD(GIFT.togetherSince);
-  const daysTogether = startDate ? dayDiff(startDate, todayYMD()) : null;
-  const showCounter = daysTogether !== null && daysTogether >= 0;
+  // Our anniversary can be changed on Mochi's page (saved in this browser); it starts as togetherSince.
+  const ANN_KEY = "olw-anniversary";
+  const annSet = { date: GIFT.togetherSince, monthly: true };   // monthly: fireworks on the day every month, not just once a year
+  try {
+    const v = JSON.parse(localStorage.getItem(ANN_KEY) || "null");
+    if (v && parseYMD(v.date)) annSet.date = v.date;
+    if (v && typeof v.monthly === "boolean") annSet.monthly = v.monthly;
+  } catch (e) { /* storage unavailable */ }
+  let startDate, daysTogether, showCounter;
+  function setStart() {
+    startDate = parseYMD(annSet.date);
+    daysTogether = startDate ? dayDiff(startDate, todayYMD()) : null;
+    showCounter = daysTogether !== null && daysTogether >= 0;
+  }
+  setStart();
 
   /* ── fill static text ── */
   $("#inviteTo").textContent = fill(GIFT.text.inviteTo);
@@ -720,6 +754,8 @@ const GIFT = {
   $("#finaleNames").textContent = GIFT.yourName + " & " + GIFT.herName;
   $("#finaleTitle").textContent = fill(GIFT.text.finaleTitle);
   $("#finaleMsg").textContent = GIFT.anniversaryMessage;
+  function refreshCounter() {
+  $("#counterWrap").hidden = !showCounter;
   if (showCounter) {
     const md = monthsAndDays(startDate, todayYMD());
     const fmt = new Intl.DateTimeFormat("en-US", { month: "long", day: "numeric", year: "numeric" });
@@ -728,9 +764,9 @@ const GIFT = {
     if (md.months >= 1) extra = " · that's " + md.months + (md.months === 1 ? " month" : " months") + (md.days ? " and " + md.days + (md.days === 1 ? " day" : " days") : "");
     $("#sinceLine").textContent = "since " + sinceStr + extra;
     $("#dayUnit").textContent = daysTogether === 1 ? "day together" : daysTogether === 0 ? GIFT.text.dayOneUnit : GIFT.text.daysUnit;
-  } else {
-    $("#counterWrap").hidden = true;
   }
+  }
+  refreshCounter();
 
   /* ── visibility helpers with fade ── */
   function show(el) { clearTimeout(el._ft); el.hidden = false; void el.offsetWidth; el.classList.add("on"); }
@@ -780,6 +816,7 @@ const GIFT = {
     const sec = byKey(key);
     if (!sec) return;
     if (mode === "finale") closeFinale(true);
+    hide(annBanner);
     lastOpener = opener || document.activeElement;
     current = key; mode = "panel";
     $("#panelTitle").textContent = sec.title;
@@ -911,6 +948,7 @@ const GIFT = {
     if (world) { world.setMemories(memories()); world.setFlowerCount(noteList().length); }
     updateAccount();
     if (mode === "panel" && current && !editing) renderPanel(current);
+    maybeCelebrate();          // a plan marked Celebration today
   }
 
   /* ── content accessors: live rows when signed in, the GIFT config otherwise ── */
@@ -1418,6 +1456,8 @@ const GIFT = {
     show(finale);
     runCounter();
     if (world) world.finale(true); else cssLanterns();
+    hide(annBanner);
+    if (celebrationToday()) Fireworks.start(12);
     setTimeout(() => $("#finaleTitle").focus({ preventScroll: true }), reduced ? 0 : 80);
   }
   function closeFinale(silent) {
@@ -1458,7 +1498,7 @@ const GIFT = {
     }
   }
   on($("#finaleBack"), "click", () => closeFinale());
-  on($("#finaleAgain"), "click", () => { runCounter(); if (world) world.finale(true); else cssLanterns(); });
+  on($("#finaleAgain"), "click", () => { runCounter(); if (world) world.finale(true); else cssLanterns(); if (celebrationToday()) Fireworks.start(10); });
   on($("#finaleReplay"), "click", () => replay());
 
   /* ── hint ── */
@@ -1652,15 +1692,33 @@ const GIFT = {
       <details class="manage"><summary>Rename ${n}</summary>
         <form class="pet-form" id="petNameForm"><div class="field"><label for="petNameIn">Name</label><input id="petNameIn" name="name" maxlength="24" autocomplete="off" value="${n}" required></div>
         <div class="form-actions"><button class="btn btn-primary btn-sm" type="submit">Save name</button></div></form></details>
+      <section class="ann-set" aria-labelledby="annTitle">
+        <h3 id="annTitle">Our anniversary</h3>
+        <p class="lede">On our day, the sky over the island fills with fireworks.${live ? " Plans marked Celebration get fireworks on their day too." : ""}</p>
+        <form class="pet-form" id="annForm" novalidate>
+          <div class="field"><label for="annDate">The day we started</label><input id="annDate" name="date" type="date" value="${esc(annSet.date || "")}" required></div>
+          <label class="check"><input type="checkbox" name="monthly"${annSet.monthly ? " checked" : ""}> Fireworks every month on that day, not just once a year</label>
+          <p class="form-error" id="annErr" role="alert"></p>
+          <div class="form-actions"><button class="btn btn-soft btn-sm" type="button" data-ann="preview">Preview the fireworks</button><button class="btn btn-primary btn-sm" type="submit">Save our day</button></div>
+        </form>
+        <p class="ann-next" id="annNext"></p>
+      </section>
     </div>`;
     refreshPetUI();
+    refreshAnnNext();
   }
   on(pBody, "click", e => {
+    if (e.target.closest('[data-ann="preview"]')) {
+      closePanel();
+      celebrate({ title: "A little preview ✨", sub: "This is what our day looks like" }, 8);
+      return;
+    }
     const b = e.target.closest("[data-pet]");
     if (!b || !pBody.contains(b)) return;
     if (b.dataset.pet === "hug") hugPet(b); else feedPet(b.dataset.kind, b);
   });
   on(pBody, "submit", e => {
+    if (e.target.id === "annForm") { e.preventDefault(); saveAnniversary(e.target); return; }
     if (e.target.id !== "petNameForm") return;
     e.preventDefault();
     const v = e.target.elements.name.value.trim().slice(0, 24);
@@ -1681,6 +1739,152 @@ const GIFT = {
     if (world && mode === "island" && (m === "hungry" || m === "lonely")) world.pet.say(m === "hungry" ? "I'm hungry…" : "hug me?", 3);
   }, 60000);
 
+  /* ════════════════ our anniversary: fireworks ════════════════ */
+  function celebrationToday() {
+    const t = todayYMD(), a = startDate && anniversaryIn(t.y, t.mo);
+    const names = GIFT.yourName + " & " + GIFT.herName;
+    if (a && a.d === t.d && (a.months % 12 === 0 || annSet.monthly)) {
+      const yrs = a.months % 12 === 0;
+      return { title: yrs ? "Happy anniversary! 🎆" : "Happy " + a.months + (a.months === 1 ? " month" : " months") + "! 🎆", sub: annLabel(a.months) + " today · " + names };
+    }
+    const ev = live && live.events.find(e => e.date === todayStr() && e.kind === "celebration" && !e.done);
+    if (ev) return { title: ev.title + " 🎆", sub: "Today's celebration · " + names };
+    return null;
+  }
+  function nextFireworks() {
+    const t = todayYMD(), today = todayStr();
+    for (let k = 0; k < 26; k++) {
+      const d = new Date(t.y, t.mo - 1 + k, 1), y = d.getFullYear(), mo = d.getMonth() + 1, a = anniversaryIn(y, mo);
+      if (!a || !(a.months % 12 === 0 || annSet.monthly)) continue;
+      const s = ymd(y, mo, a.d);
+      if (s >= today) return { date: s, months: a.months, inDays: dayDiff(t, parseYMD(s)) };
+    }
+    return null;
+  }
+  function refreshAnnNext() {
+    const el = $("#annNext");
+    if (!el) return;
+    const n = nextFireworks();
+    if (!n) { el.textContent = startDate ? "Fireworks start one month after the day we started." : "Pick the day we started to see when the next fireworks are."; return; }
+    const when = new Date(...(d => [d.y, d.mo - 1, d.d])(parseYMD(n.date))).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+    el.textContent = "Next fireworks: " + when + ", " + annLabel(n.months) + (n.inDays === 0 ? ". That's today!" : n.inDays === 1 ? ", tomorrow." : ", in " + n.inDays + " days.");
+  }
+  function saveAnniversary(f) {
+    const d = f.elements.date.value, err = $("#annErr");
+    if (!parseYMD(d)) { err.textContent = "Pick the day we started."; f.elements.date.focus(); return; }
+    if (d > todayStr()) { err.textContent = "Pick a day that has already happened."; f.elements.date.focus(); return; }
+    err.textContent = "";
+    annSet.date = d; annSet.monthly = f.elements.monthly.checked;
+    try { localStorage.setItem(ANN_KEY, JSON.stringify(annSet)); } catch (e) { /* storage unavailable */ }
+    setStart(); refreshCounter(); refreshAnnNext();
+    const c = celebrationToday();
+    announce("Saved our anniversary: " + fmtLong(d) + "." + (c ? " That's today!" : ""));
+    if (c) { closePanel(); celebrate(c); }
+  }
+
+  const Fireworks = (() => {
+    const cv = $("#fireworks"), g = cv.getContext("2d");
+    const COLS = ["#FF3F7F", "#FFAE1A", "#FFFFFF", "#FF6FA5", "#FF7A2E", "#9B6BFF", "#E0306A", "#2DBE95", "#FFD23F"];
+    let W = 0, H = 0, raf = 0, last = 0, until = 0, nextLaunch = 0, stillT = 0, rockets = [], sparks = [];
+    const K = () => Math.max(0.55, Math.min(W, H) / 700);
+    function size() {
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      W = app.clientWidth; H = app.clientHeight;
+      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+      g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    function burst(x, y, heart) {
+      const c1 = pickOne(COLS), c2 = pickOne(COLS), k = K(), n = heart ? 84 : 70;
+      for (let i = 0; i < n; i++) {
+        let vx, vy;
+        if (heart) {
+          const t = (i / n) * Math.PI * 2;
+          vx = 16 * Math.pow(Math.sin(t), 3) * 14 * k;
+          vy = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)) * 14 * k;
+        } else {
+          const a = Math.random() * Math.PI * 2, sp = (110 + Math.random() * 220) * k;
+          vx = Math.cos(a) * sp; vy = Math.sin(a) * sp;
+        }
+        sparks.push({ x, y, vx, vy, life: 1, decay: 0.42 + Math.random() * 0.3, col: i % 3 ? c1 : c2, r: (1.5 + Math.random() * 1.7) * k });
+      }
+    }
+    function launch() {
+      rockets.push({ x: W * (0.12 + Math.random() * 0.76), y: H + 6, vy: -H * (1.05 + Math.random() * 0.4), stop: H * (0.1 + Math.random() * 0.32), col: pickOne(COLS), heart: Math.random() < 0.35, w: Math.random() * 6 });
+    }
+    function frame(now) {
+      raf = requestAnimationFrame(frame);
+      const dt = Math.min(0.05, (now - last) / 1000), k = K(); last = now;
+      g.globalCompositeOperation = "destination-out";
+      g.fillStyle = "rgba(0,0,0,0.24)"; g.fillRect(0, 0, W, H);
+      g.globalCompositeOperation = "source-over";
+      if (now < until && now >= nextLaunch) { launch(); if (Math.random() < 0.35) launch(); nextLaunch = now + 420 + Math.random() * 560; }
+      rockets = rockets.filter(r => {
+        r.y += r.vy * dt; r.vy += 320 * k * dt; r.x += Math.sin(now / 120 + r.w) * 0.4;
+        g.globalAlpha = 1; g.fillStyle = r.col; g.beginPath(); g.arc(r.x, r.y, 2.3 * k, 0, 6.283); g.fill();
+        if (r.y <= r.stop || r.vy > -60) { burst(r.x, r.y, r.heart); return false; }
+        return true;
+      });
+      sparks = sparks.filter(p => {
+        const drag = 1 - 1.7 * dt;
+        p.vx *= drag; p.vy = p.vy * drag + 85 * k * dt;
+        p.x += p.vx * dt; p.y += p.vy * dt; p.life -= p.decay * dt;
+        if (p.life <= 0) return false;
+        g.globalAlpha = Math.min(1, p.life * 1.5); g.fillStyle = p.col;
+        g.beginPath(); g.arc(p.x, p.y, p.r * (0.55 + p.life * 0.45), 0, 6.283); g.fill();
+        return true;
+      });
+      g.globalAlpha = 1;
+      if (now > until && !rockets.length && !sparks.length) stop();
+    }
+    function still() {   // reduced motion: a few bursts that stay put for a moment
+      g.clearRect(0, 0, W, H);
+      const k = K();
+      [[0.22, 0.2], [0.5, 0.13], [0.78, 0.22], [0.36, 0.36], [0.66, 0.34]].forEach(([fx, fy], i) => {
+        const cx = W * fx, cy = H * fy, col = COLS[i % COLS.length];
+        for (let j = 0; j < 36; j++) {
+          const a = (j / 36) * Math.PI * 2;
+          for (let s = 1; s <= 3; s++) {
+            g.globalAlpha = 0.35 + s * 0.2; g.fillStyle = s === 3 ? "#FFFFFF" : col;
+            g.beginPath(); g.arc(cx + Math.cos(a) * s * 22 * k, cy + Math.sin(a) * s * 22 * k, (1 + s * 0.5) * k, 0, 6.283); g.fill();
+          }
+        }
+      });
+      g.globalAlpha = 1;
+    }
+    function start(secs) {
+      size(); cv.hidden = false;
+      until = performance.now() + (secs || 12) * 1000;
+      clearTimeout(stillT);
+      if (reduced) { still(); stillT = setTimeout(stop, 6000); return; }
+      nextLaunch = 0;
+      if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); }
+    }
+    function stop() {
+      cancelAnimationFrame(raf); raf = 0; rockets = []; sparks = [];
+      g.clearRect(0, 0, W, H); cv.hidden = true;
+    }
+    return { start, stop };
+  })();
+
+  const annBanner = $("#annBanner");
+  let celebrated = false;
+  function celebrate(c, secs) {
+    celebrated = true;
+    hideHint();
+    $("#annBannerTitle").textContent = c.title;
+    $("#annBannerSub").textContent = c.sub;
+    show(annBanner);
+    Fireworks.start(secs || 14);
+    if (world) { world.pet.hug(); world.pet.say("fireworks!! ✨", 3.5); }
+  }
+  function maybeCelebrate() {
+    if (celebrated || mode !== "island") return;
+    const c = celebrationToday();
+    if (c) celebrate(c);
+  }
+  on($("#annAgain"), "click", () => { Fireworks.start(10); if (world) world.pet.hug(); });
+  on($("#annClose"), "click", () => { hide(annBanner); Fireworks.stop(); });
+
   /* ── opening / replay ── */
   const invite = $("#invite");
   function openSurprise() {
@@ -1693,12 +1897,14 @@ const GIFT = {
       $("#replayBtn").hidden = false;
       showDock();
       showHint();
-      if (world) setTimeout(() => { const m = petMood(); world.pet.say(m === "hungry" ? "I'm hungry…" : m === "lonely" ? "hug me?" : "hi " + GIFT.herName + "!", 3); }, reduced ? 0 : 900);
+      maybeCelebrate();
+      if (world && !celebrated) setTimeout(() => { const m = petMood(); world.pet.say(m === "hungry" ? "I'm hungry…" : m === "lonely" ? "hug me?" : "hi " + GIFT.herName + "!", 3); }, reduced ? 0 : 900);
       setTimeout(() => { const b = dock.querySelector("button"); b && b.focus({ preventScroll: true }); }, 50);
     };
     if (world) world.open(arrive); else setTimeout(arrive, reduced ? 0 : 500);
   }
   function replay() {
+    hide(annBanner); Fireworks.stop(); celebrated = false;
     if (mode === "panel") closePanel(true);
     if (mode === "finale") closeFinale(true);
     hideHint();
