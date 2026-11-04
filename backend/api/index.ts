@@ -43,7 +43,7 @@ app.onError((err, c) => {
   return fail(c, 500, "Something went wrong on our side");
 });
 
-const VERSION = "2026-11-03.2";
+const VERSION = "2026-11-04.1";
 app.get("/", (c) => c.json({ ok: true, service: "our-little-world-api", version: VERSION }));
 
 // ── auth relay (see auth.ts for why) ──
