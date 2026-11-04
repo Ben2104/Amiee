@@ -32,7 +32,15 @@ A little white bunny with a pink bow lives on the island.
   gets fireworks on its day too. The date also drives the days-together
   counter and the calendar's monthly anniversaries.
 
-Her name starts as `GIFT.pet.name`. Her care, her name and the anniversary
+- **Outfits:** her page has a wardrobe from our design sheet
+  ([`designs/mochi-outfits.jpg`](designs/mochi-outfits.jpg)): the Starlight
+  princess dress (Đầm công chúa Tím Ánh Sao) with a tiara and star bow, the
+  carrot shirt and bloomers (Set áo sơ mi & Quần bí Cà Rốt) with a beret and
+  Mary Janes, and the cream tartan dress (Đầm Tartan Trắng Kem) with a pearl
+  belt and bow. Or just her pink bow. She wears it on the island and in her
+  pictures.
+
+Her name starts as `GIFT.pet.name`. Her care, her name, her outfit and the anniversary
 are saved in the browser (`localStorage`), so each phone or laptop has its
 own Mochi.
 

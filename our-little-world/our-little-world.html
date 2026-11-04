@@ -266,6 +266,15 @@ i.love{background:var(--rose)}
 .treat:active{transform:translateY(2px)}
 .treat svg{width:30px;height:30px}
 .treat-lbl{font-weight:800;font-size:.92rem;margin:4px 0 -4px}
+.outfits{width:100%;text-align:left;margin-top:6px}
+.outfits h3{font-size:1.3rem;margin-bottom:8px}
+.outfit-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.outfit{display:grid;justify-items:center;gap:2px;border:0;border-radius:18px;padding:10px 8px 12px;background:#FFF7EA;box-shadow:0 3px 0 #EBD3BE,inset 0 0 0 2px transparent;text-align:center;transition:box-shadow .2s, background .2s}
+.outfit:hover{background:#FFF0F3}
+.outfit svg{width:84px;height:96px}
+.outfit .o-name{font-weight:800;font-size:.88rem;line-height:1.2}
+.outfit .o-vi{font-family:var(--font-hand);color:var(--ink-soft);font-size:.92rem;line-height:1.15}
+.outfit[aria-pressed="true"]{background:#FCE0E6;box-shadow:0 3px 0 #F0C3CD,inset 0 0 0 3px var(--rose)}
 .pet-log{margin:0;color:var(--ink-soft);font-size:.9rem;max-width:34ch}
 .pet-form{display:grid;gap:10px;padding:8px 0 4px}
 
@@ -1517,8 +1526,62 @@ const GIFT = {
     matcha: '<svg viewBox="0 0 32 32" aria-hidden="true"><ellipse cx="16" cy="25" rx="12" ry="3.5" fill="#FFF6EA" stroke="#D9BFA6" stroke-width="1.4"/><path d="M6 21c0-7 4.5-11 10-11s10 4 10 11c0 2-4 3.5-10 3.5S6 23 6 21z" fill="#A8C97F" stroke="#6E8F4E" stroke-width="1.6"/><path d="M11 15.5c1.5-1.5 3-2 4.5-2" stroke="#fff" stroke-width="1.8" stroke-linecap="round" opacity=".7"/><path d="M14 19.5c1 .8 3 .8 4 0" stroke="#4A2C36" stroke-width="1.4" stroke-linecap="round" fill="none"/><circle cx="12.5" cy="18" r="1" fill="#4A2C36"/><circle cx="19.5" cy="18" r="1" fill="#4A2C36"/></svg>'
   };
   let svgId = 0;
-  function bunnySvg(viewBox) {
+  /* outfits from our design sheet (designs/mochi-outfits.jpg), as layers for the drawn bunny */
+  const OUTFITS = {
+    none:     { label: "Just her bow",           vi: "Nơ hồng" },
+    princess: { label: "Starlight princess",     vi: "Đầm công chúa Tím Ánh Sao", say: "a princess! ✨" },
+    carrot:   { label: "Carrot shirt & bloomers", vi: "Set áo sơ mi & Quần bí Cà Rốt", say: "carrot style!" },
+    tartan:   { label: "Cream tartan dress",     vi: "Đầm Tartan Trắng Kem", say: "so fancy ♡" }
+  };
+  function outfitSvg(key, id) {
+    const star = (cx, cy, r, fill, stroke) => { let d = ""; for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.45 : r; d += (i ? "L" : "M") + (cx + Math.cos(a) * rr).toFixed(1) + " " + (cy + Math.sin(a) * rr).toFixed(1); } return `<path d="${d}Z" fill="${fill}" stroke="${stroke || "#C9962E"}" stroke-width="1.6" stroke-linejoin="round"/>`; };
+    const skirt = (tl, tr, ty, hl, hr, hy, n, bulge, fill, stroke, extra) => {
+      let d = `M${tl} ${ty}Q100 ${ty - 9} ${tr} ${ty}L${hr} ${hy}`;
+      const step = (hr - hl) / n;
+      for (let i = 0; i < n; i++) { const x0 = hr - i * step, x1 = x0 - step; d += `Q${(x0 + x1) / 2} ${hy + bulge} ${x1} ${hy}`; }
+      return `<path d="${d}Z" fill="${fill}" stroke="${stroke}" stroke-width="3" stroke-linejoin="round" ${extra || ""}/>`;
+    };
+    const bow = (fill, stroke, mid) => `<g fill="${fill}" stroke="${stroke}" stroke-width="2.5" stroke-linejoin="round"><path d="M143 74L121 62q-5 12 0 25z"/><path d="M143 74l22-12q5 12 0 25z"/><path d="M140 78l-6 14M146 78l6 14" fill="none" stroke-width="4" stroke-linecap="round"/></g>${mid}`;
+    const shoes = (fill, stroke, strap) => [66, 134].map(x => `<ellipse cx="${x}" cy="212" rx="21" ry="15.5" fill="${fill}" stroke="${stroke}" stroke-width="3"/>
+      <ellipse cx="${x - 6}" cy="207" rx="6" ry="3" fill="#fff" opacity=".55"/>${strap ? `<path d="M${x - 15} 203Q${x} 197 ${x + 15} 203" fill="none" stroke="${strap}" stroke-width="3.5" stroke-linecap="round"/>` : ""}`).join("");
+    const puffs = (fill, stroke) => `<circle cx="64" cy="166" r="13" fill="${fill}" stroke="${stroke}" stroke-width="3"/><circle cx="136" cy="166" r="13" fill="${fill}" stroke="${stroke}" stroke-width="3"/>`;
+    if (key === "princess") return {
+      body: skirt(62, 138, 175, 36, 164, 222, 9, 9, "#FFFFFF", "#D9CBEB") + skirt(62, 138, 170, 42, 158, 214, 8, 9, "#B497E8", "#8E6FCF")
+        + skirt(66, 134, 168, 52, 148, 197, 6, 8, "#D9CBFA", "#A98CE0") + `<ellipse cx="100" cy="176" rx="40" ry="20" fill="#B497E8" stroke="#8E6FCF" stroke-width="3"/>`
+        + star(100, 183, 9, "#FFD86B") + star(62, 205, 6, "#FFD86B") + star(138, 205, 6, "#FFD86B") + star(100, 210, 5, "#FFD86B"),
+      shoes: shoes("#C7AEF5", "#8E6FCF", "#8E6FCF"), sleeves: puffs("#D9CBFA", "#A98CE0"),
+      head: `<path d="M68 76L75 58L86 70L100 46L114 70L125 58L132 76Q100 66 68 76Z" fill="#F7CD5E" stroke="#C9962E" stroke-width="2.5" stroke-linejoin="round"/>
+        <circle cx="75" cy="64" r="3.5" fill="#B497E8"/><circle cx="125" cy="64" r="3.5" fill="#B497E8"/>${star(100, 50, 10, "#B497E8", "#7E5CC4")}`
+        + bow("#B497E8", "#8E6FCF", star(143, 75, 7.5, "#FFD86B"))
+    };
+    if (key === "carrot") return {
+      body: `<ellipse cx="100" cy="180" rx="45" ry="25" fill="#FFF3DD" stroke="#E6CFA6" stroke-width="3"/>
+        <path d="M78 168l12 10 10-6M122 168l-12 10-10-6" fill="#fff" stroke="#E6CFA6" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M50 194Q100 178 150 194Q162 214 142 223Q100 231 58 223Q38 214 50 194Z" fill="#4A3128" stroke="#2E1E18" stroke-width="3"/>
+        <circle cx="86" cy="199" r="3.2" fill="#E2B453"/><circle cx="114" cy="199" r="3.2" fill="#E2B453"/>
+        <path d="M112 176l7 14 5-13z" fill="#F0904A" stroke="#B85E25" stroke-width="1.6" stroke-linejoin="round"/><path d="M115 176l-3-6M118 176l1-7M121 177l4-5" stroke="#6E9A55" stroke-width="2.2" stroke-linecap="round"/>`,
+      shoes: [66, 134].map(x => `<ellipse cx="${x}" cy="200" rx="15" ry="5" fill="#fff" stroke="#E6CFA6" stroke-width="2.5"/>`).join("") + shoes("#3A2620", "#24160F", "#24160F")
+        + `<rect x="61" y="200" width="7" height="5" rx="1.5" fill="#E2B453"/><rect x="129" y="200" width="7" height="5" rx="1.5" fill="#E2B453"/>`,
+      sleeves: puffs("#FFF3DD", "#E6CFA6"),
+      head: `<ellipse cx="102" cy="70" rx="57" ry="17" fill="#4A3128" stroke="#2E1E18" stroke-width="3" transform="rotate(-7 102 70)"/>
+        <path d="M50 80Q100 92 154 74" fill="none" stroke="#D9A441" stroke-width="3"/><circle cx="104" cy="53" r="4.5" fill="#4A3128" stroke="#2E1E18" stroke-width="2"/>
+        <path d="M140 78l9 15 6-15z" fill="#F0904A" stroke="#B85E25" stroke-width="1.6" stroke-linejoin="round"/><path d="M144 78l-4-6M148 78l1-8M152 79l5-5" stroke="#6E9A55" stroke-width="2.4" stroke-linecap="round"/>`
+    };
+    if (key === "tartan") return {
+      body: `<defs><pattern id="tt${id}" width="18" height="18" patternUnits="userSpaceOnUse"><rect width="18" height="18" fill="#FFF4E2"/><rect y="6" width="18" height="5" fill="#F4E3C6" opacity=".8"/><rect x="6" width="5" height="18" fill="#F4E3C6" opacity=".8"/><path d="M0 14h18M14 0v18" stroke="#E7C98C" stroke-width="1"/></pattern></defs>`
+        + skirt(62, 138, 174, 40, 160, 219, 1, 12, `url(#tt${id})`, "#E3B95C", 'stroke-width="3.5"')
+        + `<ellipse cx="100" cy="177" rx="41" ry="20" fill="url(#tt${id})" stroke="#E3C9A0" stroke-width="3"/>
+        <path d="M78 166q10 14 22 6q12 8 22-6" fill="#fff" stroke="#E3B95C" stroke-width="2.5" stroke-linejoin="round"/>
+        <rect x="62" y="183" width="76" height="7" rx="3.5" fill="#EBD199" stroke="#C9A25A" stroke-width="1.5"/><circle cx="100" cy="186.5" r="5.5" fill="#fff" stroke="#D8C9A8" stroke-width="1.5"/>
+        <circle cx="100" cy="197" r="2.4" fill="#E3B95C"/><circle cx="100" cy="205" r="2.4" fill="#E3B95C"/>`,
+      shoes: shoes("#FFF1E0", "#E3C9A8", "#E3C9A8"), sleeves: puffs("#FFF4E2", "#E3C9A0"),
+      head: bow("#FFF1D6", "#E3C27A", `<circle cx="143" cy="75" r="6.5" fill="#fff" stroke="#D8C9A8" stroke-width="2"/><circle cx="141" cy="73" r="2" fill="#fff"/>`)
+    };
+    return { body: "", shoes: "", sleeves: "", head: `<g fill="#F48FA8" stroke="#E07090" stroke-width="2.5" stroke-linejoin="round"><path d="M143 74L121 62q-5 12 0 25z"/><path d="M143 74l22-12q5 12 0 25z"/><path d="M140 78l-6 14M146 78l6 14" fill="none" stroke-width="4" stroke-linecap="round"/><circle cx="143" cy="75" r="6.5"/></g>` };
+  }
+  function bunnySvg(viewBox, outfit) {
     const o = "#E7B3BF", w = "#FFFFFF", pk = "#F9C6D2", pad = "#F4A3B8", ink = "#2A1720", id = "iris" + (++svgId);
+    const fit = outfitSvg(outfit || petState.outfit || "none", svgId);
     const eye = (x, s) => `<ellipse cx="${x}" cy="124" rx="17.5" ry="23.5" fill="#103231"/>
       <ellipse cx="${x}" cy="125" rx="15.5" ry="21.5" fill="url(#${id})"/>
       <ellipse cx="${x}" cy="125" rx="8" ry="11.5" fill="#0A2423"/>
@@ -1538,11 +1601,18 @@ const GIFT = {
         <circle cx="50" cy="196" r="13" fill="${w}"/>
         <ellipse cx="100" cy="186" rx="50" ry="40" fill="${w}"/>
         <ellipse cx="100" cy="193" rx="27" ry="25" fill="${pk}" stroke="none"/>
-        ${foot(66)}${foot(134)}
+      </g>
+      ${fit.body}
+      <g stroke="${o}" stroke-width="3.5" stroke-linejoin="round">${foot(66)}${foot(134)}</g>
+      ${fit.shoes}
+      <g stroke="${o}" stroke-width="3.5" stroke-linejoin="round">
         <ellipse cx="80" cy="172" rx="11.5" ry="22" fill="${w}" transform="rotate(-28 80 172)"/><ellipse cx="120" cy="172" rx="11.5" ry="22" fill="${w}" transform="rotate(28 120 172)"/>
+      </g>
+      ${fit.sleeves}
+      <g stroke="${o}" stroke-width="3.5" stroke-linejoin="round">
         <ellipse cx="100" cy="122" rx="70" ry="57" fill="${w}"/>
       </g>
-      <g fill="#F48FA8" stroke="#E07090" stroke-width="2.5" stroke-linejoin="round"><path d="M143 74L121 62q-5 12 0 25z"/><path d="M143 74l22-12q5 12 0 25z"/><path d="M140 78l-6 14M146 78l6 14" fill="none" stroke-width="4" stroke-linecap="round"/><circle cx="143" cy="75" r="6.5"/></g>
+      ${fit.head}
       <defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#164B48"/><stop offset=".45" stop-color="#22968A"/><stop offset=".8" stop-color="#4ED3B9"/><stop offset="1" stop-color="#B5F5E4"/></linearGradient></defs>
       <ellipse cx="50" cy="146" rx="14" ry="8" fill="#FF9AB6" opacity=".6"/><ellipse cx="150" cy="146" rx="14" ry="8" fill="#FF9AB6" opacity=".6"/>
       <path d="M45 142l-3 8M51 142l-3 8M57 142l-3 8M145 142l-3 8M151 142l-3 8M157 142l-3 8" stroke="#E85A82" stroke-width="2" stroke-linecap="round" opacity=".75"/>
@@ -1557,13 +1627,14 @@ const GIFT = {
   const PET_KEY = "olw-pet";
   const clamp100 = v => Math.max(0, Math.min(100, v));
   const petState = (() => {
-    const d = { name: "", food: 72, love: 72, t: Date.now(), hugs: 0, treats: 0, since: todayStr(), lastHug: null, lastFeed: null, nextTreat: 0 };
+    const d = { name: "", food: 72, love: 72, t: Date.now(), hugs: 0, treats: 0, since: todayStr(), lastHug: null, lastFeed: null, nextTreat: 0, outfit: "none" };
     try { const v = JSON.parse(localStorage.getItem(PET_KEY) || "null"); if (v && typeof v === "object") Object.assign(d, v); } catch (e) { /* storage unavailable */ }
     ["food", "love", "hugs", "treats", "t"].forEach(k => { d[k] = Number(d[k]) || 0; });
     if (!d.t) d.t = Date.now();
     return d;
   })();
   if (petState.name) PET.name = String(petState.name).slice(0, 24);
+  if (!OUTFITS[petState.outfit]) petState.outfit = "none";
   function petSave() { try { localStorage.setItem(PET_KEY, JSON.stringify(petState)); } catch (e) { /* storage unavailable */ } }
   function petTick() {
     const now = Date.now(), h = Math.max(0, Math.min(24 * 60, (now - petState.t) / 36e5));
@@ -1676,6 +1747,16 @@ const GIFT = {
     refreshPetUI();
     announce(PET.name + " ate " + tr.a + ". Tummy is " + Math.round(petState.food) + " of 100.");
   }
+  function wearOutfit(key) {
+    if (!OUTFITS[key]) return;
+    petState.outfit = key; petSave();
+    if (world) { world.pet.wear(key); world.pet.say(OUTFITS[key].say || "back to my bow!", 2.6); }
+    $("#petFace").innerHTML = bunnySvg("26 46 148 150");
+    const p = $("#petPortrait");
+    if (p) { p.innerHTML = bunnySvg(); portrait("hug"); }
+    pBody.querySelectorAll("[data-outfit]").forEach(b => b.setAttribute("aria-pressed", b.dataset.outfit === key ? "true" : "false"));
+    announce(PET.name + " is now wearing: " + OUTFITS[key].label + ".");
+  }
   function onPetPat() {      // tapping her on the island
     petTick(); petState.love = clamp100(petState.love + 2); petSave(); refreshPetUI();
     if (world) world.pet.say(pickOne(["hehe ♡", "hi!", "pat pat", "♡"]), 1.6);
@@ -1694,6 +1775,11 @@ const GIFT = {
       <p class="treat-lbl" id="treatLbl">Or a treat:</p>
       <div class="treat-row" role="group" aria-labelledby="treatLbl">${Object.keys(TREATS).map(k =>
         `<button class="treat" type="button" data-pet="feed" data-kind="${k}">${TREAT_ICON[k]}<span>${esc(TREATS[k].label)}</span></button>`).join("")}</div>
+      <section class="outfits" aria-labelledby="outfitTitle">
+        <h3 id="outfitTitle">Outfits</h3>
+        <div class="outfit-grid" role="group" aria-labelledby="outfitTitle">${Object.keys(OUTFITS).map(k =>
+          `<button class="outfit" type="button" data-outfit="${k}" aria-pressed="${petState.outfit === k}">${bunnySvg("0 0 200 230", k)}<span class="o-name">${esc(OUTFITS[k].label)}</span><span class="o-vi" lang="vi">${esc(OUTFITS[k].vi)}</span></button>`).join("")}</div>
+      </section>
       <p class="pet-log" id="petLog"></p>
       <details class="manage"><summary>Rename ${n}</summary>
         <form class="pet-form" id="petNameForm"><div class="field"><label for="petNameIn">Name</label><input id="petNameIn" name="name" maxlength="24" autocomplete="off" value="${n}" required></div>
@@ -1719,6 +1805,8 @@ const GIFT = {
       celebrate({ title: "A little preview ✨", sub: "This is what our day looks like" }, 8);
       return;
     }
+    const ob = e.target.closest("[data-outfit]");
+    if (ob && pBody.contains(ob)) { wearOutfit(ob.dataset.outfit); return; }
     const b = e.target.closest("[data-pet]");
     if (!b || !pBody.contains(b)) return;
     if (b.dataset.pet === "hug") hugPet(b); else feedPet(b.dataset.kind, b);
@@ -2554,6 +2642,116 @@ const GIFT = {
     headG.add(face);
     let faceNow = "open";
     function setFace(k) { if (k === faceNow) return; faceNow = k; faceMat.map = faceMat.emissiveMap = faceTex[k]; faceMat.needsUpdate = true; }
+    /* ── outfits (designs/mochi-outfits.jpg): each one is a set of pieces on her body, arms, feet and head ── */
+    const DS = { side: T.DoubleSide };
+    function skirtMesh(profile, mat, waves, amt) {
+      const geo = new T.LatheGeometry(profile.map(p => new T.Vector2(p[0], p[1])), 56);
+      const ys = profile.map(p => p[1]), y0 = Math.min(...ys), y1 = Math.max(...ys), pos = geo.attributes.position;
+      for (let i = 0; i < pos.count; i++) {        // scalloped, ruffled hem
+        const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i), k = (y1 - y) / (y1 - y0), a = Math.atan2(x, z);
+        const f = 1 + (amt || 0) * k * k * Math.sin(a * (waves || 0));
+        pos.setXYZ(i, x * f, y + 0.008 * k * k * Math.cos(a * (waves || 0)), z * f);
+      }
+      geo.computeVertexNormals();
+      const m = mesh(geo, mat, 0, 0, 0); m.scale.z = 0.9; return m;
+    }
+    const starShape = new T.Shape();
+    for (let i = 0; i < 10; i++) { const a = Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? 0.45 : 1; i ? starShape.lineTo(Math.cos(a) * r, Math.sin(a) * r) : starShape.moveTo(Math.cos(a) * r, Math.sin(a) * r); }
+    const starGeo = new T.ExtrudeGeometry(starShape, { depth: 0.35, bevelEnabled: true, bevelThickness: 0.12, bevelSize: 0.1, bevelSegments: 2 });
+    starGeo.center();
+    const starAt = (parent, mat, x, y, z, k, ry) => { const m = mesh(starGeo, mat, x, y, z); m.scale.setScalar(k); m.rotation.y = ry || 0; parent.add(m); return m; };
+    function bowAt(parent, mat, mid) {   // same place as her pink bow
+      const g = new T.Group(); g.position.copy(bowG.position); g.rotation.copy(bowG.rotation); parent.add(g);
+      [-1, 1].forEach(s => { const l = blob(g, mat, s * 0.044, 0, 0, 0.048, 0.032, 0.022); l.rotation.z = s * 0.35; });
+      [-1, 1].forEach(s => { const r = mesh(ribbonGeo, mat, s * 0.016, -0.034, 0.006); r.rotation.z = s * 0.45; g.add(r); });
+      if (mid) mid(g); else blob(g, mat, 0, 0, 0.012, 0.018, 0.018, 0.018);
+      return g;
+    }
+    function tartanTex() {
+      const c = document.createElement("canvas"); c.width = c.height = 128;
+      const g = c.getContext("2d");
+      g.fillStyle = "#FFF4E2"; g.fillRect(0, 0, 128, 128);
+      g.fillStyle = "rgba(236,214,172,.55)"; g.fillRect(0, 40, 128, 26); g.fillRect(40, 0, 26, 128);
+      g.fillStyle = "rgba(226,190,120,.8)"; g.fillRect(0, 92, 128, 4); g.fillRect(92, 0, 4, 128);
+      g.fillStyle = "rgba(255,255,255,.9)"; g.fillRect(0, 20, 128, 2); g.fillRect(20, 0, 2, 128);
+      const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(8, 2); return t;
+    }
+    const outfit3d = { none: [] };
+    const piece = (key, obj) => { obj.visible = false; (outfit3d[key] = outfit3d[key] || []).push(obj); return obj; };
+    const shoesFor = (key, mat, strapMat, buckleMat) => [-1, 1].forEach(s => {
+      piece(key, blob(bunny, mat, s * 0.085, 0.034, 0.072, 0.067, 0.046, 0.093));
+      if (strapMat) { const st = piece(key, mesh(new T.BoxGeometry(0.08, 0.01, 0.016), strapMat, s * 0.085, 0.077, 0.095)); st.rotation.x = -0.25; bunny.add(st); }
+      if (buckleMat) { const b = piece(key, mesh(new T.BoxGeometry(0.016, 0.014, 0.01), buckleMat, s * 0.12, 0.074, 0.098)); bunny.add(b); }
+    });
+    const sleevesFor = (key, mat) => arms.forEach(pv => piece(key, blob(pv, mat, 0, -0.022, 0.002, 0.06, 0.056, 0.06)));
+    const bodice = (key, mat) => piece(key, blob(bunny, mat, 0, 0.15, 0, 0.168, 0.158, 0.156));
+    function carrotMesh() {
+      const c = new T.Group(), body = mesh(new T.ConeGeometry(0.035, 0.17, 12), clay("#F0904A"), 0, 0, 0, true);
+      body.rotation.z = -Math.PI / 2; c.add(body);
+      [-0.55, 0, 0.55].forEach(a => { const l = mesh(new T.ConeGeometry(0.012, 0.075, 6), clay("#7FB069"), -0.115, 0, 0, true); l.rotation.z = Math.PI / 2 + a; c.add(l); });
+      return c;
+    }
+    const gold = clay("#F2C45A", { roughness: 0.35, metalness: 0.35 }), pearl = clay("#FFFDF7", { roughness: 0.2, metalness: 0.1 });
+    {   /* 1 · Starlight princess: lilac ruffled dress, gold stars, white back bow, tiara, star bow, lilac shoes */
+      const K = "princess", lilac = clay("#B497E8", DS), lav = clay("#D9CBFA", DS), lace = clay("#FFFFFF", DS), lilacS = clay("#B497E8");
+      bodice(K, lilacS);
+      const sk = new T.Group(); bunny.add(sk); piece(K, sk);
+      sk.add(skirtMesh([[0.24, 0.045], [0.22, 0.09], [0.185, 0.15], [0.163, 0.2]], lace, 18, 0.045));
+      sk.add(skirtMesh([[0.232, 0.068], [0.208, 0.115], [0.178, 0.165], [0.163, 0.205]], lilac, 12, 0.06));
+      sk.add(skirtMesh([[0.212, 0.112], [0.19, 0.15], [0.17, 0.188], [0.164, 0.21]], lav, 10, 0.06));
+      piece(K, starAt(bunny, gold, 0, 0.205, 0.158, 0.022));
+      [0.6, -0.6, 1.9, -1.9].forEach(a => piece(K, starAt(bunny, gold, Math.sin(a) * 0.212, 0.09, Math.cos(a) * 0.19, 0.016, a)));
+      [-1, 1].forEach(s => { const l = piece(K, blob(bunny, lace, s * 0.05, 0.19, -0.152, 0.05, 0.034, 0.02)); l.rotation.z = s * 0.3; });
+      piece(K, blob(bunny, lace, 0, 0.19, -0.158, 0.02, 0.02, 0.016));
+      sleevesFor(K, lav);
+      shoesFor(K, clay("#C7AEF5", { roughness: 0.3 }), clay("#8E6FCF"));
+      const tiara = new T.Group(); tiara.position.set(0, 0.14, 0.01); headG.add(tiara); piece(K, tiara);
+      const band = mesh(new T.TorusGeometry(0.118, 0.008, 8, 40, Math.PI * 1.1), gold, 0, 0, 0); band.rotation.set(Math.PI / 2, 0, Math.PI * 0.95 - Math.PI); band.scale.y = 0.9; tiara.add(band);
+      [-0.9, -0.45, 0.45, 0.9].forEach(a => { const c = mesh(new T.ConeGeometry(0.011, 0.04, 6), gold, Math.sin(a) * 0.118, 0.02, Math.cos(a) * 0.106); tiara.add(c); blob(tiara, clay("#9B76E3", { roughness: 0.25 }), Math.sin(a) * 0.12, 0.004, Math.cos(a) * 0.108, 0.009, 0.009, 0.009, true); });
+      starAt(tiara, clay("#B497E8", { roughness: 0.3, emissive: new T.Color("#5B3BA6"), emissiveIntensity: 0.3 }), 0, 0.045, 0.108, 0.03);
+      piece(K, bowAt(headG, clay("#B497E8"), g => starAt(g, gold, 0, 0, 0.022, 0.02)));
+    }
+    {   /* 2 · Carrot shirt & bloomers: cream puff-sleeve shirt, carrot brooch, brown bloomers, beret with carrot, Mary Janes and frilly socks */
+      const K = "carrot", cream = clay("#FFF3DD"), brown = clay("#4A3128"), white = clay("#FFFFFF");
+      bodice(K, cream);
+      piece(K, blob(bunny, brown, 0, 0.085, 0, 0.19, 0.108, 0.172));
+      [-1, 1].forEach(s => piece(K, blob(bunny, gold, s * 0.035, 0.125, 0.158, 0.009, 0.009, 0.006, true)));
+      [-1, 1].forEach(s => { const c = piece(K, blob(bunny, white, s * 0.042, 0.226, 0.124, 0.046, 0.012, 0.03, true)); c.rotation.set(0.55, s * 0.35, -s * 0.25); });
+      const brooch = carrotMesh(); brooch.scale.setScalar(0.42); brooch.position.set(0.062, 0.19, 0.152); brooch.rotation.set(0, 0, -1.2); bunny.add(brooch); piece(K, brooch);
+      sleevesFor(K, cream);
+      [-1, 1].forEach(s => piece(K, blob(bunny, white, s * 0.085, 0.062, 0.028, 0.06, 0.022, 0.06)));   // frilly socks
+      shoesFor(K, clay("#3A2620", { roughness: 0.35 }), clay("#24160F"), gold);
+      const beret = new T.Group(); beret.position.set(0.012, 0.15, -0.005); beret.rotation.z = -0.2; headG.add(beret); piece(K, beret);
+      blob(beret, brown, 0, 0.012, 0, 0.17, 0.05, 0.158);
+      const bb = mesh(new T.TorusGeometry(0.14, 0.009, 8, 40), gold, 0, -0.012, 0); bb.rotation.x = Math.PI / 2; bb.scale.y = 0.93; beret.add(bb);
+      blob(beret, brown, 0, 0.06, 0, 0.014, 0.012, 0.014);
+      const pin = carrotMesh(); pin.scale.setScalar(0.85); pin.position.set(0.11, 0.005, 0.105); pin.rotation.set(0, -0.6, -0.9); beret.add(pin);
+    }
+    {   /* 3 · Cream tartan dress: tartan dress with gold trim, white collar, pearl belt, pearl bow, cream shoes */
+      const K = "tartan", tex = tartanTex();
+      const tartan = new T.MeshStandardMaterial({ map: tex, roughness: 0.8, side: T.DoubleSide });
+      const tartanTop = new T.MeshStandardMaterial({ map: tex, roughness: 0.8 });
+      const trim = clay("#E3B95C", { roughness: 0.4, metalness: 0.3 });
+      bodice(K, tartanTop);
+      bunny.add(piece(K, skirtMesh([[0.232, 0.06], [0.21, 0.11], [0.178, 0.165], [0.164, 0.205]], tartan, 7, 0.025)));
+      const hem = piece(K, mesh(new T.TorusGeometry(0.231, 0.007, 6, 56), trim, 0, 0.062, 0)); hem.rotation.x = Math.PI / 2; hem.scale.y = 0.9; bunny.add(hem);
+      const belt = piece(K, mesh(new T.TorusGeometry(0.163, 0.011, 8, 48), clay("#EBD199", { roughness: 0.5 }), 0, 0.2, 0)); belt.rotation.x = Math.PI / 2; belt.scale.y = 0.94; bunny.add(belt);
+      piece(K, blob(bunny, pearl, 0, 0.2, 0.158, 0.016, 0.016, 0.012));
+      [0.165, 0.135].forEach(y => piece(K, blob(bunny, trim, 0, y, 0.162, 0.007, 0.007, 0.005, true)));
+      [-1, 1].forEach(s => { const c = piece(K, blob(bunny, clay("#FFFFFF"), s * 0.042, 0.226, 0.124, 0.046, 0.012, 0.03, true)); c.rotation.set(0.55, s * 0.35, -s * 0.25); });
+      sleevesFor(K, tartanTop);
+      shoesFor(K, clay("#FFF1E0", { roughness: 0.35 }), clay("#E3C9A8"));
+      piece(K, bowAt(headG, clay("#FFF1D6"), g => blob(g, pearl, 0, 0, 0.014, 0.02, 0.02, 0.016)));
+    }
+    let outfitNow = "none";
+    function wear(key) {
+      if (!outfit3d[key]) key = "none";
+      outfitNow = key;
+      Object.keys(outfit3d).forEach(k => outfit3d[k].forEach(o => (o.visible = k === key)));
+      bowG.visible = key === "none";
+    }
+    wear(petState.outfit || "none");
+
     bunnyG.traverse(o => { o.userData.pet = true; });
 
     /* little hearts that float up from the bunny */
@@ -3112,7 +3310,8 @@ const GIFT = {
         full() { petAct("full", 0.8); },
         say,
         mood(m) { pet.droopTo = m === "hungry" || m === "lonely" ? 1 : 0; },
-        rename(n) { petName = n; if (!petTag.classList.contains("talking")) petSay.textContent = n; }
+        rename(n) { petName = n; if (!petTag.classList.contains("talking")) petSay.textContent = n; },
+        wear(key) { wear(key); petAct("hug", 1.25); }
       },
       focus(key, inset) {
         state = "panel"; keys.clear();
