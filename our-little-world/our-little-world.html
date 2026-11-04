@@ -220,6 +220,51 @@ h1,h2,h3{font-family:var(--font-display);font-variation-settings:"SOFT" 100;text
 .ticket[aria-pressed="true"] .yes{color:#fff;background:var(--rose);border-color:var(--rose)}
 @media (max-width:400px){.ticket{grid-template-columns:40px 1fr;}.ticket .yes{grid-column:2;justify-self:start}}
 
+/* ───── our bunny ───── */
+#petBar{position:absolute;left:var(--gutter-l);top:calc(var(--safe-t) + 66px);z-index:20;display:flex;align-items:center;gap:2px;padding:5px;border-radius:22px;background:var(--glass);
+  box-shadow:0 4px 0 rgba(200,150,140,.45),0 14px 30px rgba(120,60,60,.14);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.pet-me{display:flex;align-items:center;gap:8px;border:0;background:transparent;padding:3px 10px 3px 3px;border-radius:18px;min-height:48px;text-align:left}
+.pet-me:hover,.pet-act:hover{background:rgba(242,167,184,.22)}
+.pet-face{width:42px;height:42px;flex:none;border-radius:50%;background:#FFF1F4;display:grid;place-items:center;overflow:hidden;box-shadow:inset 0 0 0 2px #F7D3DC}
+.pet-face svg{width:40px;height:40px}
+.pet-info{display:grid;gap:5px}
+.pet-name{font-weight:800;font-size:.9rem;line-height:1}
+.pet-bars{display:grid;gap:3px;width:70px}
+.bar,.track{display:block;height:6px;border-radius:3px;background:rgba(74,44,54,.12);overflow:hidden}
+.bar i,.track i{display:block;height:100%;width:0;border-radius:inherit;transition:width .6s ease}
+i.food{background:#F0904A}
+i.love{background:var(--rose)}
+.pet-act{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:0;background:transparent;border-radius:16px;padding:5px 9px;min-width:50px;min-height:48px;font-weight:800;font-size:.75rem;color:var(--ink)}
+.pet-act svg{width:22px;height:22px;color:var(--rose)}
+#fx{position:absolute;inset:0;pointer-events:none;z-index:40;overflow:hidden}
+.fheart{position:absolute;color:var(--rose);font-size:20px;line-height:1;animation:fheart 1.3s ease-out forwards}
+@keyframes fheart{0%{transform:translate(-50%,-50%) scale(.5);opacity:0}15%{opacity:1}100%{transform:translate(calc(-50% + var(--dx,0px)),-110px) scale(1.25);opacity:0}}
+.pet-card{display:grid;justify-items:center;gap:12px;text-align:center}
+.pet-portrait{width:min(190px,52vw);aspect-ratio:200/230;filter:drop-shadow(0 12px 18px rgba(184,68,102,.18))}
+.pet-portrait svg{width:100%;height:100%;overflow:visible}
+.pet-portrait.hug svg{animation:phug .9s cubic-bezier(.3,1.5,.5,1)}
+.pet-portrait.eat svg{animation:peat .32s ease-in-out 5}
+.pet-portrait.full svg{animation:pfull .5s ease-in-out}
+@keyframes phug{30%{transform:translateY(-18px) scale(1.06,.96)}60%{transform:translateY(0) scale(.95,1.05)}}
+@keyframes peat{50%{transform:translateY(5px) rotate(2deg)}}
+@keyframes pfull{25%{transform:rotate(-6deg)}75%{transform:rotate(6deg)}}
+.b-eyes{animation:blink 4.6s infinite}
+@keyframes blink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+.b-eyes{transform-origin:100px 124px}
+.pet-mood{margin:0;font-family:var(--font-hand);font-size:1.3rem;color:var(--rose-deep);max-width:30ch}
+.meters{display:grid;gap:8px;width:100%;max-width:22rem}
+.meter{display:grid;grid-template-columns:4.2rem 1fr 2.6rem;align-items:center;gap:10px;font-weight:800;font-size:.88rem;text-align:left}
+.meter .track{height:12px;border-radius:6px}
+.meter b{font-variant-numeric:tabular-nums;text-align:right;color:var(--ink-soft)}
+.pet-do{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.treat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:24rem}
+.treat{display:grid;justify-items:center;gap:4px;border:0;border-radius:16px;padding:10px 6px;background:#FFF1E2;box-shadow:0 3px 0 #EBD3BE;font-weight:800;font-size:.85rem;min-height:72px}
+.treat:active{transform:translateY(2px)}
+.treat svg{width:30px;height:30px}
+.treat-lbl{font-weight:800;font-size:.92rem;margin:4px 0 -4px}
+.pet-log{margin:0;color:var(--ink-soft);font-size:.9rem;max-width:34ch}
+.pet-form{display:grid;gap:10px;padding:8px 0 4px}
+
 /* ───── finale ───── */
 #finale{position:absolute;inset:0;z-index:25;display:flex;align-items:flex-end;justify-content:center;pointer-events:none;
   padding-bottom:calc(var(--safe-b) + 18px);padding-left:var(--gutter-l);padding-right:var(--gutter-r)}
@@ -376,6 +421,16 @@ h1,h2,h3{font-family:var(--font-display);font-variation-settings:"SOFT" 100;text
 
   <!-- 2 · Explore -->
   <nav id="dock" class="fade" hidden aria-label="Explore our little world"></nav>
+  <section id="petBar" class="fade" hidden aria-labelledby="petBarName">
+    <button class="pet-me" id="petOpen" type="button" aria-describedby="petStatus">
+      <span class="pet-face" id="petFace" aria-hidden="true"></span>
+      <span class="pet-info"><span class="pet-name" id="petBarName">Mochi</span>
+        <span class="pet-bars" aria-hidden="true"><span class="bar"><i class="food" id="petFoodBar"></i></span><span class="bar"><i class="love" id="petLoveBar"></i></span></span></span>
+    </button>
+    <button class="pet-act" id="petHug" type="button"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.7c0 5.6-7.5 10.2-7.5 10.2z"/></svg><span>Hug</span></button>
+    <button class="pet-act" id="petFeed" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15.5 8.5L5 19c-.8.8-2 0-1.4-1L9.5 8a4 4 0 0 1 6 .5z" fill="#F0904A" stroke="#C9692A"/><path d="M15 9l4-4M15 6.5L17 3M17.5 9L21 7" stroke="#6E9A55"/></svg><span>Feed</span></button>
+    <span class="sr-only" id="petStatus"></span>
+  </section>
   <p id="hint" class="fade" hidden role="status"></p>
   <p id="notice" hidden></p>
 
@@ -427,6 +482,7 @@ h1,h2,h3{font-family:var(--font-display);font-variation-settings:"SOFT" 100;text
     </form>
   </dialog>
   <p id="liveStatus" class="sr-only" role="status" aria-live="polite"></p>
+  <div id="fx" aria-hidden="true"></div>
 
   <audio id="songAudio" loop preload="none"></audio>
 </div>
@@ -453,7 +509,7 @@ const GIFT = {
 
   // Our bunny. Tap the island to hop her around; hop into a glowing circle to open that part of our world.
   pet: {
-    name: "Mochi"
+    name: "Mochi"                    // you can also rename her from her own page on the island
   },
   showExampleBadges: true,           // set to false once you've replaced the sample content
 
@@ -551,7 +607,8 @@ const GIFT = {
 (function () {
   "use strict";
   const $ = (s, r = document) => r.querySelector(s);
-  const fill = s => String(s).replace(/\{her\}/g, GIFT.herName).replace(/\{you\}/g, GIFT.yourName).replace(/\{pet\}/g, GIFT.pet.name);
+  const PET = { name: GIFT.pet.name };   // the bunny's name (she can be renamed on her page)
+  const fill = s => String(s).replace(/\{her\}/g, GIFT.herName).replace(/\{you\}/g, GIFT.yourName).replace(/\{pet\}/g, PET.name);
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const reduceMQ = window.matchMedia("(prefers-reduced-motion: reduce)");
   let reduced = reduceMQ.matches;
@@ -679,7 +736,7 @@ const GIFT = {
     { key: "future", short: "Adventures",    title: "More adventures together",      eyebrow: "under our tree" },
     { key: "finale", short: "Our day",       title: "Our anniversary",               eyebrow: "" }
   ];
-  const byKey = k => SECTIONS.find(s => s.key === k);
+  const byKey = k => SECTIONS.find(s => s.key === k) || (k === "pet" ? { key: "pet", short: PET.name, title: PET.name, eyebrow: "our bunny" } : null);
   const visited = new Set();
 
   const dock = $("#dock");
@@ -690,6 +747,9 @@ const GIFT = {
   let current = null;        // open panel key
   let lastOpener = null;
   let world = null;          // 3D controller (null without WebGL)
+
+  function showDock() { show(dock); show($("#petBar")); }
+  function hideDock() { hide(dock); hide($("#petBar")); }
 
   function markVisited(k) {
     visited.add(k);
@@ -718,12 +778,12 @@ const GIFT = {
     $("#panelEyebrow").textContent = sec.eyebrow;
     renderPanel(key);
     const idx = SECTIONS.findIndex(s => s.key === key);
-    const next = SECTIONS[idx + 1];
+    const next = idx < 0 ? null : SECTIONS[idx + 1];
     const nextBtn = $("#panelNext");
     nextBtn.textContent = next ? "Next: " + next.short + " →" : "";
     nextBtn.hidden = !next;
     nextBtn.dataset.next = next ? next.key : "";
-    hide(dock);
+    hideDock();
     app.classList.add("panel-open");
     show(panel);
     pBody.scrollTop = 0;
@@ -737,7 +797,7 @@ const GIFT = {
     app.classList.remove("panel-open");
     hide(panel);
     if (!silent) {
-      show(dock);
+      showDock();
       if (world) world.overview();
       const target = lastOpener && document.body.contains(lastOpener) && lastOpener.offsetParent ? lastOpener : dock.querySelector("button");
       setTimeout(() => target && target.focus({ preventScroll: true }), reduced ? 0 : 80);
@@ -1090,6 +1150,7 @@ const GIFT = {
       return;
     }
     if (key === "letter") { renderLetters(); return; }
+    if (key === "pet") { renderPet(); return; }
     if (key === "future") renderFuture();
   }
 
@@ -1344,7 +1405,7 @@ const GIFT = {
     if (mode === "panel") closePanel(true);
     mode = "finale"; current = "finale";
     markVisited("finale");
-    hide(dock); hideHint();
+    hideDock(); hideHint();
     app.classList.add("dusk");
     show(finale);
     runCounter();
@@ -1359,7 +1420,7 @@ const GIFT = {
     hide(finale);
     if (world) world.finale(false);
     $("#cssLanterns").innerHTML = "";
-    if (!silent) { show(dock); if (world) world.overview(); setTimeout(() => dock.querySelector('[data-go="finale"]').focus({ preventScroll: true }), 80); }
+    if (!silent) { showDock(); if (world) world.overview(); setTimeout(() => dock.querySelector('[data-go="finale"]').focus({ preventScroll: true }), 80); }
   }
   function runCounter() {
     if (!showCounter) return;
@@ -1398,6 +1459,220 @@ const GIFT = {
   function showHint() { hint.textContent = fill(world ? GIFT.text.hint : GIFT.text.hintSimple); show(hint); hintTimer = setTimeout(hideHint, 7000); }
   function hideHint() { clearTimeout(hintTimer); if (!hint.hidden) hide(hint); }
 
+  /* ════════════════ our bunny: taking care of her ════════════════
+     Tummy and love go down slowly while we're away (about a day from full to
+     empty), so come back for hugs and treats. Saved on this device. */
+  const TREATS = {
+    carrot:     { label: "Carrot",       food: 26, love: 3, say: "crunch crunch!", a: "a carrot" },
+    strawberry: { label: "Strawberry",   food: 18, love: 8, say: "so sweet! ♡",    a: "a strawberry" },
+    matcha:     { label: "Matcha mochi", food: 22, love: 6, say: "matcha!!",       a: "a matcha mochi" }
+  };
+  const TREAT_ICON = {
+    carrot: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M21 11L7 27c-1.2 1.2-3 0-2.2-1.4L13 10.5a5.5 5.5 0 0 1 8 .5z" fill="#F0904A" stroke="#B85E25" stroke-width="1.6" stroke-linejoin="round"/><path d="M11 17l3 1.5M9 21.5l2.5 1" stroke="#B85E25" stroke-width="1.4" stroke-linecap="round"/><path d="M20 11.5l5-5M20 8l2.5-5M22.5 13l5-2.5" stroke="#6E9A55" stroke-width="2.4" stroke-linecap="round"/></svg>',
+    strawberry: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 29C9 25 5 18 7 13c2-4 16-4 18 0 2 5-2 12-9 16z" fill="#E8505B" stroke="#A8303A" stroke-width="1.6" stroke-linejoin="round"/><g fill="#FFE3A6"><circle cx="12" cy="16" r="1"/><circle cx="17" cy="15" r="1"/><circle cx="21" cy="17" r="1"/><circle cx="14" cy="21" r="1"/><circle cx="19" cy="22" r="1"/><circle cx="16" cy="26" r="1"/></g><path d="M9 11c3 1 5 0 7-3 2 3 4 4 7 3-2 3-12 3-14 0z" fill="#7FB069" stroke="#4F7A3E" stroke-width="1.4" stroke-linejoin="round"/></svg>',
+    matcha: '<svg viewBox="0 0 32 32" aria-hidden="true"><ellipse cx="16" cy="25" rx="12" ry="3.5" fill="#FFF6EA" stroke="#D9BFA6" stroke-width="1.4"/><path d="M6 21c0-7 4.5-11 10-11s10 4 10 11c0 2-4 3.5-10 3.5S6 23 6 21z" fill="#A8C97F" stroke="#6E8F4E" stroke-width="1.6"/><path d="M11 15.5c1.5-1.5 3-2 4.5-2" stroke="#fff" stroke-width="1.8" stroke-linecap="round" opacity=".7"/><path d="M14 19.5c1 .8 3 .8 4 0" stroke="#4A2C36" stroke-width="1.4" stroke-linecap="round" fill="none"/><circle cx="12.5" cy="18" r="1" fill="#4A2C36"/><circle cx="19.5" cy="18" r="1" fill="#4A2C36"/></svg>'
+  };
+  function bunnySvg(viewBox) {
+    const o = "#E7B3BF", w = "#FFFFFF", pk = "#F9C6D2", pad = "#F4A3B8", ink = "#3B2530";
+    const eye = (x, s) => `<circle cx="${x}" cy="124" r="16" fill="#2A9D8F"/><circle cx="${x}" cy="126" r="9.5" fill="#16403E"/>
+      <circle cx="${x - 5}" cy="117.5" r="5" fill="#fff"/><circle cx="${x + 5}" cy="131" r="2.2" fill="#fff"/>
+      <path d="M${x - 17} 114 Q${x} 99 ${x + 17} 114" fill="none" stroke="${ink}" stroke-width="3.6" stroke-linecap="round"/>
+      <path d="M${x + s * 16} 112 l${s * 7} -4 M${x + s * 12} 107.5 l${s * 5} -6" stroke="${ink}" stroke-width="3" stroke-linecap="round"/>`;
+    const foot = x => `<ellipse cx="${x}" cy="211" rx="20" ry="15" fill="${w}"/><ellipse cx="${x}" cy="215" rx="8.5" ry="6.5" fill="${pad}" stroke="none"/>
+      <g fill="${pad}" stroke="none"><circle cx="${x - 8}" cy="205" r="3.2"/><circle cx="${x}" cy="202.5" r="3.2"/><circle cx="${x + 8}" cy="205" r="3.2"/></g>`;
+    const ear = (x, r) => `<g transform="rotate(${r} ${x} 92)"><ellipse cx="${x}" cy="56" rx="21" ry="50" fill="${w}"/><ellipse cx="${x}" cy="62" rx="11" ry="36" fill="${pk}" stroke="none"/></g>`;
+    return `<svg viewBox="${viewBox || "0 0 200 230"}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <g stroke="${o}" stroke-width="3.5" stroke-linejoin="round">
+        ${ear(72, -10)}${ear(128, 10)}
+        <circle cx="50" cy="196" r="13" fill="${w}"/>
+        <ellipse cx="100" cy="186" rx="50" ry="40" fill="${w}"/>
+        <ellipse cx="100" cy="193" rx="27" ry="25" fill="${pk}" stroke="none"/>
+        ${foot(66)}${foot(134)}
+        <ellipse cx="80" cy="168" rx="12" ry="14" fill="${w}"/><ellipse cx="120" cy="168" rx="12" ry="14" fill="${w}"/>
+        <ellipse cx="100" cy="122" rx="70" ry="57" fill="${w}"/>
+      </g>
+      <g fill="#F48FA8" stroke="#E07090" stroke-width="2.5" stroke-linejoin="round"><path d="M143 74L121 62q-5 12 0 25z"/><path d="M143 74l22-12q5 12 0 25z"/><path d="M140 78l-6 14M146 78l6 14" fill="none" stroke-width="4" stroke-linecap="round"/><circle cx="143" cy="75" r="6.5"/></g>
+      <g class="b-eyes">${eye(72, -1)}${eye(128, 1)}</g>
+      <ellipse cx="54" cy="144" rx="12" ry="7" fill="#F7A5BA" opacity=".75"/><ellipse cx="146" cy="144" rx="12" ry="7" fill="#F7A5BA" opacity=".75"/>
+      <path d="M96 139h8l-4 4.5z" fill="#F08AA2" stroke="#F08AA2" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M100 143.5v3" stroke="${ink}" stroke-width="2" stroke-linecap="round"/>
+      <path d="M91 147q9 13 18 0z" fill="#C64F6C" stroke="#C64F6C" stroke-width="2" stroke-linejoin="round"/><ellipse cx="100" cy="153" rx="5" ry="3" fill="#F59AAE"/>
+    </svg>`;
+  }
+
+  const PET_KEY = "olw-pet";
+  const clamp100 = v => Math.max(0, Math.min(100, v));
+  const petState = (() => {
+    const d = { name: "", food: 72, love: 72, t: Date.now(), hugs: 0, treats: 0, since: todayStr(), lastHug: null, lastFeed: null, nextTreat: 0 };
+    try { const v = JSON.parse(localStorage.getItem(PET_KEY) || "null"); if (v && typeof v === "object") Object.assign(d, v); } catch (e) { /* storage unavailable */ }
+    ["food", "love", "hugs", "treats", "t"].forEach(k => { d[k] = Number(d[k]) || 0; });
+    if (!d.t) d.t = Date.now();
+    return d;
+  })();
+  if (petState.name) PET.name = String(petState.name).slice(0, 24);
+  function petSave() { try { localStorage.setItem(PET_KEY, JSON.stringify(petState)); } catch (e) { /* storage unavailable */ } }
+  function petTick() {
+    const now = Date.now(), h = Math.max(0, Math.min(24 * 60, (now - petState.t) / 36e5));
+    petState.food = clamp100(petState.food - h * 4);
+    petState.love = clamp100(petState.love - h * 3);
+    petState.t = now;
+  }
+  function petMood() {
+    const s = petState;
+    if (s.food < 25) return "hungry";
+    if (s.love < 25) return "lonely";
+    if (s.food >= 70 && s.love >= 70) return "happy";
+    return "okay";
+  }
+  const MOOD = {
+    happy:  "{pet} is happy and full of love.",
+    okay:   "{pet} is doing fine. A hug or a treat would make the day.",
+    hungry: "{pet}'s tummy is rumbling. Time for a treat?",
+    lonely: "{pet} misses you and could really use a hug."
+  };
+  const pickOne = a => a[Math.floor(Math.random() * a.length)];
+  function ago(ms) {
+    const m = Math.round((Date.now() - ms) / 6e4);
+    if (m < 1) return "just now";
+    if (m < 60) return m + (m === 1 ? " minute ago" : " minutes ago");
+    const h = Math.round(m / 60);
+    if (h < 24) return h + (h === 1 ? " hour ago" : " hours ago");
+    const d = Math.round(h / 24);
+    return d === 1 ? "yesterday" : d + " days ago";
+  }
+  function petLog() {
+    const s = petState, out = [];
+    if (s.lastHug) out.push("Last hug" + (s.lastHug.by ? " from " + s.lastHug.by : "") + ", " + ago(s.lastHug.at) + ".");
+    if (s.lastFeed) out.push("Last treat: " + ((TREATS[s.lastFeed.kind] || TREATS.carrot).a) + (s.lastFeed.by ? " from " + s.lastFeed.by : "") + ", " + ago(s.lastFeed.at) + ".");
+    const since = fmtLong(s.since);
+    out.push(s.hugs + (s.hugs === 1 ? " hug" : " hugs") + " and " + s.treats + (s.treats === 1 ? " treat" : " treats") + (since ? " since " + since : "") + ".");
+    return out.join(" ");
+  }
+  function refreshPetUI() {
+    const f = Math.round(petState.food), l = Math.round(petState.love), mood = petMood();
+    $("#petBarName").textContent = PET.name;
+    $("#petFoodBar").style.width = f + "%";
+    $("#petLoveBar").style.width = l + "%";
+    $("#petStatus").textContent = "Tummy " + f + " of 100, love " + l + " of 100. " + fill(MOOD[mood]);
+    $("#petOpen").setAttribute("aria-label", "Open " + PET.name + "'s page");
+    $("#petHug").setAttribute("aria-label", "Give " + PET.name + " a hug");
+    const nt = Object.keys(TREATS)[petState.nextTreat % 3];
+    $("#petFeed").setAttribute("aria-label", "Feed " + PET.name + " " + TREATS[nt].a);
+    if (current === "pet") {
+      const set = (id, v) => { const el = $("#" + id); if (el) el.textContent = v; };
+      const w = (id, v) => { const el = $("#" + id); if (el) el.style.width = v + "%"; };
+      w("pmFood", f); w("pmLove", l); set("pmFoodN", f); set("pmLoveN", l);
+      set("petMood", fill(MOOD[mood])); set("petLog", petLog());
+    }
+    if (world) world.pet.mood(mood);
+  }
+  function hearts(fromEl, n) {
+    const fx = $("#fx"), r = fromEl && fromEl.getBoundingClientRect && fromEl.getBoundingClientRect();
+    if (!r || reduced) return;
+    const ar = app.getBoundingClientRect();
+    for (let i = 0; i < (n || 5); i++) {
+      const h = document.createElement("span");
+      h.className = "fheart"; h.textContent = "♥";
+      h.style.left = (r.left - ar.left + r.width / 2 + (Math.random() - 0.5) * r.width * 0.6) + "px";
+      h.style.top = (r.top - ar.top + r.height * 0.3) + "px";
+      h.style.setProperty("--dx", ((Math.random() - 0.5) * 60).toFixed(0) + "px");
+      h.style.animationDelay = (i * 0.09).toFixed(2) + "s";
+      h.style.fontSize = (14 + Math.random() * 12).toFixed(0) + "px";
+      fx.appendChild(h);
+      setTimeout(() => h.remove(), 1700);
+    }
+  }
+  function portrait(cls) {
+    const p = $("#petPortrait");
+    if (!p) return;
+    p.classList.remove("hug", "eat", "full"); void p.offsetWidth; p.classList.add(cls);
+  }
+  let petBusy = 0;
+  function hugPet(fromEl) {
+    if (performance.now() < petBusy) return;
+    petBusy = performance.now() + (reduced ? 300 : 1250);
+    petTick();
+    petState.love = clamp100(petState.love + 18); petState.hugs++;
+    petState.lastHug = { by: auth.name || "", at: Date.now() };
+    petSave();
+    if (world) { world.pet.hug(); world.pet.say(pickOne(["squeeze! ♡", "more hugs!", "love you too!", "so warm ♡"])); }
+    portrait("hug"); hearts(fromEl, 6);
+    refreshPetUI();
+    announce(PET.name + " loved that hug. Love is " + Math.round(petState.love) + " of 100.");
+  }
+  function feedPet(kind, fromEl) {
+    if (!TREATS[kind]) kind = Object.keys(TREATS)[petState.nextTreat % 3];
+    const tr = TREATS[kind];
+    if (performance.now() < petBusy) return;
+    petTick();
+    if (petState.food >= 95) {
+      petBusy = performance.now() + 800;
+      if (world) { world.pet.full(); world.pet.say("I'm full!"); }
+      portrait("full");
+      announce(PET.name + " is full. Maybe a hug instead?");
+      return;
+    }
+    petBusy = performance.now() + (reduced ? 300 : 2300);
+    petState.food = clamp100(petState.food + tr.food); petState.love = clamp100(petState.love + tr.love); petState.treats++;
+    petState.lastFeed = { by: auth.name || "", at: Date.now(), kind };
+    petState.nextTreat = (Object.keys(TREATS).indexOf(kind) + 1) % 3;
+    petSave();
+    if (world) { world.pet.feed(kind); world.pet.say(tr.say, 2.8); }
+    portrait("eat"); hearts(fromEl, 3);
+    refreshPetUI();
+    announce(PET.name + " ate " + tr.a + ". Tummy is " + Math.round(petState.food) + " of 100.");
+  }
+  function onPetPat() {      // tapping her on the island
+    petTick(); petState.love = clamp100(petState.love + 2); petSave(); refreshPetUI();
+    if (world) world.pet.say(pickOne(["hehe ♡", "hi!", "pat pat", "♡"]), 1.6);
+  }
+  function renderPet() {
+    petTick();
+    const n = esc(PET.name);
+    pBody.innerHTML = `<div class="pet-card">
+      <div class="pet-portrait" id="petPortrait">${bunnySvg()}</div>
+      <p class="pet-mood" id="petMood"></p>
+      <div class="meters">
+        <div class="meter"><span>Tummy</span><span class="track" aria-hidden="true"><i class="food" id="pmFood"></i></span><b id="pmFoodN"></b></div>
+        <div class="meter"><span>Love</span><span class="track" aria-hidden="true"><i class="love" id="pmLove"></i></span><b id="pmLoveN"></b></div>
+      </div>
+      <div class="pet-do"><button class="btn btn-primary" type="button" data-pet="hug">&#9829; Give ${n} a hug</button></div>
+      <p class="treat-lbl" id="treatLbl">Or a treat:</p>
+      <div class="treat-row" role="group" aria-labelledby="treatLbl">${Object.keys(TREATS).map(k =>
+        `<button class="treat" type="button" data-pet="feed" data-kind="${k}">${TREAT_ICON[k]}<span>${esc(TREATS[k].label)}</span></button>`).join("")}</div>
+      <p class="pet-log" id="petLog"></p>
+      <details class="manage"><summary>Rename ${n}</summary>
+        <form class="pet-form" id="petNameForm"><div class="field"><label for="petNameIn">Name</label><input id="petNameIn" name="name" maxlength="24" autocomplete="off" value="${n}" required></div>
+        <div class="form-actions"><button class="btn btn-primary btn-sm" type="submit">Save name</button></div></form></details>
+    </div>`;
+    refreshPetUI();
+  }
+  on(pBody, "click", e => {
+    const b = e.target.closest("[data-pet]");
+    if (!b || !pBody.contains(b)) return;
+    if (b.dataset.pet === "hug") hugPet(b); else feedPet(b.dataset.kind, b);
+  });
+  on(pBody, "submit", e => {
+    if (e.target.id !== "petNameForm") return;
+    e.preventDefault();
+    const v = e.target.elements.name.value.trim().slice(0, 24);
+    if (!v) return;
+    PET.name = petState.name = v; petSave();
+    $("#panelTitle").textContent = v;
+    if (world) world.pet.rename(v);
+    renderPet();
+    announce("Our bunny is now called " + v + ".");
+  });
+  $("#petFace").innerHTML = bunnySvg("26 46 148 150");
+  on($("#petOpen"), "click", e => go("pet", e.currentTarget));
+  on($("#petHug"), "click", e => hugPet(e.currentTarget));
+  on($("#petFeed"), "click", e => feedPet(null, e.currentTarget));
+  setInterval(() => {                    // she gets a little hungry while we look around
+    petTick(); petSave(); refreshPetUI();
+    const m = petMood();
+    if (world && mode === "island" && (m === "hungry" || m === "lonely")) world.pet.say(m === "hungry" ? "I'm hungry…" : "hug me?", 3);
+  }, 60000);
+
   /* ── opening / replay ── */
   const invite = $("#invite");
   function openSurprise() {
@@ -1408,8 +1683,9 @@ const GIFT = {
       mode = "island";
       $("#brand").hidden = false;
       $("#replayBtn").hidden = false;
-      show(dock);
+      showDock();
       showHint();
+      if (world) setTimeout(() => { const m = petMood(); world.pet.say(m === "hungry" ? "I'm hungry…" : m === "lonely" ? "hug me?" : "hi " + GIFT.herName + "!", 3); }, reduced ? 0 : 900);
       setTimeout(() => { const b = dock.querySelector("button"); b && b.focus({ preventScroll: true }); }, 50);
     };
     if (world) world.open(arrive); else setTimeout(arrive, reduced ? 0 : 500);
@@ -1418,7 +1694,7 @@ const GIFT = {
     if (mode === "panel") closePanel(true);
     if (mode === "finale") closeFinale(true);
     hideHint();
-    hide(dock);
+    hideDock();
     $("#replayBtn").hidden = true;
     $("#brand").hidden = true;
     mode = "invite";
@@ -2038,8 +2314,29 @@ const GIFT = {
       for (const k in ZONES) { const zn = ZONES[k]; if (Math.hypot(x - zn.x, z - zn.z) < zn.r) return k; }
       return null;
     }
+    /* treats she nibbles */
+    const treatG = new T.Group(); treatG.position.set(0, 0.03, 0.24); treatG.visible = false; bunnyG.add(treatG);
+    const TREAT3D = {};
+    {
+      const c = new T.Group(), body = mesh(new T.ConeGeometry(0.035, 0.17, 12), clay("#F0904A"), 0, 0.01, 0);
+      body.rotation.z = -Math.PI / 2; c.add(body);
+      [-0.55, 0, 0.55].forEach(a => { const l = mesh(new T.ConeGeometry(0.012, 0.075, 6), clay("#7FB069"), -0.115 - Math.abs(a) * 0.01, 0.01, 0); l.rotation.z = Math.PI / 2 + a; c.add(l); });
+      TREAT3D.carrot = c;
+      const s = new T.Group(), red = clay("#E8505B", { roughness: 0.45 });
+      const tip = mesh(new T.ConeGeometry(0.045, 0.06, 14), red, 0, 0.03, 0); tip.rotation.x = Math.PI; s.add(tip);
+      blob(s, red, 0, 0.062, 0, 0.045, 0.026, 0.045);
+      const top = mesh(new T.ConeGeometry(0.035, 0.016, 7), clay("#7FB069"), 0, 0.09, 0); s.add(top);
+      TREAT3D.strawberry = s;
+      const m = new T.Group();
+      m.add(mesh(new T.CylinderGeometry(0.075, 0.07, 0.01, 22), clay("#FFF6EA"), 0, 0.005, 0));
+      blob(m, clay("#A8C97F", { roughness: 0.7 }), 0, 0.04, 0, 0.055, 0.036, 0.055);
+      TREAT3D.matcha = m;
+      Object.keys(TREAT3D).forEach(k => { TREAT3D[k].visible = false; treatG.add(TREAT3D[k]); });
+    }
+    let petName = PET.name;
+
     function petAct(kind, dur, end) { pet.target = null; pet.act = { kind, t: 0, dur: reduced ? Math.min(dur, 1.2) : dur, end, fired: 0 }; pet.idle = 2; }
-    function petPat() { if (pet.act) return; petAct("pat", 0.5); puffHeart(0.1); }
+    function petPat() { if (pet.act) return; petAct("pat", 0.5); puffHeart(0.1); onPetPat(); }
 
     const petTag = document.createElement("button");
     petTag.className = "tag pet-tag"; petTag.type = "button"; petTag.tabIndex = -1;
@@ -2051,10 +2348,10 @@ const GIFT = {
       clearTimeout(sayTimer);
       petSay.textContent = text;
       petTag.classList.add("talking");
-      sayTimer = setTimeout(() => { petSay.textContent = GIFT.pet.name; petTag.classList.remove("talking"); }, (secs || 2.4) * 1000);
+      sayTimer = setTimeout(() => { petSay.textContent = petName; petTag.classList.remove("talking"); }, (secs || 2.4) * 1000);
     }
-    petSay.textContent = GIFT.pet.name;
-    on(petTag, "click", petPat);
+    petSay.textContent = petName;
+    on(petTag, "click", () => go("pet", $("#petOpen")));
 
     function stepPet(mx, mz, step) {
       // walk, sliding around anything in the way; try a few angles if we bump straight into it
@@ -2186,6 +2483,10 @@ const GIFT = {
     const inviteView = () => ({ tx: 0, ty: 3.2, tz: 0, theta: 0, phi: 1.47, r: 26 });
     const finaleView = () => ({ tx: 0, ty: 3.4, tz: 0, theta: cam.theta, phi: 1.5, r: fitR(14) });
     function focusView(key) {
+      if (key === "pet") {
+        const p = bunnyG.getWorldPosition(new T.Vector3());
+        return { tx: p.x, ty: p.y + 0.38, tz: p.z, theta: Math.atan2(camera.position.x - p.x, camera.position.z - p.z), phi: 1.25, r: fitR(3.4) };
+      }
       const g = HOT[key].group, p = g.getWorldPosition(new T.Vector3());
       return { tx: p.x, ty: p.y + HOT[key].lift, tz: p.z, theta: g.rotation.y + HOT[key].face, phi: HOT[key].phi || 1.14, r: fitR(HOT[key].dist) };
     }
@@ -2504,6 +2805,20 @@ const GIFT = {
         goTo(inviteView(), 2.2, () => { state = "invite"; });
         if (reduced) state = "invite";
       },
+      pet: {
+        hug() { petAct("hug", 1.25); },
+        feed(kind) {
+          const m = TREAT3D[kind] || TREAT3D.carrot;
+          Object.keys(TREAT3D).forEach(k => (TREAT3D[k].visible = TREAT3D[k] === m));
+          treatG.visible = true; treatG.scale.setScalar(1);
+          petAct("feed", 2.2, () => { treatG.visible = false; });
+          pet.act.onTick = k => treatG.scale.setScalar(Math.max(0.05, 1 - Math.floor(k * 4) * 0.3));
+        },
+        full() { petAct("full", 0.8); },
+        say,
+        mood(m) { pet.droopTo = m === "hungry" || m === "lonely" ? 1 : 0; },
+        rename(n) { petName = n; if (!petTag.classList.contains("talking")) petSay.textContent = n; }
+      },
       focus(key, inset) {
         state = "panel"; keys.clear();
         petToZone(key);
@@ -2579,6 +2894,7 @@ const GIFT = {
 
   updateAccount();
   if (world) world.setFlowerCount(noteList().length);
+  petTick(); petSave(); refreshPetUI();
   if (API.enabled && auth.refresh) {
     loadLive().catch(e => { if (e.status !== 401 && e.status !== 403) notify("Couldn't reach our little server, so this is the saved version."); });
   }
