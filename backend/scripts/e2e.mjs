@@ -1,6 +1,6 @@
 // End-to-end check against the deployed API (real Neon Auth, Postgres and Object Storage).
 //   E2E_USERNAME=… E2E_PASSWORD=… npm run test:e2e
-// Uses the shared login twice: once signed in as Ben, once as Amie.
+// Uses the shared login twice: once signed in as Ben, once as Amiee.
 // Every row and photo it creates is deleted again before it exits.
 import { deflateSync } from "node:zlib";
 import { loadEnv } from "./lib.mjs";
@@ -20,7 +20,7 @@ process.on("uncaughtException", async (err) => {
   console.error(err.message);
   process.exit(1);
 });
-// token is a JWT string, or { t, who } for a session signed in as Ben or Amie.
+// token is a JWT string, or { t, who } for a session signed in as Ben or Amiee.
 // (Two sign-ins of the same login in the same second get the identical JWT.)
 async function call(method, path, { token, body, raw, type, author } = {}) {
   const headers = {};
@@ -57,21 +57,21 @@ const USER = need("E2E_USERNAME"), PASS = need("E2E_PASSWORD");
 ok((await call("POST", "/auth/sign-in", { body: { username: USER, password: "wrong-password-123", as: "Ben" } })).status === 401, "wrong password is refused (401)");
 ok((await call("POST", "/auth/sign-in", { body: { username: "nobody-here", password: PASS, as: "Ben" } })).status === 401, "unknown username is refused (401)");
 ok((await call("POST", "/auth/sign-in", { body: { username: USER, password: PASS } })).status === 400, "the shared login must say who is signing in (400)");
-ok((await call("POST", "/auth/sign-in", { body: { username: USER, password: PASS, as: "Stranger" } })).status === 400, "only Ben or Amie can be chosen (400)");
+ok((await call("POST", "/auth/sign-in", { body: { username: USER, password: PASS, as: "Stranger" } })).status === 400, "only Ben or Amiee can be chosen (400)");
 
 // ── sign in as both of us ──
 const ben = await call("POST", "/auth/sign-in", { body: { username: USER.toUpperCase(), password: PASS, as: "Ben" } });
 ok(ben.status === 200 && ben.data.member.name === "Ben" && ben.data.accessToken, "Ben signs in with the username (case-insensitive)");
-const amie = await call("POST", "/auth/sign-in", { body: { username: USER, password: PASS, as: "Amie" } });
-ok(amie.status === 200 && amie.data.member.name === "Amie", "Amie signs in with the same username");
-const B = { t: ben.data.accessToken, who: "Ben" }, A = { t: amie.data.accessToken, who: "Amie" };
+const amie = await call("POST", "/auth/sign-in", { body: { username: USER, password: PASS, as: "Amiee" } });
+ok(amie.status === 200 && amie.data.member.name === "Amiee", "Amiee signs in with the same username");
+const B = { t: ben.data.accessToken, who: "Ben" }, A = { t: amie.data.accessToken, who: "Amiee" };
 ok((await call("GET", "/me", { token: B })).data.name === "Ben", "GET /me knows who is signed in");
 ok((await call("POST", "/notes", { token: B, author: null, body: { text: "x" } })).status === 400, "a write without saying who wrote it is rejected (400)");
-ok((await call("POST", "/notes", { token: B, author: "Stranger", body: { text: "x" } })).status === 400, "a write as anyone but Ben or Amie is rejected (400)");
+ok((await call("POST", "/notes", { token: B, author: "Stranger", body: { text: "x" } })).status === 400, "a write as anyone but Ben or Amiee is rejected (400)");
 
 // ── CRUD for every content type ──
 const cases = {
-  letters: { create: { title: "E2E letter", body: "Dear Amie,\nhello.", date: "2026-11-03" }, update: { title: "E2E letter (edited)", date: null }, bad: { title: "" } },
+  letters: { create: { title: "E2E letter", body: "Dear Amiee,\nhello.", date: "2026-11-03" }, update: { title: "E2E letter (edited)", date: null }, bad: { title: "" } },
   milestones: { create: { date: "2026-07-11", title: "E2E milestone", caption: "first" }, update: { caption: "edited caption" }, bad: { date: "2026-02-30", title: "x" } },
   notes: { create: { text: "E2E: your laugh" }, update: { text: "E2E: your laugh, edited" }, bad: { text: "x".repeat(501) } },
   events: { create: { title: "E2E picnic", date: "2026-12-24", time: "18:30", location: "the park", kind: "food" }, update: { done: true, kind: "celebration" }, bad: { title: "t", kind: "party" } },
@@ -83,9 +83,9 @@ for (const [name, c] of Object.entries(cases)) {
   created.push([`/${name}/${id}`, B]);
   for (const [k, v] of Object.entries(c.create)) ok(made.data[k] === v, `${name}: ${k} saved as ${JSON.stringify(v)}`);
   const list = await call("GET", `/${name}`, { token: A });
-  ok(list.data.some(r => r.id === id), `${name}: Amie reads it in the list`);
+  ok(list.data.some(r => r.id === id), `${name}: Amiee reads it in the list`);
   const upd = await call("PATCH", `/${name}/${id}`, { token: A, body: c.update });
-  ok(upd.status === 200 && Object.entries(c.update).every(([k, v]) => upd.data[k] === v), `${name}: Amie edits it`);
+  ok(upd.status === 200 && Object.entries(c.update).every(([k, v]) => upd.data[k] === v), `${name}: Amiee edits it`);
   ok((await call("POST", `/${name}`, { token: B, body: c.bad })).status === 400, `${name}: invalid input is rejected (400)`);
   ok((await call("PATCH", `/${name}/${id}`, { body: c.update })).status === 401, `${name}: signed-out edit is refused`);
   ok((await call("DELETE", `/${name}/${id}`)).status === 401, `${name}: signed-out delete is refused`);
@@ -122,12 +122,12 @@ ok((await call("GET", `/photos/${file}`, { token: B })).status === 404, "... als
 
 // ── content bundle, refresh and sign-out ──
 const all = await call("GET", "/content", { token: A });
-ok(all.status === 200 && ["letters", "milestones", "notes", "events"].every(k => Array.isArray(all.data[k])) && all.data.me.name === "Amie", "GET /content returns everything for the page");
+ok(all.status === 200 && ["letters", "milestones", "notes", "events"].every(k => Array.isArray(all.data[k])) && all.data.me.name === "Amiee", "GET /content returns everything for the page");
 const ref = await call("POST", "/auth/refresh", { body: { refreshToken: ben.data.refreshToken, as: "Ben" } });
 ok(ref.status === 200 && ref.data.accessToken && ref.data.member.name === "Ben", "refresh mints a new access token");
 ok((await call("POST", "/auth/sign-out", { body: { refreshToken: ref.data.refreshToken } })).status === 204, "Ben signs out");
 ok((await call("POST", "/auth/refresh", { body: { refreshToken: ref.data.refreshToken } })).status === 401, "after sign-out the session cannot be refreshed");
 await call("POST", "/auth/sign-out", { body: { refreshToken: amie.data.refreshToken } });
-ok((await call("POST", "/auth/refresh", { body: { refreshToken: amie.data.refreshToken } })).status === 401, "Amie signs out too");
+ok((await call("POST", "/auth/refresh", { body: { refreshToken: amie.data.refreshToken } })).status === 401, "Amiee signs out too");
 
 console.log(`\nAll ${passed} checks passed against ${API}`);

@@ -8,7 +8,7 @@ const dancingScript = Dancing_Script({ subsets: ["latin"], weight: ["400", "600"
 const nunito = Nunito({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700", "800"], variable: "--font-nunito" });
 
 export const metadata: Metadata = {
-  title: "For Amie",
+  title: "For Amiee",
   robots: { index: false, follow: false },
 };
 

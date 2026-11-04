@@ -5,7 +5,7 @@ export function Hero() {
   return (
     <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-amie-cream px-6 text-center">
       <p className="font-body text-xs uppercase tracking-[0.3em] text-amie-green/70">a little something for</p>
-      <h1 className="font-display mt-4 text-5xl font-semibold text-[#3A2418] sm:text-6xl">For You, Amie</h1>
+      <h1 className="font-display mt-4 text-5xl font-semibold text-[#3A2418] sm:text-6xl">For You, Amiee</h1>
       <p className="font-body mt-4 max-w-md text-sm text-amie-green/80">
         Scroll down. There&apos;s a café, a note, and a question waiting for you.
       </p>

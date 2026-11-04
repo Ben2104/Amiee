@@ -32,7 +32,15 @@ A little white bunny with a pink bow lives on the island.
   gets fireworks on its day too. The date also drives the days-together
   counter and the calendar's monthly anniversaries.
 
-Her name starts as `GIFT.pet.name`. Her care, her name and the anniversary
+- **Outfits:** her page has a wardrobe from our design sheet
+  ([`designs/mochi-outfits.jpg`](designs/mochi-outfits.jpg)): the Starlight
+  princess dress (Đầm công chúa Tím Ánh Sao) with a tiara and star bow, the
+  carrot shirt and bloomers (Set áo sơ mi & Quần bí Cà Rốt) with a beret and
+  Mary Janes, and the cream tartan dress (Đầm Tartan Trắng Kem) with a pearl
+  belt and bow. Or just her pink bow. She wears it on the island and in her
+  pictures.
+
+Her name starts as `GIFT.pet.name`. Her care, her name, her outfit and the anniversary
 are saved in the browser (`localStorage`), so each phone or laptop has its
 own Mochi.
 
@@ -67,7 +75,7 @@ What Vercel's domain does need is to be on the Function's CORS allow-list
 
 ## Our own content (Neon backend)
 
-Signed in, Ben and Amie can add, edit and delete:
+Signed in, Ben and Amiee can add, edit and delete:
 
 | Content | Fields | Where it shows |
 | --- | --- | --- |
@@ -119,7 +127,7 @@ browsers call directly. That's what this uses:
 - We sign in with a **username and password**. Neon Auth accounts are keyed by
   email, so the API maps a username to `<username>@login.our-little-world.invalid`.
   `.invalid` is a reserved domain, so no mail is ever sent to it.
-- We share **one login**. The sign-in form asks "Who's signing in? Ben / Amie",
+- We share **one login**. The sign-in form asks "Who's signing in? Ben / Amiee",
   and that name is saved as the author of everything you add in that session.
   To switch, sign out and back in. A personal login fixed to one name also
   works (`--name`, below).
@@ -208,7 +216,7 @@ npm install
    ```
 
    Usernames are 3 to 32 characters (`a-z 0-9 . _ -`) and not case-sensitive;
-   passwords need 8 or more. Add `--name Ben` or `--name Amie` for a personal
+   passwords need 8 or more. Add `--name Ben` or `--name Amiee` for a personal
    login that always writes as that person. An existing username is linked
    as-is. To change a password, delete the user with
    `npx neonctl neon-auth user delete <user-id>` (the id is in the Neon Console,
@@ -224,7 +232,7 @@ E2E_USERNAME=… E2E_PASSWORD=… npm run test:e2e
 ```
 
 This runs 83 checks against the deployed API, signing in once as Ben and once
-as Amie: sign-in and sign-out, refusal of wrong passwords, unknown usernames,
+as Amiee: sign-in and sign-out, refusal of wrong passwords, unknown usernames,
 signed-out and forged requests, and writes that don't say who wrote them, create/read/update/delete for every content
 type, photo upload and download, and that the bucket isn't public. It deletes
 everything it creates.

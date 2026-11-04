@@ -67,7 +67,7 @@ const str = (v: unknown, name: string, max = 600) => {
   return v;
 };
 
-const NAMES: readonly Name[] = ["Ben", "Amie"];
+const NAMES: readonly Name[] = ["Ben", "Amiee"];
 const asName = (v: unknown): Name | null => (NAMES.includes(v as Name) ? (v as Name) : null);
 
 app.post("/auth/sign-in", async (c) => {
@@ -82,7 +82,7 @@ app.post("/auth/sign-in", async (c) => {
   const name = out.member.name || picked;
   if (!name) {
     await signOut(out.refreshToken, ip).catch(() => {});
-    throw new ValidationError("Choose who is signing in: Ben or Amie");
+    throw new ValidationError("Choose who is signing in: Ben or Amiee");
   }
   return c.json({ accessToken: out.accessToken, refreshToken: out.refreshToken, member: { name } });
 });
@@ -115,7 +115,7 @@ for (const name of Object.keys(RESOURCES)) {
 /** Who is writing: a personal login's own name, or the X-Author header on a shared login. */
 function authorOf(c: Context<Env>): Name {
   const name = c.get("member").name || asName(c.req.header("x-author"));
-  if (!name) throw new ValidationError("Sign in again and choose Ben or Amie");
+  if (!name) throw new ValidationError("Sign in again and choose Ben or Amiee");
   return name;
 }
 

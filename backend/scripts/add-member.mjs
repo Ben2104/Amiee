@@ -1,6 +1,6 @@
 // Creates (or links) a username login and allow-lists it for the API.
 //
-//   Shared login (whoever signs in picks Ben or Amie):
+//   Shared login (whoever signs in picks Ben or Amiee):
 //     MEMBER_PASSWORD='…' npm run db:add-member -- --username ourname
 //   Personal login (always writes as that person):
 //     MEMBER_PASSWORD='…' npm run db:add-member -- --username ben123 --name Ben
@@ -16,8 +16,8 @@ const LOGIN_DOMAIN = "login.our-little-world.invalid"; // keep in sync with back
 
 const { values } = parseArgs({ options: { username: { type: "string" }, name: { type: "string" } } });
 const username = (values.username || "").trim().toLowerCase(), name = values.name || null;
-if (!USERNAME_RE.test(username) || (name && !["Ben", "Amie"].includes(name))) {
-  console.error("Usage: npm run db:add-member -- --username <3-32 chars: a-z 0-9 . _ -> [--name Ben|Amie]");
+if (!USERNAME_RE.test(username) || (name && !["Ben", "Amiee"].includes(name))) {
+  console.error("Usage: npm run db:add-member -- --username <3-32 chars: a-z 0-9 . _ -> [--name Ben|Amiee]");
   process.exit(2);
 }
 const email = `${username}@${LOGIN_DOMAIN}`;
@@ -51,4 +51,4 @@ await sql.query(
    on conflict (user_id) do update set display_name = excluded.display_name`,
   [user.id, name],
 );
-console.log(name ? `"${username}" signs in as ${name}.` : `"${username}" is a shared login: whoever signs in picks Ben or Amie.`);
+console.log(name ? `"${username}" signs in as ${name}.` : `"${username}" is a shared login: whoever signs in picks Ben or Amiee.`);
