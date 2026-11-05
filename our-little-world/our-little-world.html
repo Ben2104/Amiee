@@ -1980,8 +1980,8 @@ const GIFT = {
     }
   }
   function petPush(action) {
-    if (!PetSync.on) return;
-    api("POST", "/pet/actions", Object.assign({ client: PetSync.client }, action))
+    if (!PetSync.on) return Promise.resolve();
+    return api("POST", "/pet/actions", Object.assign({ client: PetSync.client }, action))
       .then(r => petFromServer(r && r.state, true))
       .catch(e => {
         if (e.status === 404) { petSyncStop(); return; }   // an older server without our shared bunny
@@ -1999,12 +1999,15 @@ const GIFT = {
     PetSync.starting = true;
     api("GET", "/pet").then(st => {
       PetSync.on = true;
-      const raised = petState.hugs || petState.treats || petState.name || petState.outfit !== "none";
-      if (st.rev === 0 && raised) {      // first time online: keep the bunny this phone already raised
+      const season = petState.season, ann = { date: annSet.date, monthly: annSet.monthly };
+      const annChanged = !!parseYMD(ann.date) && (ann.date !== GIFT.togetherSince || ann.monthly !== true);
+      const raised = petState.hugs || petState.treats || petState.name || petState.outfit !== "none" || season !== "auto" || annChanged;
+      if (st.rev === 0 && raised) {      // first time online: keep the bunny (and season and anniversary) this phone already has
         const keep = { name: petState.name, food: petState.food, love: petState.love, hugs: petState.hugs, treats: petState.treats, outfit: petState.outfit, since: petState.since };
-        const season = petState.season;
-        petPush({ type: "seed", state: keep });
-        if (season !== "auto") petPush({ type: "season", season });
+        // One after another: the seed only applies to an untouched row (rev 0), so nothing may land before it.
+        petPush({ type: "seed", state: keep })
+          .then(() => season !== "auto" && petPush({ type: "season", season }))
+          .then(() => annChanged && petPush({ type: "anniversary", date: ann.date, monthly: ann.monthly }));
       } else petFromServer(st, true);
       clearInterval(PetSync.timer);
       PetSync.timer = setInterval(petPull, PET_POLL_MS);
