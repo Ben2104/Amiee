@@ -133,7 +133,7 @@ h1,h2,h3{font-family:var(--font-display);font-variation-settings:"SOFT" 100;text
   linear-gradient(180deg,#E99A7A 0%,#F2B48A 32%,#F8CD9C 60%,#FCE2B8 82%,#FFF0D6 100%)}
 #app[data-season="winter"] #sky{background:
   radial-gradient(60% 42% at 70% 60%, rgba(255,240,250,.9) 0%, rgba(235,230,255,.45) 40%, rgba(230,230,255,0) 72%),
-  linear-gradient(180deg,#A9B9E8 0%,#C3CCF0 32%,#DCDDF5 60%,#EEEBF8 82%,#F8F5FC 100%)}
+  linear-gradient(180deg,#8E9FDC 0%,#A9B5E6 30%,#C3C6EC 58%,#DCD6F0 82%,#ECE6F5 100%)}
 
 /* ───── object tags (3D-anchored) ───── */
 #tags{position:absolute;inset:0;pointer-events:none;z-index:5}
@@ -2686,7 +2686,7 @@ const GIFT = {
     world.add(sparkles);
 
     /* ── four seasons: grass, tree, bushes, what falls from the sky, and the light ── */
-    const snowGeo = new T.SphereGeometry(0.022, 6, 5), snowFlakeMat = new T.MeshBasicMaterial({ color: 0xFFFFFF, fog: false });
+    const snowGeo = new T.SphereGeometry(0.022, 6, 5), snowFlakeMat = new T.MeshBasicMaterial({ color: 0xF4F7FF, transparent: true, opacity: 0.9, fog: false });
     const snow = [];
     for (let i = 0; i < 110; i++) {
       const f = new T.Mesh(snowGeo, snowFlakeMat); f.visible = false;
@@ -2705,10 +2705,11 @@ const GIFT = {
                 fall: null, dots: true, snow: false, hemi: [0xFFF6E2, 0xA8D08F], sun: 0xFFF2D2, fog: "#E2F1EE", spark: [0xFFF3A0, 0.22] },
       autumn: { grass: ["#BFC08A", "#A39A68"], bush: "#C98A3E", tree: ["#F08A3C", "#E5643A", "#F4B046", "#D9532F"],
                 fall: "#E8803A", fallK: 1.35, dots: false, snow: false, hemi: [0xFFEADC, 0xB9B48E], sun: 0xFFE2C4, fog: "#F8DCC2", spark: [0xFFD08A, 0.16] },
-      winter: { grass: ["#F5F7FC", "#DCE3F2"], bush: "#7FA88A", tree: ["#FFFFFF", "#EEF3FB", "#F7F9FF", "#E2EAF7"],
-                fall: null, dots: false, snow: true, hemi: [0xEEF0FF, 0xD8E0F0], sun: 0xFFF4F0, fog: "#E4E4F4", spark: [0xFFFFFF, 0.14] }
+      winter: { grass: ["#D9E2F4", "#B4C3E2"], bush: "#5F9277", tree: ["#E9EEF9", "#D6E0F3", "#E1E8F7", "#C9D6EE"],
+                fall: null, dots: false, snow: true, hemi: [0xD6DDF5, 0xA4B3D6], sun: 0xFFE9DC, fog: "#D3D8EE", spark: [0xE6ECFF, 0.13], light: 0.78,
+                snowCap: "#E4EBF8", snowGlow: 0.04 }
     };
-    let seasonNow3d = "spring", seasonSnow = false;
+    let seasonNow3d = "spring", seasonSnow = false, seasonLight = 1;
     function setSeason(key) {
       const S = SEASON3D[key] || SEASON3D.spring;
       seasonNow3d = key;
@@ -2727,6 +2728,8 @@ const GIFT = {
       seasonSnow = S.snow;
       snow.forEach(f => (f.visible = S.snow && !reduced));
       hemi.color.set(S.hemi[0]); hemi.groundColor.set(S.hemi[1]); sun.color.set(S.sun);
+      seasonLight = S.light || 1;                       // winter is a touch dimmer, so the snow isn't blown out
+      snowMat.color.set(S.snowCap || "#FFFFFF"); snowMat.emissiveIntensity = S.snowGlow ?? 0.25;
       fogDay.set(S.fog);
       sparkles.material.color.set(S.spark[0]); sparkles.material.size = S.spark[1];
     }
@@ -3546,7 +3549,7 @@ const GIFT = {
 
       /* dusk + lanterns */
       dusk += ((lanternsOn ? 1 : 0) - dusk) * Math.min(1, dt * (reduced ? 60 : 1.2));
-      sun.intensity = 0.85 - dusk * 0.35; hemi.intensity = 0.72 - dusk * 0.2;
+      sun.intensity = (0.85 - dusk * 0.35) * seasonLight; hemi.intensity = (0.72 - dusk * 0.2) * seasonLight;
       scene.fog.color.copy(fogDay).lerp(fogDusk, dusk);
       let anyVisible = false;
       lanterns.forEach((L, i) => {
