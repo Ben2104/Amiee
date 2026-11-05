@@ -2038,11 +2038,13 @@ const GIFT = {
      Signed in, the pick is shared too. */
   function seasonByDate(d) { const m = d.getMonth(); return m >= 2 && m <= 4 ? "spring" : m >= 5 && m <= 7 ? "summer" : m >= 8 && m <= 10 ? "autumn" : "winter"; }
   function seasonNow() { return SEASONS[petState.season] ? petState.season : seasonByDate(new Date()); }
+  // Two weeks of Christmas: the winter pine gets its star, ornaments, lights and presents from December 18 to 31.
+  function christmasNow(d) { d = d || new Date(); return d.getMonth() === 11 && d.getDate() >= 18; }
   const seasonBtn = $("#seasonBtn"), seasonMenu = $("#seasonMenu");
   function applySeason() {
     const s = seasonNow(), auto = !SEASONS[petState.season];
-    app.dataset.season = s;
-    if (world) world.setSeason(s);
+    app.dataset.season = s; app.dataset.xmas = christmasNow() ? "1" : "";
+    if (world) world.setSeason(s, christmasNow());
     seasonBtn.innerHTML = SEASON_ICON[s] + '<span class="txt">' + SEASONS[s].label + (auto ? '<small> · auto</small>' : "") + "</span>";
     seasonBtn.setAttribute("aria-label", "Season: " + SEASONS[s].label + (auto ? ", following the calendar" : "") + ". Change the season");
     seasonMenu.querySelectorAll("[data-season]").forEach(b => b.setAttribute("aria-checked", b.dataset.season === (auto ? "auto" : s) ? "true" : "false"));
@@ -2073,7 +2075,7 @@ const GIFT = {
     else if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); items[(i + (e.key === "ArrowDown" ? 1 : items.length - 1)) % items.length].focus(); }
   });
   on(document, "pointerdown", e => { if (!seasonMenu.hidden && !seasonMenu.contains(e.target) && !seasonBtn.contains(e.target)) openSeasonMenu(false); });
-  setInterval(() => { if (!SEASONS[petState.season] && app.dataset.season !== seasonNow()) applySeason(); }, 60 * 60000);   // the calendar turned over
+  setInterval(() => { if (app.dataset.season !== seasonNow() || app.dataset.xmas !== (christmasNow() ? "1" : "")) applySeason(); }, 60 * 60000);   // the calendar turned over
 
   /* ════════════════ our anniversary: fireworks ════════════════ */
   function celebrationToday() {
@@ -2469,19 +2471,107 @@ const GIFT = {
       const cap = mesh(blobGeo, snowMat, x, TOP + r * 1.02, z, true); cap.scale.set(r * 0.86, r * 0.36, r * 0.86); cap.visible = false; world.add(cap); snowCaps.push(cap);
     });
 
-    /* ── blossom tree + bench + cat + matcha (future) ── */
+    /* ── a tree for each season (one shows at a time) + bench + cat + matcha (future) ──
+       spring: cherry blossom (sakura) · summer: royal poinciana · fall: birch ·
+       winter: snowy pine, dressed up for Christmas from December 18 to 31 */
     const treeG = new T.Group(); treeG.position.set(-1.55, TOP, -1.35); world.add(treeG);
+    const trees = {};
+    const limb = (parent, mat, r0, r1, len, x, y, z, rz, rx) => { const m = mesh(new T.CylinderGeometry(r0, r1, len, 10), mat, x, y, z); m.rotation.set(rx || 0, 0, rz || 0); parent.add(m); return m; };
+    /* spring: sakura */
+    const sakura = trees.spring = new T.Group(); treeG.add(sakura);
     const bark = clay("#B67F70");
-    const trunk = mesh(new T.CylinderGeometry(0.12, 0.21, 1.6, 12), bark, 0, 0.8, 0); trunk.rotation.z = 0.05; treeG.add(trunk);
-    const br1 = mesh(new T.CylinderGeometry(0.05, 0.08, 0.75, 8), bark, 0.25, 1.35, 0.05); br1.rotation.z = -0.8; treeG.add(br1);
-    const br2 = mesh(new T.CylinderGeometry(0.04, 0.07, 0.6, 8), bark, -0.22, 1.3, -0.1); br2.rotation.z = 0.9; treeG.add(br2);
+    const trunk = limb(sakura, bark, 0.12, 0.21, 1.6, 0, 0.8, 0, 0.05);
+    limb(sakura, bark, 0.05, 0.08, 0.75, 0.25, 1.35, 0.05, -0.8);
+    limb(sakura, bark, 0.04, 0.07, 0.6, -0.22, 1.3, -0.1, 0.9);
     const blossomCols = [C.blush, tint(C.blush, 0.06), tint(C.blush, -0.05, 0.05), "#F9C9D3"];
     const foliage = [];
     [[0, 2.15, 0, 0.82], [0.62, 1.88, 0.18, 0.58], [-0.6, 1.95, 0.12, 0.6], [0.12, 2.6, -0.08, 0.58], [-0.2, 1.82, -0.5, 0.58], [0.36, 2.02, -0.48, 0.52], [0.05, 1.75, 0.5, 0.5]].forEach(([x, y, z, r], i) => {
-      const f = mesh(blobGeo, clay(blossomCols[i % blossomCols.length]).clone(), x, y, z);
-      f.scale.setScalar(r); treeG.add(f); foliage.push(f);
-      if (y > 1.85) { const cap = mesh(blobGeo, snowMat, x, y + r * 0.55, z, true); cap.scale.set(r * 0.8, r * 0.42, r * 0.8); cap.visible = false; treeG.add(cap); snowCaps.push(cap); }
+      const f = mesh(blobGeo, clay(blossomCols[i % blossomCols.length]), x, y, z);
+      f.scale.setScalar(r); sakura.add(f); foliage.push(f);
     });
+    for (let i = 0; i < 26; i++) {      // little white-pink flowers dotted over the blossom clouds
+      const a = i * 2.4, yy = 1.7 + (i % 7) * 0.15, rr = 0.55 + (i % 3) * 0.12;
+      sakura.add(mesh(dotGeo, clay(i % 2 ? "#FFF3F6" : "#F7A9BD"), Math.cos(a) * rr, yy + 0.25, Math.sin(a) * rr, true));
+    }
+    /* summer: royal poinciana, a wide flat umbrella of leaves covered in red-orange flowers */
+    const poinc = trees.summer = new T.Group(); treeG.add(poinc);
+    const barkP = clay("#8C7262");
+    limb(poinc, barkP, 0.11, 0.2, 1.3, 0, 0.65, 0, 0.04);
+    [[0, 0.55], [2.1, 0.6], [4.2, 0.55]].forEach(([a, tilt]) => {
+      const br = new T.Group(); br.position.set(0, 1.2, 0); br.rotation.y = a; poinc.add(br);
+      limb(br, barkP, 0.045, 0.08, 0.9, 0.3, 0.32, 0, -tilt * 1.6);
+    });
+    const leafCols = ["#5E9E4A", "#6FAE55", "#548F43"], flameCols = ["#E0392B", "#EE4E2E", "#C92E25", "#F26B35"];
+    [[0, 1.95, 0, 0.95], [0.75, 1.8, 0.2, 0.6], [-0.75, 1.82, 0.1, 0.62], [0.2, 1.85, 0.72, 0.6], [-0.15, 1.83, -0.72, 0.6], [0.55, 1.86, -0.5, 0.5], [-0.55, 1.86, 0.55, 0.5]].forEach(([x, y, z, r], i) => {
+      const f = mesh(blobGeo, clay(leafCols[i % 3]), x, y, z); f.scale.set(r, r * 0.42, r); poinc.add(f);
+    });
+    for (let i = 0; i < 95; i++) {      // in bloom it's a mass of flame-red flowers, all over the top of the umbrella
+      const a = i * 2.39996, rr = Math.sqrt((i + 0.5) / 95) * 1.28, yy = 1.86 + 0.42 * Math.sqrt(Math.max(0.04, 1 - (rr / 1.32) * (rr / 1.32)));
+      const fl = mesh(blobGeo, clay(flameCols[i % 4], { emissive: new T.Color(flameCols[i % 4]), emissiveIntensity: 0.15 }), Math.cos(a) * rr, yy, Math.sin(a) * rr * 0.98, true);
+      const k = 0.13 + (i % 3) * 0.025; fl.scale.set(k, k * 0.6, k); poinc.add(fl);
+    }
+    /* fall: birch, white bark with dark marks and golden leaves (a clump of two trunks) */
+    const birch = trees.autumn = new T.Group(); treeG.add(birch);
+    const birchBark = clay("#F4F0E8"), birchMark = clay("#3A3330"), birchLeaf = ["#F2C14E", "#E9A93A", "#F6D46A", "#DE8F2E"];
+    [[0, 0, 0.0, 2.5, 0.1], [0.22, 0.12, -0.14, 2.0, 0.075]].forEach(([x, z, lean, h, r], k) => {
+      const t = limb(birch, birchBark, r * 0.7, r, h, x, h / 2, z, lean); 
+      for (let m = 0; m < 9; m++) {   // the dark marks on birch bark
+        const yy = 0.25 + m * (h - 0.5) / 9, aa = m * 2.2 + k;
+        const mk = mesh(new T.BoxGeometry(0.07, 0.022, 0.03), birchMark, x + Math.sin(aa) * r * 0.92 - lean * yy, yy, z + Math.cos(aa) * r * 0.92, true);
+        mk.rotation.y = aa; birch.add(mk);
+      }
+    });
+    limb(birch, birchBark, 0.025, 0.04, 0.55, -0.18, 1.75, 0, 0.7);
+    limb(birch, birchBark, 0.02, 0.035, 0.5, 0.2, 2.0, 0.05, -0.7);
+    for (let i = 0; i < 46; i++) {      // an airy oval crown of small golden leaf clusters, with the white trunk showing through
+      const u = (i + 0.5) / 46, y = 1.45 + u * 1.55, w = Math.sin(Math.PI * Math.min(1, u * 1.05 + 0.05)) * 0.62 + 0.08, a = i * 2.39996;
+      const rr = w * (0.55 + 0.45 * ((i * 7) % 5) / 4);
+      const f = mesh(blobGeo, clay(birchLeaf[i % 4]), Math.cos(a) * rr, y, Math.sin(a) * rr, true);
+      const k = 0.13 + (i % 4) * 0.025; f.scale.set(k, k * 1.1, k); birch.add(f);
+    }
+    [[0.3, 1.7, 0.6], [-0.3, 2.1, -0.55], [0.25, 2.45, 0.5], [-0.22, 1.55, -0.6]].forEach(([x, y, rz]) => limb(birch, birchBark, 0.015, 0.03, 0.55, x, y, 0, rz));
+    /* winter: snowy pine; Christmas: star, ornaments, twinkling lights and presents */
+    const pine = trees.winter = new T.Group(); treeG.add(pine);
+    limb(pine, clay("#7A5442"), 0.09, 0.14, 0.7, 0, 0.35, 0);
+    const PINE = [[0.45, 1.0, 0.98], [1.05, 0.9, 0.8], [1.6, 0.8, 0.62], [2.1, 0.75, 0.44]];   // base y, height, radius
+    const needle = [clay("#2F6B4F"), clay("#357556"), clay("#3B7E5C"), clay("#428763")];
+    PINE.forEach(([y0, h, r], i) => {
+      const c = mesh(new T.ConeGeometry(r, h, 9), needle[i], 0, y0 + h / 2, 0); c.rotation.y = i * 0.35; pine.add(c);
+      const sn = mesh(new T.ConeGeometry(r * 0.72, h * 0.42, 9), snowMat, 0, y0 + h * 0.82, 0, true); sn.rotation.y = i * 0.35 + 0.17; pine.add(sn);
+    });
+    const xmas = new T.Group(); xmas.visible = false; pine.add(xmas);
+    const onPine = (f, a, lift) => {       // a point on the pine's surface: f = 0 bottom … 1 top
+      const y = 0.45 + f * 2.4;
+      let r = 0; PINE.forEach(([y0, h, rr]) => { if (y >= y0 && y <= y0 + h) r = Math.max(r, rr * (1 - (y - y0) / h)); });
+      return [Math.cos(a) * (r + (lift || 0.02)), y, Math.sin(a) * (r + (lift || 0.02))];
+    };
+    const xStar = new T.Shape();
+    for (let i = 0; i < 10; i++) { const a = Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? 0.42 : 1; i ? xStar.lineTo(Math.cos(a) * r, Math.sin(a) * r) : xStar.moveTo(Math.cos(a) * r, Math.sin(a) * r); }
+    const topStar = mesh(new T.ExtrudeGeometry(xStar, { depth: 0.3, bevelEnabled: true, bevelThickness: 0.1, bevelSize: 0.08, bevelSegments: 2 }),
+      clay("#FFD45A", { emissive: new T.Color("#FFB020"), emissiveIntensity: 0.8, roughness: 0.3, metalness: 0.3 }), 0, 2.98, 0, true);
+    topStar.geometry.center(); topStar.scale.setScalar(0.14); xmas.add(topStar);
+    const topGlow = new T.Sprite(new T.SpriteMaterial({ map: glowTex, color: 0xFFD27A, transparent: true, opacity: 0.8, depthWrite: false, blending: T.AdditiveBlending }));
+    topGlow.position.set(0, 2.98, 0); topGlow.scale.set(0.6, 0.6, 1); xmas.add(topGlow);
+    const ballGeo = new T.SphereGeometry(0.055, 12, 10), ornCols = ["#E0344A", "#F2C14E", "#3F7FD9", "#F48FA8", "#E0344A", "#FFFFFF"];
+    for (let i = 0; i < 22; i++) {
+      const f = 0.06 + (i % 11) * 0.075 + (i > 10 ? 0.03 : 0), [x, y, z] = onPine(f, i * 2.3 + 0.4, 0.035);
+      xmas.add(mesh(ballGeo, clay(ornCols[i % ornCols.length], { roughness: 0.2, metalness: 0.45 }), x, y, z, true));
+    }
+    const bulbGeo = new T.SphereGeometry(0.028, 8, 6);
+    const bulbMats = ["#FFE07A", "#FF7A8A", "#8FD3FF"].map(c => new T.MeshBasicMaterial({ color: new T.Color(c), fog: false }));
+    for (let i = 0; i < 54; i++) {         // a string of lights spiralling down the tree
+      const f = 0.97 - i / 56, [x, y, z] = onPine(f, i * 0.62, 0.03);
+      xmas.add(mesh(bulbGeo, bulbMats[i % 3], x, y, z, true));
+    }
+    [[0.55, 0.45, "#E0344A", "#F2C14E"], [-0.5, 0.55, "#3F7FD9", "#FFFFFF"], [0.15, -0.65, "#F48FA8", "#E0344A"], [-0.2, 0.75, "#F2C14E", "#E0344A"]].forEach(([x, z, box, ribbon], i) => {
+      const g = new T.Group(); g.position.set(x, 0, z); g.rotation.y = i * 0.7; xmas.add(g);
+      const s = 0.16 + (i % 2) * 0.05;
+      g.add(mesh(new T.BoxGeometry(s, s * 0.8, s), clay(box), 0, s * 0.4, 0));
+      g.add(mesh(new T.BoxGeometry(s * 1.02, s * 0.82, s * 0.2), clay(ribbon), 0, s * 0.4, 0, true));
+      g.add(mesh(new T.BoxGeometry(s * 0.2, s * 0.82, s * 1.02), clay(ribbon), 0, s * 0.4, 0, true));
+      const bw = mesh(new T.TorusGeometry(s * 0.18, s * 0.06, 6, 12), clay(ribbon), 0, s * 0.85, 0, true); bw.rotation.x = Math.PI / 2.4; g.add(bw);
+    });
+    Object.keys(trees).forEach(k => (trees[k].visible = k === "spring"));
     const benchG = new T.Group(); benchG.position.set(-0.85, TOP, -0.45); benchG.rotation.y = 0.55; world.add(benchG);
     const wood = clay("#E6B48D"), woodDk = clay("#C38E72");
     const slat = new T.BoxGeometry(1.1, 0.045, 0.11);
@@ -2699,18 +2789,19 @@ const GIFT = {
     }
     const capColors = cap.attributes.color;
     const SEASON3D = {
-      spring: { grass: [tint(C.sage, -0.03), tint(C.sage, -0.11, 0.03)], bush: tint(C.sage, -0.08, 0.05), tree: blossomCols,
+      spring: { grass: [tint(C.sage, -0.03), tint(C.sage, -0.11, 0.03)], bush: tint(C.sage, -0.08, 0.05), 
                 fall: tint(C.blush, 0.04), fallK: 1, dots: true, snow: false, hemi: [0xFFE0E0, 0xB7D0A6], sun: 0xFFDCC0, fog: "#FFD9C6", spark: [0xFFE2A8, 0.16] },
-      summer: { grass: ["#A6D27F", "#7FB062"], bush: "#6FAA58", tree: ["#7FC266", "#93CF73", "#6CB25A", "#A2D683"],
-                fall: null, dots: true, snow: false, hemi: [0xFFF6E2, 0xA8D08F], sun: 0xFFF2D2, fog: "#E2F1EE", spark: [0xFFF3A0, 0.22] },
-      autumn: { grass: ["#BFC08A", "#A39A68"], bush: "#C98A3E", tree: ["#F08A3C", "#E5643A", "#F4B046", "#D9532F"],
-                fall: "#E8803A", fallK: 1.35, dots: false, snow: false, hemi: [0xFFEADC, 0xB9B48E], sun: 0xFFE2C4, fog: "#F8DCC2", spark: [0xFFD08A, 0.16] },
-      winter: { grass: ["#D9E2F4", "#B4C3E2"], bush: "#5F9277", tree: ["#E9EEF9", "#D6E0F3", "#E1E8F7", "#C9D6EE"],
+      summer: { grass: ["#A6D27F", "#7FB062"], bush: "#6FAA58", 
+                fall: "#E8452C", fallK: 0.9, dots: true, snow: false, hemi: [0xFFF6E2, 0xA8D08F], sun: 0xFFF2D2, fog: "#E2F1EE", spark: [0xFFF3A0, 0.22] },
+      autumn: { grass: ["#BFC08A", "#A39A68"], bush: "#C98A3E", 
+                fall: "#EDB443", fallK: 1.3, dots: false, snow: false, hemi: [0xFFEADC, 0xB9B48E], sun: 0xFFE2C4, fog: "#F8DCC2", spark: [0xFFD08A, 0.16] },
+      winter: { grass: ["#D9E2F4", "#B4C3E2"], bush: "#5F9277", 
                 fall: null, dots: false, snow: true, hemi: [0xD6DDF5, 0xA4B3D6], sun: 0xFFE9DC, fog: "#D3D8EE", spark: [0xE6ECFF, 0.13], light: 0.78,
                 snowCap: "#E4EBF8", snowGlow: 0.04 }
     };
     let seasonNow3d = "spring", seasonSnow = false, seasonLight = 1;
-    function setSeason(key) {
+    let xmasOn = false;
+    function setSeason(key, christmas) {
       const S = SEASON3D[key] || SEASON3D.spring;
       seasonNow3d = key;
       const cIn = new T.Color(S.grass[0]), cOut = new T.Color(S.grass[1]), tmp = new T.Color(), pos = cap.attributes.position;
@@ -2720,7 +2811,8 @@ const GIFT = {
       }
       capColors.needsUpdate = true;
       bushMat.color.set(S.bush);
-      foliage.forEach((f, i) => f.material.color.set(S.tree[i % S.tree.length]));
+      Object.keys(trees).forEach(k => (trees[k].visible = k === key));
+      xmasOn = key === "winter" && !!christmas; xmas.visible = xmasOn;
       bushDots.forEach(d => (d.visible = S.dots));
       snowCaps.forEach(c => (c.visible = S.snow));
       petals.forEach(p => { p.visible = !!S.fall; p.scale.setScalar(S.fallK || 1); });
@@ -3486,6 +3578,10 @@ const GIFT = {
         flowers.forEach(f => { const u = f.userData; u.wig = Math.max(0, u.wig - dt * 1.2); f.rotation.z = Math.sin(t * 1.3 + u.phase) * (0.06 + u.wig * 0.25); f.rotation.x = Math.cos(t * 1.1 + u.phase) * (0.04 + u.wig * 0.15); });
         polaroids.forEach(pv => { const u = pv.userData; u.boost = Math.max(0, u.boost - dt * 0.8); pv.rotation.z = Math.sin(t * 1.2 + u.phase) * (0.06 + u.boost * 0.2); pv.rotation.x = Math.sin(t * 0.9 + u.phase) * 0.05; });
         foliage.forEach((f, i) => { f.position.x += Math.sin(t * 0.8 + i) * 0.0006; });
+        if (xmasOn) {
+          bulbMats.forEach((m, i) => m.color.setScalar(1).multiplyScalar(0.55 + 0.45 * Math.max(0, Math.sin(t * 2.6 + i * 2.1))).lerp(new T.Color(["#FFE07A", "#FF7A8A", "#8FD3FF"][i]), 0.6));
+          topStar.rotation.y = Math.sin(t * 0.9) * 0.35; topGlow.material.opacity = 0.6 + Math.sin(t * 2) * 0.2;
+        }
         if (seasonSnow) snow.forEach(f => {
           const u = f.userData;
           f.position.y -= u.speed * dt; f.position.x += Math.sin(t * 0.9 + u.phase) * 0.003; f.position.z += Math.cos(t * 0.7 + u.phase) * 0.002;

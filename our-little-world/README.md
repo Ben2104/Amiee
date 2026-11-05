@@ -62,10 +62,14 @@ between our phones too.
 
 | Season | The island |
 | --- | --- |
-| Spring | pink blossom tree, falling petals, soft green grass, sunset sky |
-| Summer | leafy green tree, bright grass, golden fireflies, blue summer sky |
-| Fall | orange and red tree, falling leaves, golden grass, amber sky |
-| Winter | snowy tree and bushes, snow on the ground, snowflakes, lavender sky |
+| Spring | cherry blossom (sakura) tree, falling pink petals, soft green grass, sunset sky |
+| Summer | royal poinciana: a wide umbrella of flame-red flowers dropping petals, bright grass, fireflies, blue sky |
+| Fall | birch: white bark with dark marks and golden leaves that fall, golden grass, amber sky |
+| Winter | snowy pine, snow caps on the bushes, snow on the ground, snowflakes, periwinkle sky |
+
+**Christmas:** from December 18 to 31 the winter pine is dressed up, with a
+glowing star on top, ornaments, a string of twinkling lights and presents
+underneath.
 
 ## Personalising
 
