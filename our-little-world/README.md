@@ -13,7 +13,9 @@ anniversary finale.
 
 ## Mochi, our bunny
 
-A little white bunny with a pink bow lives on the island.
+A little white lop-eared bunny with a pink bow lives on the island. She's
+drawn like the bunnies on our design sheet: a big round head, floppy ears that
+hang beside her face, big teal eyes, and a small body so her clothes show.
 
 - **Walk her around:** tap the grass, or use the arrow keys / WASD (Q and E
   turn the island). Each place has a glowing circle in front of it; hop into
@@ -37,12 +39,33 @@ A little white bunny with a pink bow lives on the island.
   princess dress (Đầm công chúa Tím Ánh Sao) with a tiara and star bow, the
   carrot shirt and bloomers (Set áo sơ mi & Quần bí Cà Rốt) with a beret and
   Mary Janes, and the cream tartan dress (Đầm Tartan Trắng Kem) with a pearl
-  belt and bow. Or just her pink bow. She wears it on the island and in her
-  pictures.
+  belt and bow. Or just her pink bow. Each outfit is a whole set of clothes
+  (bodice, collar, puff sleeves, skirt or bloomers, socks and shoes, and a
+  tiara, beret or bow), on the island and in her pictures.
+- **Shared, in real time:** signed in, Ben and Amiee look after the *same*
+  Mochi. A hug, a treat, a pat, an outfit, a new name, the season or the
+  anniversary on one phone shows up on the other within a few seconds, and
+  the bunny there plays it ("Ben sent a hug ♡"). Her page says
+  "Shared" when this is on. The first phone to sign in brings along the bunny
+  it already raised. Signed out (or offline), she lives in that browser
+  (`localStorage`) as before.
 
-Her name starts as `GIFT.pet.name`. Her care, her name, her outfit and the anniversary
-are saved in the browser (`localStorage`), so each phone or laptop has its
-own Mochi.
+Her name starts as `GIFT.pet.name`.
+
+## Four seasons
+
+The island follows the calendar: spring (March to May), summer (June to
+August), fall (September to November) and winter (December to February).
+The button at the top (a flower, sun, leaf or snowflake) picks a season by
+hand, or goes back to "Follow the calendar". Signed in, the pick is shared
+between our phones too.
+
+| Season | The island |
+| --- | --- |
+| Spring | pink blossom tree, falling petals, soft green grass, sunset sky |
+| Summer | leafy green tree, bright grass, golden fireflies, blue summer sky |
+| Fall | orange and red tree, falling leaves, golden grass, amber sky |
+| Winter | snowy tree and bushes, snow on the ground, snowflakes, lavender sky |
 
 ## Personalising
 
@@ -83,6 +106,7 @@ Signed in, Ben and Amiee can add, edit and delete:
 | Milestones | date, title, caption, photo | "Our story" and the 3D polaroids |
 | Little things | author, text | the flower garden |
 | Plans | title, date, optional time, location, note, kind, done | the bench: a month calendar plus Coming up, Someday (no date) and Done together |
+| Mochi | tummy, love, hugs, treats, outfit, name, season, anniversary | the bunny, her page and the season button (one shared row, `pet`) |
 
 Monthly anniversaries are marked on the calendar automatically from
 `togetherSince`. Every item shows who wrote it.
@@ -100,7 +124,7 @@ browser (static page on Vercel)
    ▼
 Neon Function "api"  (backend/api, Hono)
    ├── Managed Neon Auth   accounts, password hashes, sessions (neon_auth schema)
-   ├── Postgres            members, letters, milestones, love_notes, events
+   ├── Postgres            members, letters, milestones, love_notes, events, pet
    └── Object Storage      private "photos" bucket
 ```
 
@@ -117,6 +141,16 @@ The schema is in `backend/db/migrations/`.
   bucket under a random key. The bucket is never public: photos are only served
   back through the API to a signed-in member, and deleting a milestone deletes
   its photo.
+
+- **Mochi** is one row in `pet`. The page sends each change as a small
+  action (`POST /pet/actions`: hug, pat, feed, wear, rename, season,
+  anniversary), which the API applies as a single `UPDATE`, so a hug and a
+  treat from two phones at the same moment both count. Every change bumps a
+  revision number and records who did it and from which tab. Each signed-in
+  page asks for her (`GET /pet`) every 3 seconds while it's on screen, and
+  straight away when it comes back to the front, and plays whatever the
+  other phone did. Tummy and love go down over time from her last change, on
+  the server and in the page alike.
 
 ### Why this sign-in
 
@@ -231,11 +265,12 @@ npm install
 E2E_USERNAME=… E2E_PASSWORD=… npm run test:e2e
 ```
 
-This runs 83 checks against the deployed API, signing in once as Ben and once
+This runs 90 checks against the deployed API, signing in once as Ben and once
 as Amiee: sign-in and sign-out, refusal of wrong passwords, unknown usernames,
 signed-out and forged requests, and writes that don't say who wrote them, create/read/update/delete for every content
-type, photo upload and download, and that the bucket isn't public. It deletes
-everything it creates.
+type, photo upload and download, that the bucket isn't public, and the shared
+bunny (it re-wears the outfit she already has, so she doesn't change). It
+deletes everything it creates.
 
 To try the page locally against the real backend, serve this folder on
 `localhost` (for example `python3 -m http.server 5173`) and open
@@ -245,7 +280,7 @@ To try the page locally against the real backend, serve this folder on
 
 - `neon.ts`: the Neon services (repo root)
 - `backend/api/`: the Function (`index.ts` routes, `auth.ts`, `db.ts`,
-  `storage.ts`, `resources.ts`)
+  `storage.ts`, `resources.ts`, `pet.ts`)
 - `backend/db/migrations/`: SQL schema
 - `backend/scripts/`: `migrate.mjs`, `add-member.mjs` and `e2e.mjs`. These
   talk to Postgres over Neon's HTTPS SQL endpoint, so they also work on

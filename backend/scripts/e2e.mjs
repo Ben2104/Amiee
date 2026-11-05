@@ -120,6 +120,19 @@ ok((await call("DELETE", `/photos/${file}`, { token: B })).status === 409, "phot
 ok((await call("DELETE", `/milestones/${ms.data.id}`, { token: B })).status === 204, "milestones: deleting it ...");
 ok((await call("GET", `/photos/${file}`, { token: B })).status === 404, "... also deletes its photo from the bucket");
 
+// ── our shared bunny ──
+// Re-wearing the outfit she already has changes nothing but the revision counter.
+ok((await call("GET", "/pet")).status === 401, "signed-out GET /pet is refused (401)");
+const pet0 = await call("GET", "/pet", { token: B });
+ok(pet0.status === 200 && typeof pet0.data.rev === "number" && typeof pet0.data.food === "number", "GET /pet returns our bunny");
+const worn = await call("POST", "/pet/actions", { token: A, body: { type: "wear", outfit: pet0.data.outfit, client: "e2e" } });
+ok(worn.status === 200 && worn.data.state.rev > pet0.data.rev && worn.data.state.last.by === "Amiee" && worn.data.state.last.client === "e2e", "a pet action bumps rev and records who did it");
+const seen = await call("GET", "/pet", { token: B });
+ok(seen.data.rev === worn.data.state.rev && seen.data.outfit === pet0.data.outfit, "the other phone sees the change");
+ok((await call("POST", "/pet/actions", { token: B, body: { type: "wear", outfit: "pyjamas" } })).status === 400, "an unknown outfit is rejected (400)");
+ok((await call("POST", "/pet/actions", { token: B, body: { type: "season", season: "monsoon" } })).status === 400, "an unknown season is rejected (400)");
+ok((await call("POST", "/pet/actions", { token: B, author: null, body: { type: "pat" } })).status === 400, "a pet action without saying who did it is rejected (400)");
+
 // ── content bundle, refresh and sign-out ──
 const all = await call("GET", "/content", { token: A });
 ok(all.status === 200 && ["letters", "milestones", "notes", "events"].every(k => Array.isArray(all.data[k])) && all.data.me.name === "Amiee", "GET /content returns everything for the page");
