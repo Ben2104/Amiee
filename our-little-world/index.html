@@ -2472,73 +2472,177 @@ const GIFT = {
     });
 
     /* ── a tree for each season (one shows at a time) + bench + cat + matcha (future) ──
-       spring: cherry blossom (sakura) · summer: royal poinciana · fall: birch ·
+       spring: cherry blossom (sakura) · summer: royal poinciana · fall: maple ·
        winter: snowy pine, dressed up for Christmas from December 18 to 31 */
     const treeG = new T.Group(); treeG.position.set(-1.55, TOP, -1.35); world.add(treeG);
     const trees = {};
     const limb = (parent, mat, r0, r1, len, x, y, z, rz, rx) => { const m = mesh(new T.CylinderGeometry(r0, r1, len, 10), mat, x, y, z); m.rotation.set(rx || 0, 0, rz || 0); parent.add(m); return m; };
-    /* spring: sakura */
-    const sakura = trees.spring = new T.Group(); treeG.add(sakura);
-    const bark = clay("#B67F70");
-    const trunk = limb(sakura, bark, 0.12, 0.21, 1.6, 0, 0.8, 0, 0.05);
-    limb(sakura, bark, 0.05, 0.08, 0.75, 0.25, 1.35, 0.05, -0.8);
-    limb(sakura, bark, 0.04, 0.07, 0.6, -0.22, 1.3, -0.1, 0.9);
-    const blossomCols = [C.blush, tint(C.blush, 0.06), tint(C.blush, -0.05, 0.05), "#F9C9D3"];
-    const foliage = [];
-    [[0, 2.15, 0, 0.82], [0.62, 1.88, 0.18, 0.58], [-0.6, 1.95, 0.12, 0.6], [0.12, 2.6, -0.08, 0.58], [-0.2, 1.82, -0.5, 0.58], [0.36, 2.02, -0.48, 0.52], [0.05, 1.75, 0.5, 0.5]].forEach(([x, y, z, r], i) => {
-      const f = mesh(blobGeo, clay(blossomCols[i % blossomCols.length]), x, y, z);
-      f.scale.setScalar(r); sakura.add(f); foliage.push(f);
-    });
-    for (let i = 0; i < 26; i++) {      // little white-pink flowers dotted over the blossom clouds
-      const a = i * 2.4, yy = 1.7 + (i % 7) * 0.15, rr = 0.55 + (i % 3) * 0.12;
-      sakura.add(mesh(dotGeo, clay(i % 2 ? "#FFF3F6" : "#F7A9BD"), Math.cos(a) * rr, yy + 0.25, Math.sin(a) * rr, true));
+    // Seeded geometry keeps each crown stable across visits and season changes.
+    let treeSeed = 731;
+    const treeRandom = () => { treeSeed = (Math.imul(treeSeed, 1664525) + 1013904223) >>> 0; return treeSeed / 4294967296; };
+    const v3 = (x, y, z) => new T.Vector3(x, y, z);
+    const treeStamp = new T.Object3D(), treeColor = new T.Color();
+    function treeInstances(parent, geometry, palette, samples) {
+      const batch = new T.InstancedMesh(geometry, new T.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.88, side: T.DoubleSide }), samples.length);
+      samples.forEach((s, i) => {
+        treeStamp.position.copy(s.p);
+        treeStamp.rotation.set(s.rx, s.ry, s.rz);
+        treeStamp.scale.set(s.sx, s.sy, s.sz || 1);
+        treeStamp.updateMatrix(); batch.setMatrixAt(i, treeStamp.matrix);
+        treeColor.set(palette[s.color]); batch.setColorAt(i, treeColor);
+      });
+      batch.castShadow = true; batch.receiveShadow = true;
+      // r128 does not calculate an aggregate bound for InstancedMesh.
+      batch.frustumCulled = false;
+      parent.add(batch); return batch;
     }
-    /* summer: royal poinciana, a wide flat umbrella of leaves covered in red-orange flowers */
-    const poinc = trees.summer = new T.Group(); treeG.add(poinc);
-    const barkP = clay("#8C7262");
-    limb(poinc, barkP, 0.11, 0.2, 1.3, 0, 0.65, 0, 0.04);
-    [[0, 0.55], [2.1, 0.6], [4.2, 0.55]].forEach(([a, tilt]) => {
-      const br = new T.Group(); br.position.set(0, 1.2, 0); br.rotation.y = a; poinc.add(br);
-      limb(br, barkP, 0.045, 0.08, 0.9, 0.3, 0.32, 0, -tilt * 1.6);
-    });
-    const leafCols = ["#5E9E4A", "#6FAE55", "#548F43"], flameCols = ["#E0392B", "#EE4E2E", "#C92E25", "#F26B35"];
-    [[0, 1.95, 0, 0.95], [0.75, 1.8, 0.2, 0.6], [-0.75, 1.82, 0.1, 0.62], [0.2, 1.85, 0.72, 0.6], [-0.15, 1.83, -0.72, 0.6], [0.55, 1.86, -0.5, 0.5], [-0.55, 1.86, 0.55, 0.5]].forEach(([x, y, z, r], i) => {
-      const f = mesh(blobGeo, clay(leafCols[i % 3]), x, y, z); f.scale.set(r, r * 0.42, r); poinc.add(f);
-    });
-    for (let i = 0; i < 95; i++) {      // in bloom it's a mass of flame-red flowers, all over the top of the umbrella
-      const a = i * 2.39996, rr = Math.sqrt((i + 0.5) / 95) * 1.28, yy = 1.86 + 0.42 * Math.sqrt(Math.max(0.04, 1 - (rr / 1.32) * (rr / 1.32)));
-      const fl = mesh(blobGeo, clay(flameCols[i % 4], { emissive: new T.Color(flameCols[i % 4]), emissiveIntensity: 0.15 }), Math.cos(a) * rr, yy, Math.sin(a) * rr * 0.98, true);
-      const k = 0.13 + (i % 3) * 0.025; fl.scale.set(k, k * 0.6, k); poinc.add(fl);
+    function treeShape(points) {
+      const shape = new T.Shape();
+      points.forEach(([x, y], i) => i ? shape.lineTo(x, y) : shape.moveTo(x, y));
+      shape.closePath(); return new T.ShapeGeometry(shape);
     }
-    /* fall: birch, white bark with dark marks and golden leaves (a clump of two trunks) */
-    const birch = trees.autumn = new T.Group(); treeG.add(birch);
-    const birchBark = clay("#F4F0E8"), birchMark = clay("#3A3330"), birchLeaf = ["#F2C14E", "#E9A93A", "#F6D46A", "#DE8F2E"];
-    [[0, 0, 0.0, 2.5, 0.1], [0.22, 0.12, -0.14, 2.0, 0.075]].forEach(([x, z, lean, h, r], k) => {
-      const t = limb(birch, birchBark, r * 0.7, r, h, x, h / 2, z, lean); 
-      for (let m = 0; m < 9; m++) {   // the dark marks on birch bark
-        const yy = 0.25 + m * (h - 0.5) / 9, aa = m * 2.2 + k;
-        const mk = mesh(new T.BoxGeometry(0.07, 0.022, 0.03), birchMark, x + Math.sin(aa) * r * 0.92 - lean * yy, yy, z + Math.cos(aa) * r * 0.92, true);
-        mk.rotation.y = aa; birch.add(mk);
+    const blossomGeo = treeShape(Array.from({ length: 20 }, (_, i) => {
+      const a = i * Math.PI / 10, r = i % 4 === 0 ? 0.42 : i % 4 === 2 ? 1 : 0.84;
+      return [Math.cos(a) * r, Math.sin(a) * r];
+    }));
+    const treeLeafGeo = treeShape([[0, -1], [-0.42, -0.35], [-0.5, 0.3], [0, 1], [0.5, 0.3], [0.42, -0.35]]);
+    const mapleGeo = treeShape([[0, -0.85], [-0.2, -0.42], [-0.75, -0.5], [-0.55, -0.18], [-1, 0.17], [-0.65, 0.25], [-0.72, 0.72], [-0.3, 0.48], [0, 1], [0.3, 0.48], [0.72, 0.72], [0.65, 0.25], [1, 0.17], [0.55, -0.18], [0.75, -0.5], [0.2, -0.42]]);
+
+    function deciduousTree(key, barkColor, radius, spread, crownHeight, palette) {
+      const group = trees[key] = new T.Group(); treeG.add(group);
+      const positions = [], indices = [], barkColors = [], leaves = [], flowers = [];
+      const summer = key === "summer", spring = key === "spring";
+      const baseColor = new T.Color(barkColor);
+      function branch(points, base, tip, steps = 7) {
+        const curve = new T.CatmullRomCurve3(points), sides = 8, start = positions.length / 3;
+        for (let j = 0; j <= steps; j++) {
+          const t = j / steps, p = curve.getPoint(t), tangent = curve.getTangent(t).normalize();
+          const normal = v3(0, 0, 1).cross(tangent).normalize(), binormal = tangent.clone().cross(normal).normalize();
+          const r = tip + (base - tip) * Math.pow(1 - t, 1.2);
+          for (let k = 0; k < sides; k++) {
+            const a = k * Math.PI * 2 / sides, ridge = 1 + (summer ? 0.025 : 0.1) * Math.sin(k * 3 + t * 12);
+            const q = p.clone().addScaledVector(normal, Math.cos(a) * r * ridge).addScaledVector(binormal, Math.sin(a) * r * ridge);
+            positions.push(q.x, q.y, q.z);
+            const c = baseColor.clone().multiplyScalar(0.82 + 0.22 * (0.5 + 0.5 * Math.sin(k * 2.3 + j * 0.8)));
+            barkColors.push(c.r, c.g, c.b);
+            if (j < steps) {
+              const n = start + j * sides + k, next = start + j * sides + (k + 1) % sides;
+              indices.push(n, next, n + sides, next, next + sides, n + sides);
+            }
+          }
+        }
       }
-    });
-    limb(birch, birchBark, 0.025, 0.04, 0.55, -0.18, 1.75, 0, 0.7);
-    limb(birch, birchBark, 0.02, 0.035, 0.5, 0.2, 2.0, 0.05, -0.7);
-    for (let i = 0; i < 46; i++) {      // an airy oval crown of small golden leaf clusters, with the white trunk showing through
-      const u = (i + 0.5) / 46, y = 1.45 + u * 1.55, w = Math.sin(Math.PI * Math.min(1, u * 1.05 + 0.05)) * 0.62 + 0.08, a = i * 2.39996;
-      const rr = w * (0.55 + 0.45 * ((i * 7) % 5) / 4);
-      const f = mesh(blobGeo, clay(birchLeaf[i % 4]), Math.cos(a) * rr, y, Math.sin(a) * rr, true);
-      const k = 0.13 + (i % 4) * 0.025; f.scale.set(k, k * 1.1, k); birch.add(f);
+      const forkY = summer ? 0.85 : spring ? 0.65 : 0.95;
+      const fork = v3(0.03, forkY, 0);
+      branch([v3(0, 0, 0), v3(-0.025, 0.18, 0.02), v3(0, forkY * 0.7, 0), fork], radius * 1.5, radius * 0.7, 10);
+      for (let i = 0; i < 7; i++) {
+        const a = i * Math.PI * 2 / 7;
+        branch([v3(Math.cos(a) * radius * 2.1, 0.025, Math.sin(a) * radius * 2.1), v3(Math.cos(a) * radius, 0.1, Math.sin(a) * radius), v3(0, 0.36, 0)], radius * 0.28, radius * 0.22, 4);
+      }
+      function cluster(center, size) {
+        const count = spring ? 38 : summer ? 52 : 58;
+        const clusterColor = Math.floor(treeRandom() * palette.length);
+        for (let n = 0; n < count; n++) {
+          const a = treeRandom() * Math.PI * 2, yy = treeRandom() * 2 - 1, rr = Math.cbrt(treeRandom());
+          const ring = Math.sqrt(1 - yy * yy) * rr;
+          const p = center.clone().add(v3(Math.cos(a) * ring * size, yy * rr * size * (summer ? 0.65 : 1), Math.sin(a) * ring * size));
+          const s = spring ? 0.037 + treeRandom() * 0.026 : summer ? 0.045 + treeRandom() * 0.035 : 0.052 + treeRandom() * 0.028;
+          leaves.push({ p, sx: s * (summer ? 0.65 : 1), sy: s, rx: treeRandom() * Math.PI, ry: treeRandom() * Math.PI * 2, rz: treeRandom() * Math.PI * 2, color: treeRandom() < 0.72 ? clusterColor : Math.floor(treeRandom() * palette.length) });
+        }
+        if (summer) for (let n = 0; n < 30; n++) {
+          const a = treeRandom() * Math.PI * 2, r = Math.sqrt(treeRandom()) * size;
+          flowers.push({ p: center.clone().add(v3(Math.cos(a) * r, 0.05 + treeRandom() * size * 0.5, Math.sin(a) * r)), sx: 0.046, sy: 0.054, rx: -0.4 - treeRandom() * 1.8, ry: treeRandom() * 6.28, rz: treeRandom() * 6.28, color: Math.floor(treeRandom() * 4) });
+        }
+      }
+      const leaders = Array.from({ length: 3 }, (_, i) => {
+        const a = i * Math.PI * 2 / 3;
+        const end = v3(Math.cos(a) * 0.2, forkY + 0.4, Math.sin(a) * 0.2);
+        branch([fork, fork.clone().lerp(end, 0.5), end], radius * 0.62, radius * 0.4);
+        return end;
+      });
+      for (let i = 0; i < 8; i++) {
+        const a = i * Math.PI / 4 + 0.15;
+        const elbow = v3(Math.cos(a) * spread * 0.4, summer ? 1.45 : 1.35, Math.sin(a) * spread * 0.4);
+        const leader = leaders[Math.round(a * 3 / (Math.PI * 2)) % 3];
+        branch([leader, leader.clone().lerp(elbow, 0.45), elbow], radius * (spring ? 0.32 : 0.5), spring ? 0.024 : 0.04);
+        for (let j = 0; j < 3; j++) {
+          const angle = a + (j - 1) * 0.34, r = spread * (0.38 + j * 0.24);
+          const end = v3(Math.cos(angle) * r, crownHeight - j * (summer ? 0.18 : spring ? 0.46 : 0.36) + Math.sin(a * 3) * 0.09, Math.sin(angle) * r);
+          const mid = elbow.clone().lerp(end, 0.55); mid.y -= 0.12;
+          branch([elbow, mid, end], spring ? 0.025 : 0.038, 0.009);
+          for (let k = 0; k < 4; k++) {
+            const theta = angle + (k - 1.5) * 0.24, reach = r + (k % 2 ? 0.13 : -0.08);
+            const tip = v3(Math.cos(theta) * reach, end.y + (k < 2 ? 0.16 : -0.1), Math.sin(theta) * reach);
+            branch([mid, end.clone().lerp(tip, 0.55), tip], 0.015, 0.0035, 4);
+            cluster(tip, 0.23 + treeRandom() * 0.09);
+            if (spring && j === 2) {
+              const low = tip.clone(); low.y -= 0.5 + treeRandom() * 0.18;
+              branch([tip, tip.clone().lerp(low, 0.5).add(v3(0.05, 0, 0.05)), low], 0.008, 0.002, 3);
+              cluster(low, 0.25);
+            }
+          }
+        }
+      }
+      branch([fork, v3(-0.09, 1.6, -0.04), v3(0.08, crownHeight + 0.15, 0)], radius * 0.4, 0.012);
+      for (let i = 0; i < 8; i++) {
+        const a = i * 2.4;
+        cluster(v3(Math.cos(a) * 0.22, crownHeight + 0.07 + (i % 3) * 0.09, Math.sin(a) * 0.22), 0.28);
+      }
+      const geometry = new T.BufferGeometry(); geometry.setAttribute("position", new T.Float32BufferAttribute(positions, 3));
+      geometry.setAttribute("color", new T.Float32BufferAttribute(barkColors, 3)); geometry.setIndex(indices); geometry.computeVertexNormals();
+      group.add(mesh(geometry, clay("#FFFFFF", { vertexColors: true })));
+      const crown = new T.Group(); group.add(crown);
+      const leafBatch = treeInstances(crown, spring ? blossomGeo : summer ? treeLeafGeo : mapleGeo, palette, leaves);
+      if (spring) {
+        // A little pink fill keeps back-facing petals soft under the island's warm sun.
+        leafBatch.material.emissive.set("#B56E95"); leafBatch.material.emissiveIntensity = 0.18;
+      }
+      if (summer) treeInstances(crown, blossomGeo, ["#DA3015", "#F04418", "#FF6525", "#BD2510"], flowers);
+      foliage.push(crown);
+      if (key === "autumn") {
+        const fallen = [];
+        for (let i = 0; i < 340; i++) {
+          const a = treeRandom() * Math.PI * 2, r = 0.22 + Math.sqrt(treeRandom()) * 1.12;
+          const x = Math.cos(a) * r, z = Math.sin(a) * r;
+          // Stay on the island cap and leave the bench seat clear.
+          if (Math.hypot(treeG.position.x + x, treeG.position.z + z) > 2.65 || (x > 0.1 && z > 0.55)) continue;
+          const s = 0.035 + treeRandom() * 0.025;
+          fallen.push({ p: v3(x, 0.045 + treeRandom() * 0.012, z), sx: s, sy: s, rx: -Math.PI / 2, ry: treeRandom() * 0.2, rz: treeRandom() * 6.28, color: Math.floor(treeRandom() * palette.length) });
+        }
+        treeInstances(group, mapleGeo, palette, fallen);
+      }
     }
-    [[0.3, 1.7, 0.6], [-0.3, 2.1, -0.55], [0.25, 2.45, 0.5], [-0.22, 1.55, -0.6]].forEach(([x, y, rz]) => limb(birch, birchBark, 0.015, 0.03, 0.55, x, y, 0, rz));
+    const foliage = [];
+    /* spring: short dark trunk, fine branching, a dense irregular pink crown */
+    deciduousTree("spring", "#493337", 0.14, 1.23, 2.6, ["#ECA7CD", "#F5BDDC", "#FFD3E8", "#D98DB6", "#F5ACD0"]);
+    /* summer: smooth light-brown forks beneath a broad flowering umbrella */
+    deciduousTree("summer", "#987653", 0.105, 1.4, 2.35, ["#365B24", "#466E2A", "#597D30", "#304C22"]);
+    /* autumn: mature maple, heavy dark limbs and gold-to-orange lobed leaves */
+    deciduousTree("autumn", "#382923", 0.21, 1.35, 2.58, ["#F7BC21", "#F3A51B", "#E98216", "#FFD34D", "#D94B17", "#F4B529"]);
     /* winter: snowy pine; Christmas: star, ornaments, twinkling lights and presents */
     const pine = trees.winter = new T.Group(); treeG.add(pine);
     limb(pine, clay("#7A5442"), 0.09, 0.14, 0.7, 0, 0.35, 0);
     const PINE = [[0.45, 1.0, 0.98], [1.05, 0.9, 0.8], [1.6, 0.8, 0.62], [2.1, 0.75, 0.44]];   // base y, height, radius
     const needle = [clay("#2F6B4F"), clay("#357556"), clay("#3B7E5C"), clay("#428763")];
+    const pineTips = [];
+    function pineTier(r, h, phase) {
+      const geo = new T.ConeGeometry(r, h, 32, 6), p = geo.attributes.position;
+      for (let j = 0; j < p.count; j++) {
+        const x = p.getX(j), y = p.getY(j), z = p.getZ(j), a = Math.atan2(z, x);
+        const edge = 1 + 0.035 * Math.sin(a * 9 + phase) + 0.025 * Math.cos(a * 15 - y * 8);
+        p.setXYZ(j, x * edge, y + 0.01 * Math.sin(a * 9 + phase) * Math.hypot(x, z) / r, z * edge);
+      }
+      geo.computeVertexNormals(); return geo;
+    }
     PINE.forEach(([y0, h, r], i) => {
-      const c = mesh(new T.ConeGeometry(r, h, 9), needle[i], 0, y0 + h / 2, 0); c.rotation.y = i * 0.35; pine.add(c);
-      const sn = mesh(new T.ConeGeometry(r * 0.72, h * 0.42, 9), snowMat, 0, y0 + h * 0.82, 0, true); sn.rotation.y = i * 0.35 + 0.17; pine.add(sn);
+      const c = mesh(pineTier(r, h, i), needle[i], 0, y0 + h / 2, 0); c.rotation.y = i * 0.35; pine.add(c);
+      const sn = mesh(pineTier(r * 0.72, h * 0.42, i), snowMat, 0, y0 + h * 0.82, 0, true); sn.rotation.y = i * 0.35 + 0.17; pine.add(sn);
+      for (let k = 0; k < 300; k++) {
+        const a = k * 2.39996, f = 0.08 + treeRandom() * 0.62, rr = r * (1 - f);
+        pineTips.push({ p: v3(Math.cos(a) * rr, y0 + h * f, Math.sin(a) * rr), sx: 0.012, sy: 0.04, rx: -0.65, ry: -a, rz: -0.6 + treeRandom() * 0.3, color: i });
+      }
     });
+    treeInstances(pine, treeLeafGeo, ["#24583F", "#30694A", "#397B57", "#4B8A66"], pineTips).receiveShadow = false;
     const xmas = new T.Group(); xmas.visible = false; pine.add(xmas);
     const onPine = (f, a, lift) => {       // a point on the pine's surface: f = 0 bottom … 1 top
       const y = 0.45 + f * 2.4;
@@ -3577,7 +3681,7 @@ const GIFT = {
         });
         flowers.forEach(f => { const u = f.userData; u.wig = Math.max(0, u.wig - dt * 1.2); f.rotation.z = Math.sin(t * 1.3 + u.phase) * (0.06 + u.wig * 0.25); f.rotation.x = Math.cos(t * 1.1 + u.phase) * (0.04 + u.wig * 0.15); });
         polaroids.forEach(pv => { const u = pv.userData; u.boost = Math.max(0, u.boost - dt * 0.8); pv.rotation.z = Math.sin(t * 1.2 + u.phase) * (0.06 + u.boost * 0.2); pv.rotation.x = Math.sin(t * 0.9 + u.phase) * 0.05; });
-        foliage.forEach((f, i) => { f.position.x += Math.sin(t * 0.8 + i) * 0.0006; });
+        foliage.forEach((f, i) => { f.rotation.z = Math.sin(t * 0.8 + i) * 0.008; });
         if (xmasOn) {
           bulbMats.forEach((m, i) => m.color.setScalar(1).multiplyScalar(0.55 + 0.45 * Math.max(0, Math.sin(t * 2.6 + i * 2.1))).lerp(new T.Color(["#FFE07A", "#FF7A8A", "#8FD3FF"][i]), 0.6));
           topStar.rotation.y = Math.sin(t * 0.9) * 0.35; topGlow.material.opacity = 0.6 + Math.sin(t * 2) * 0.2;
