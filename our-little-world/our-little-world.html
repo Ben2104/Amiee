@@ -277,9 +277,11 @@ i.love{background:var(--rose)}
 @keyframes blink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
 .b-eyes{transform-origin:100px 96px}
 .b-happy{opacity:0}
-.pet-portrait.hug .b-eyes,.pet-portrait.eat .b-eyes{animation:shut .95s steps(1) 1}
-.pet-portrait.hug .b-happy,.pet-portrait.eat .b-happy{animation:shut .95s steps(1) 1 reverse}
-@keyframes shut{0%{opacity:0}100%{opacity:1}}
+/* hugs and treats: her open eyes hide and her happy ^ ^ eyes show, then back */
+.pet-portrait.hug .b-eyes,.pet-portrait.eat .b-eyes{animation:eyesAway 1s linear 1}
+.pet-portrait.hug .b-happy,.pet-portrait.eat .b-happy{animation:eyesHappy 1s linear 1}
+@keyframes eyesAway{0%,99.9%{opacity:0}100%{opacity:1}}
+@keyframes eyesHappy{0%,99.9%{opacity:1}100%{opacity:0}}
 .pet-mood{margin:0;font-family:var(--font-hand);font-size:1.3rem;color:var(--rose-deep);max-width:30ch}
 .meters{display:grid;gap:8px;width:100%;max-width:22rem}
 .meter{display:grid;grid-template-columns:4.2rem 1fr 2.6rem;align-items:center;gap:10px;font-weight:800;font-size:.88rem;text-align:left}
