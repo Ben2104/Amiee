@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { query } from "./db";
 import { AuthError, requireMember, signIn, refresh, signOut, USERNAME_RE, type Member, type Name } from "./auth";
 import { RESOURCES, ValidationError, parseBody, selectList, type Resource } from "./resources";
+import { getPet, petAction } from "./pet";
 import { PHOTO_TYPES, PHOTO_KEY_RE, sniffMatches, putPhoto, getPhoto, deletePhoto, photoExists } from "./storage";
 
 type Env = { Variables: { member: Member } };
@@ -43,7 +44,7 @@ app.onError((err, c) => {
   return fail(c, 500, "Something went wrong on our side");
 });
 
-const VERSION = "2026-11-04.1";
+const VERSION = "2026-11-05.1";
 app.get("/", (c) => c.json({ ok: true, service: "our-little-world-api", version: VERSION }));
 
 // ── auth relay (see auth.ts for why) ──
@@ -107,6 +108,8 @@ app.use("/me", needMember);
 app.use("/content", needMember);
 app.use("/photos/*", needMember);
 app.use("/photos", needMember);
+app.use("/pet", needMember);
+app.use("/pet/*", needMember);
 for (const name of Object.keys(RESOURCES)) {
   app.use(`/${name}`, needMember);
   app.use(`/${name}/*`, needMember);
@@ -185,6 +188,10 @@ for (const [name, r] of Object.entries(RESOURCES)) {
     return c.body(null, 204);
   });
 }
+
+// ── our bunny, shared by both phones (see pet.ts). The page polls GET /pet every few seconds. ──
+app.get("/pet", async (c) => c.json(await getPet()));
+app.post("/pet/actions", async (c) => c.json(await petAction(await json(c), authorOf(c))));
 
 // ── photos: private bucket, only served through this authenticated API ──
 const MAX_PHOTO = 4 * 1024 * 1024;
