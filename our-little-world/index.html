@@ -3023,7 +3023,7 @@ const GIFT = {
     const bunnyG = new T.Group(); world.add(bunnyG);       // where the bunny stands and which way it faces
     const bunny = new T.Group(); bunnyG.add(bunny);         // hops, squashes and spins inside that
     const BUN_K = 0.95;
-    const furWhite = clay("#FFFAF8"), furPink = clay("#F9C3CF"), padPink = clay("#F3A0B6"), bowPink = clay("#F27C9B", { roughness: 0.5 });
+    const furWhite = clay("#FFFAF8"), furPink = clay("#F9C3CF"), padPink = clay("#F3A0B6"), bowPink = clay("#F27C9B", { roughness: 0.28, metalness: 0.16, side: T.DoubleSide, emissive: new T.Color("#E25B82"), emissiveIntensity: 0.12 });
     const sphGeo = new T.SphereGeometry(1, 24, 18);
     const blob = (parent, mat, x, y, z, sx, sy, sz, noShadow) => { const m = mesh(sphGeo, mat, x, y, z, noShadow); m.scale.set(sx, sy, sz); parent.add(m); return m; };
     /* a chibi lop-eared bunny standing up, like our design sheet: a big round head, floppy ears that
@@ -3056,15 +3056,47 @@ const GIFT = {
       const inner = mesh(lopGeo, furPink, s * 0.03, -0.18, 0.03, true); inner.scale.set(0.038, 0.165, 0.02); pv.add(inner);
       pv.userData.s = s; return pv;
     });
-    const bowG = new T.Group(); bowG.position.set(0.12, 0.155, 0.08); bowG.rotation.set(0.1, 0.4, -0.35); headG.add(bowG);
-    bowG.scale.setScalar(1.25);
-    [-1, 1].forEach(s => { const l = blob(bowG, bowPink, s * 0.042, 0, 0, 0.045, 0.03, 0.02); l.rotation.z = s * 0.35; });
-    blob(bowG, bowPink, 0, 0, 0.012, 0.018, 0.018, 0.018);
-    const ribbonGeo = new T.BoxGeometry(0.014, 0.05, 0.008);
-    [-1, 1].forEach(s => { const r = mesh(ribbonGeo, bowPink, s * 0.016, -0.032, 0.006); r.rotation.z = s * 0.45; bowG.add(r); });
-    const neckBow = new T.Group(); neckBow.position.set(0, 0.27, 0.118); neckBow.rotation.x = -0.2; bunny.add(neckBow);
-    [-1, 1].forEach(s => { const l = blob(neckBow, bowPink, s * 0.03, 0, 0, 0.032, 0.02, 0.014); l.rotation.z = s * 0.3; });
-    blob(neckBow, bowPink, 0, 0, 0.008, 0.013, 0.013, 0.013);
+    /* a hair bow is a folded ribbon: two loops that billow off the head, a knot, and two tapered tails */
+    function ribbonStrip(pts, widthAt) {
+      const geo = new T.BufferGeometry(), pos = [], nrm = [], uv = [], idx = [];
+      const up = new T.Vector3(0, 0, 1), side = new T.Vector3(), prev = new T.Vector3(1, 0, 0), tan = new T.Vector3();
+      pts.forEach((p, i) => {
+        const a = pts[Math.max(0, i - 1)], b = pts[Math.min(pts.length - 1, i + 1)];
+        tan.copy(b).sub(a); if (tan.lengthSq() < 1e-8) tan.set(0, 1, 0); tan.normalize();
+        side.crossVectors(up, tan); if (side.lengthSq() < 1e-8) side.set(1, 0, 0); side.normalize();
+        if (side.dot(prev) < 0) side.negate(); prev.copy(side);
+        const w = widthAt(i / Math.max(1, pts.length - 1)) * 0.5, n = tan.clone().cross(side).normalize(), v = i / Math.max(1, pts.length - 1);
+        pos.push(p.x + side.x * w, p.y + side.y * w, p.z + side.z * w, p.x - side.x * w, p.y - side.y * w, p.z - side.z * w);
+        nrm.push(n.x, n.y, n.z, n.x, n.y, n.z); uv.push(0, v, 1, v);
+      });
+      for (let i = 0; i < pts.length - 1; i++) { const a = i * 2; idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); }
+      geo.setAttribute("position", new T.Float32BufferAttribute(pos, 3));
+      geo.setAttribute("normal", new T.Float32BufferAttribute(nrm, 3));
+      geo.setAttribute("uv", new T.Float32BufferAttribute(uv, 2));
+      geo.setIndex(new T.Uint16BufferAttribute(idx, 1));
+      if (pos.length < 24) throw new Error("ribbon strip is empty");
+      return geo;
+    }
+    function ribbonBow(mat, opt) {
+      const g = new T.Group(), tailK = !opt || opt.tail == null ? 1 : opt.tail;
+      [-1, 1].forEach(s => {
+        const pts = [];
+        for (let i = 0; i <= 22; i++) {
+          const a = (i / 22) * Math.PI * 1.85;
+          pts.push(new T.Vector3(s * 0.058 * (1 - Math.cos(a)) / 2, Math.sin(a) * 0.034, Math.sin(a) * 0.016));
+        }
+        g.add(mesh(ribbonStrip(pts, t => 0.013 + 0.011 * Math.sin(t * Math.PI)), mat));
+        if (tailK) {
+          const tail = [];
+          for (let i = 0; i <= 8; i++) { const t = i / 8; tail.push(new T.Vector3(s * (0.008 + t * 0.03), -0.004 - t * 0.092 * tailK, 0.008 + t * 0.002)); }
+          g.add(mesh(ribbonStrip(tail, t => 0.016 * (1 - t * 0.45)), mat));
+        }
+      });
+      if (!opt || opt.knot !== false) { const knot = mesh(sphGeo, mat, 0, 0, 0.011); knot.scale.set(0.015, 0.012, 0.011); g.add(knot); }
+      return g;
+    }
+    const bowG = ribbonBow(bowPink); bowG.position.set(0.155, 0.05, 0.12); bowG.rotation.set(0.05, 0.22, -0.2); bowG.scale.setScalar(1.45); headG.add(bowG);
+    const neckBow = ribbonBow(bowPink, { tail: 0.8 }); neckBow.position.set(0, 0.292, 0.15); neckBow.rotation.x = -0.2; neckBow.scale.setScalar(0.7); bunny.add(neckBow);
 
     /* an anime face, painted onto a thin shell over the front of her head:
        big glossy eyes, thick lashes, sparkles, "///" blush and an open smile.
@@ -3146,16 +3178,16 @@ const GIFT = {
     function setFace(k) { if (k === faceNow) return; faceNow = k; faceMat.map = faceMat.emissiveMap = faceTex[k]; faceMat.needsUpdate = true; }
     /* ── outfits (designs/mochi-outfits.jpg): each one is a set of pieces on her body, arms, feet and head ── */
     const DS = { side: T.DoubleSide };
-    function skirtMesh(profile, mat, waves, amt) {
-      const geo = new T.LatheGeometry(profile.map(p => new T.Vector2(p[0], p[1])), 56);
+    function skirtMesh(profile, mat, waves, amt, pleats) {
+      const geo = new T.LatheGeometry(profile.map(p => new T.Vector2(p[0], p[1])), 72);
       const ys = profile.map(p => p[1]), y0 = Math.min(...ys), y1 = Math.max(...ys), pos = geo.attributes.position;
-      for (let i = 0; i < pos.count; i++) {        // scalloped, ruffled hem
-        const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i), k = (y1 - y) / (y1 - y0), a = Math.atan2(x, z);
-        const f = 1 + (amt || 0) * k * k * Math.sin(a * (waves || 0));
-        pos.setXYZ(i, x * f, y + 0.008 * k * k * Math.cos(a * (waves || 0)), z * f);
+      for (let i = 0; i < pos.count; i++) {        // scalloped hem, and pleats down the whole skirt when asked
+        const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i), k = (y1 - y) / (y1 - y0 || 1), a = Math.atan2(x, z);
+        const f = 1 + (amt || 0) * k * k * Math.sin(a * (waves || 0)) + (pleats ? (0.055 + 0.08 * k) * Math.sin(a * pleats) : 0);
+        pos.setXYZ(i, x * f, y + (waves ? 0.012 * k * k * Math.cos(a * waves) : 0), z * f);
       }
       geo.computeVertexNormals();
-      const m = mesh(geo, mat, 0, 0, 0); m.scale.z = 0.9; return m;
+      const m = mesh(geo, mat, 0, 0, 0); m.scale.z = 0.88; return m;
     }
     const starShape = new T.Shape();
     for (let i = 0; i < 10; i++) { const a = Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? 0.45 : 1; i ? starShape.lineTo(Math.cos(a) * r, Math.sin(a) * r) : starShape.moveTo(Math.cos(a) * r, Math.sin(a) * r); }
@@ -3163,20 +3195,20 @@ const GIFT = {
     starGeo.center();
     const starAt = (parent, mat, x, y, z, k, ry) => { const m = mesh(starGeo, mat, x, y, z); m.scale.setScalar(k); m.rotation.y = ry || 0; parent.add(m); return m; };
     function bowAt(parent, mat, mid) {   // same place as her pink bow
-      const g = new T.Group(); g.position.copy(bowG.position); g.rotation.copy(bowG.rotation); g.scale.copy(bowG.scale).multiplyScalar(1.12); parent.add(g);
-      [-1, 1].forEach(s => { const l = blob(g, mat, s * 0.044, 0, 0, 0.048, 0.032, 0.022); l.rotation.z = s * 0.35; });
-      [-1, 1].forEach(s => { const r = mesh(ribbonGeo, mat, s * 0.016, -0.034, 0.006); r.rotation.z = s * 0.45; g.add(r); });
-      if (mid) mid(g); else blob(g, mat, 0, 0, 0.012, 0.018, 0.018, 0.018);
+      const g = ribbonBow(mat, { knot: !mid });
+      g.position.copy(bowG.position); g.rotation.copy(bowG.rotation); g.scale.copy(bowG.scale).multiplyScalar(1.12); parent.add(g);
+      if (mid) mid(g);
       return g;
     }
     function tartanTex() {
       const c = document.createElement("canvas"); c.width = c.height = 128;
       const g = c.getContext("2d");
-      g.fillStyle = "#FFF4E2"; g.fillRect(0, 0, 128, 128);
-      g.fillStyle = "rgba(230,200,150,.6)"; g.fillRect(0, 40, 128, 26); g.fillRect(40, 0, 26, 128);
-      g.fillStyle = "rgba(205,160,80,.9)"; g.fillRect(0, 92, 128, 5); g.fillRect(92, 0, 5, 128);
-      g.fillStyle = "rgba(255,255,255,.95)"; g.fillRect(0, 20, 128, 3); g.fillRect(20, 0, 3, 128);
-      const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(6, 2); return t;
+      g.fillStyle = "#FFF6EC"; g.fillRect(0, 0, 128, 128);
+      g.fillStyle = "#F0D2A4"; g.fillRect(0, 34, 128, 30); g.fillRect(34, 0, 30, 128);
+      g.fillStyle = "#E2B15A"; g.fillRect(0, 86, 128, 10); g.fillRect(86, 0, 10, 128);
+      g.fillStyle = "#C4843A"; g.fillRect(0, 46, 128, 4); g.fillRect(46, 0, 4, 128);
+      g.fillStyle = "rgba(255,255,255,.95)"; g.fillRect(0, 16, 128, 3); g.fillRect(16, 0, 3, 128);
+      const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(5, 3); return t;
     }
     /* fabric glows a touch so the colours still read in the pink sunset light */
     const cloth = (hex, extra) => clay(hex, Object.assign({ emissive: new T.Color(hex), emissiveIntensity: 0.16 }, extra || {}));
@@ -3187,8 +3219,16 @@ const GIFT = {
       if (strapMat) { const st = piece(key, mesh(new T.BoxGeometry(0.084, 0.012, 0.02), strapMat, s * 0.07, 0.08, 0.075)); st.rotation.x = -0.25; bunny.add(st); }
       if (buckleMat) { const b = piece(key, mesh(new T.BoxGeometry(0.02, 0.018, 0.012), buckleMat, s * 0.108, 0.078, 0.08)); bunny.add(b); }
     });
-    const sleevesFor = (key, mat) => arms.forEach(pv => piece(key, blob(pv, mat, 0, -0.025, 0.004, 0.068, 0.064, 0.068)));
-    const bodice = (key, mat) => piece(key, blob(bunny, mat, 0, 0.165, 0, 0.15, 0.166, 0.138));
+    const sleevesFor = (key, mat, cuffMat) => arms.forEach(pv => {
+      piece(key, blob(pv, mat, 0, -0.016, 0.01, 0.074, 0.048, 0.072));
+      if (!cuffMat) return;
+      const c = piece(key, mesh(new T.TorusGeometry(0.048, 0.007, 6, 16), cuffMat, 0, -0.05, 0.014));
+      c.rotation.x = Math.PI / 2; pv.add(c);
+    });
+    const bodice = (key, mat) => {   // fitted shell, so the fur shows at the neck instead of a cloth ball
+      const m = skirtMesh([[0.15, 0.15], [0.172, 0.19], [0.164, 0.235], [0.124, 0.278]], mat, 0, 0);
+      bunny.add(m); return piece(key, m);
+    };
     const collarFor = (key, mat, trimMat) => [-1, 1].forEach(s => {   // a round Peter Pan collar under her chin
       const c = piece(key, blob(bunny, mat, s * 0.045, 0.262, 0.104, 0.056, 0.016, 0.04, true)); c.rotation.set(0.5, s * 0.4, -s * 0.22);
       if (trimMat) { const t = piece(key, blob(bunny, trimMat, s * 0.05, 0.254, 0.12, 0.05, 0.007, 0.03, true)); t.rotation.set(0.5, s * 0.4, -s * 0.22); }
@@ -3201,37 +3241,38 @@ const GIFT = {
     }
     const gold = clay("#F2C45A", { roughness: 0.35, metalness: 0.35, emissive: new T.Color("#B8862A"), emissiveIntensity: 0.25 }), pearl = clay("#FFFDF7", { roughness: 0.2, metalness: 0.1 });
     {   /* 1 · Starlight princess: lilac ruffled dress, gold stars, white back bow, tiara, star bow, lilac shoes */
-      const K = "princess", lilac = cloth("#9C76E8", DS), lav = cloth("#D6C5FB", DS), lace = clay("#FFFFFF", DS), lilacS = cloth("#9C76E8");
+      const K = "princess", lilac = cloth("#9C76E8", DS), lav = cloth("#D6C5FB", DS), lace = clay("#FFFFFF", DS), lilacS = cloth("#9C76E8", DS);
       bodice(K, lilacS);
       const sk = new T.Group(); bunny.add(sk); piece(K, sk);
-      sk.add(skirtMesh([[0.282, 0.026], [0.262, 0.05], [0.2, 0.13], [0.14, 0.2]], lace, 20, 0.04));
-      sk.add(skirtMesh([[0.27, 0.052], [0.24, 0.1], [0.195, 0.16], [0.15, 0.22]], lilac, 12, 0.06));
-      sk.add(skirtMesh([[0.225, 0.115], [0.2, 0.152], [0.17, 0.192], [0.15, 0.225]], lav, 10, 0.07));
-      const sash = piece(K, mesh(new T.TorusGeometry(0.15, 0.012, 8, 48), gold, 0, 0.222, 0)); sash.rotation.x = Math.PI / 2; sash.scale.y = 0.9; bunny.add(sash);
-      piece(K, starAt(bunny, gold, 0, 0.19, 0.142, 0.034));
-      [0.5, -0.5, 1.4, -1.4, 2.3, -2.3].forEach(a => piece(K, starAt(bunny, gold, Math.sin(a) * 0.25, 0.085, Math.cos(a) * 0.226, 0.022, a)));
-      [-1, 1].forEach(s => { const l = piece(K, blob(bunny, lace, s * 0.07, 0.215, -0.14, 0.075, 0.05, 0.026)); l.rotation.z = s * 0.3; });   // big white back bow
-      [-1, 1].forEach(s => { const t = piece(K, mesh(new T.BoxGeometry(0.03, 0.12, 0.01), lace, s * 0.03, 0.15, -0.15)); t.rotation.z = s * 0.25; bunny.add(t); });
-      piece(K, blob(bunny, lace, 0, 0.215, -0.15, 0.026, 0.026, 0.02));
+      sk.add(skirtMesh([[0.34, 0.05], [0.3, 0.08], [0.22, 0.105]], lace, 16, 0.08));
+      sk.add(skirtMesh([[0.3, 0.07], [0.25, 0.115], [0.175, 0.155], [0.152, 0.182]], lilac, 12, 0.11));
+      sk.add(skirtMesh([[0.23, 0.108], [0.19, 0.145], [0.158, 0.175]], lav, 10, 0.1));
+      const sash = piece(K, mesh(new T.TorusGeometry(0.178, 0.011, 8, 48), gold, 0, 0.168, 0)); sash.rotation.x = Math.PI / 2; sash.scale.y = 0.88; bunny.add(sash);
+      piece(K, starAt(bunny, gold, 0, 0.2, 0.17, 0.032));
+      [0.5, -0.5, 1.4, -1.4, 2.3, -2.3].forEach(a => piece(K, starAt(bunny, gold, Math.sin(a) * 0.26, 0.095, Math.cos(a) * 0.23, 0.022, a)));
+      const backBow = ribbonBow(clay("#FFFFFF", { roughness: 0.3, metalness: 0.12, side: T.DoubleSide, emissive: new T.Color("#FFF6EE"), emissiveIntensity: 0.18 }), { knot: false });
+      backBow.position.set(0, 0.2, -0.16); backBow.rotation.set(0.35, Math.PI, 0); backBow.scale.setScalar(1.7); bunny.add(backBow); piece(K, backBow);
+      const backKnot = mesh(sphGeo, gold, 0, 0, 0.012, true); backKnot.scale.set(0.018, 0.015, 0.012); backBow.add(backKnot);
       collarFor(K, lace);
-      sleevesFor(K, lav);
+      sleevesFor(K, lav, lace);
       shoesFor(K, cloth("#C7AEF5", { roughness: 0.3 }), cloth("#8E6FCF"));
       const tiara = new T.Group(); tiara.position.set(0, 0.148, 0.02); tiara.rotation.x = -0.18; headG.add(tiara); piece(K, tiara);
       const band = mesh(new T.TorusGeometry(0.135, 0.011, 8, 40, Math.PI * 1.05), gold, 0, 0, 0); band.rotation.set(Math.PI / 2, 0, -0.03 * Math.PI); band.scale.y = 0.88; tiara.add(band);
       [-1.05, -0.55, 0.55, 1.05].forEach(a => { const c = mesh(new T.ConeGeometry(0.016, 0.06, 6), gold, Math.sin(a) * 0.135, 0.03, Math.cos(a) * 0.12); tiara.add(c); blob(tiara, clay("#9B76E3", { roughness: 0.25 }), Math.sin(a) * 0.138, 0.004, Math.cos(a) * 0.123, 0.013, 0.013, 0.013, true); });
       starAt(tiara, clay("#B497E8", { roughness: 0.3, emissive: new T.Color("#7650C8"), emissiveIntensity: 0.45 }), 0, 0.07, 0.122, 0.045);
-      piece(K, bowAt(headG, cloth("#A985EA"), g => starAt(g, gold, 0, 0, 0.024, 0.024)));
+      piece(K, bowAt(headG, cloth("#A985EA", { roughness: 0.28, metalness: 0.16, side: T.DoubleSide }), g => starAt(g, gold, 0, 0, 0.02, 0.026)));
     }
     {   /* 2 · Carrot shirt & bloomers: cream puff-sleeve shirt, carrot brooch, brown bloomers, beret with carrot, Mary Janes and frilly socks */
-      const K = "carrot", cream = cloth("#FFF1D6"), brown = cloth("#5A3A2E", { roughness: 0.7 }), white = clay("#FFFFFF");
+      const K = "carrot", cream = cloth("#FFF1D6", DS), brown = cloth("#5A3A2E", { roughness: 0.7, side: T.DoubleSide }), white = clay("#FFFFFF", DS);
       bodice(K, cream);
-      piece(K, blob(bunny, brown, 0, 0.09, 0, 0.19, 0.105, 0.172));                          // puffy bloomers
-      [-1, 1].forEach(s => piece(K, blob(bunny, brown, s * 0.075, 0.045, 0.03, 0.08, 0.05, 0.08)));   // bloomer legs
+      const placket = piece(K, mesh(new T.BoxGeometry(0.014, 0.09, 0.01), clay("#E6CFA6"), 0, 0.21, 0.168)); bunny.add(placket);
+      bunny.add(piece(K, skirtMesh([[0.19, 0.1], [0.21, 0.125], [0.175, 0.148], [0.158, 0.168]], brown, 6, 0.035)));   // puffy bloomers
+      [-1, 1].forEach(s => piece(K, blob(bunny, brown, s * 0.095, 0.09, 0.05, 0.07, 0.05, 0.068)));   // bloomer legs
       [-1, 1].forEach(s => piece(K, blob(bunny, gold, s * 0.05, 0.135, 0.16, 0.014, 0.014, 0.008, true)));
-      [0.2, 0.235].forEach(y => piece(K, blob(bunny, clay("#E6CFA6"), 0, y, 0.138, 0.008, 0.008, 0.005, true)));
+      [0.185, 0.23].forEach(y => piece(K, blob(bunny, clay("#C9A56A"), 0, y, 0.175, 0.01, 0.01, 0.006, true)));
       collarFor(K, white);
-      const brooch = carrotMesh(); brooch.scale.setScalar(0.6); brooch.position.set(0.05, 0.205, 0.14); brooch.rotation.set(0, 0, -1.15); bunny.add(brooch); piece(K, brooch);
-      sleevesFor(K, cream);
+      const brooch = carrotMesh(); brooch.scale.setScalar(0.55); brooch.position.set(0.055, 0.2, 0.175); brooch.rotation.set(0, 0, -1.15); bunny.add(brooch); piece(K, brooch);
+      sleevesFor(K, cream, white);
       [-1, 1].forEach(s => piece(K, blob(bunny, white, s * 0.07, 0.07, 0.035, 0.06, 0.026, 0.062)));   // frilly socks
       shoesFor(K, cloth("#3A2620", { roughness: 0.3 }), cloth("#24160F"), gold);
       const beret = new T.Group(); beret.position.set(0.015, 0.162, 0.0); beret.rotation.set(0.12, 0, -0.22); headG.add(beret); piece(K, beret);
@@ -3242,20 +3283,20 @@ const GIFT = {
     }
     {   /* 3 · Cream tartan dress: tartan dress with gold trim, white collar, pearl belt, pearl bow, cream shoes */
       const K = "tartan", tex = tartanTex();
-      const tartan = new T.MeshStandardMaterial({ map: tex, roughness: 0.8, side: T.DoubleSide, emissive: new T.Color("#FFF1DC"), emissiveIntensity: 0.12 });
-      const tartanTop = new T.MeshStandardMaterial({ map: tex, roughness: 0.8, emissive: new T.Color("#FFF1DC"), emissiveIntensity: 0.12 });
-      const trim = clay("#E3B95C", { roughness: 0.4, metalness: 0.3, emissive: new T.Color("#B8862A"), emissiveIntensity: 0.2 });
+      const tartan = new T.MeshStandardMaterial({ map: tex, roughness: 0.72, side: T.DoubleSide, emissive: new T.Color("#FFF1DC"), emissiveIntensity: 0.05 });
+      const tartanTop = new T.MeshStandardMaterial({ map: tex, roughness: 0.72, side: T.DoubleSide, emissive: new T.Color("#FFF1DC"), emissiveIntensity: 0.05 });
+      const trim = clay("#E3B95C", { roughness: 0.4, metalness: 0.3, emissive: new T.Color("#B8862A"), emissiveIntensity: 0.2, side: T.DoubleSide });
       bodice(K, tartanTop);
-      bunny.add(piece(K, skirtMesh([[0.262, 0.045], [0.236, 0.1], [0.192, 0.16], [0.15, 0.218]], tartan, 8, 0.03)));
-      const hem = piece(K, mesh(new T.TorusGeometry(0.262, 0.01, 6, 56), trim, 0, 0.047, 0)); hem.rotation.x = Math.PI / 2; hem.scale.y = 0.9; bunny.add(hem);
-      const belt = piece(K, mesh(new T.TorusGeometry(0.148, 0.014, 8, 48), clay("#EBD199", { roughness: 0.5 }), 0, 0.218, 0)); belt.rotation.x = Math.PI / 2; belt.scale.y = 0.92; bunny.add(belt);
-      piece(K, blob(bunny, pearl, 0, 0.218, 0.142, 0.022, 0.022, 0.016));
-      [-1, 1].forEach(s => piece(K, blob(bunny, gold, s * 0.03, 0.218, 0.14, 0.01, 0.01, 0.008, true)));
-      [0.18, 0.245].forEach(y => piece(K, blob(bunny, trim, 0, y, 0.14, 0.009, 0.009, 0.006, true)));
-      collarFor(K, clay("#FFFFFF"), trim);
-      sleevesFor(K, tartanTop);
+      bunny.add(piece(K, skirtMesh([[0.3, 0.058], [0.25, 0.11], [0.185, 0.15], [0.155, 0.178]], tartan, 0, 0, 12)));
+      bunny.add(piece(K, skirtMesh([[0.318, 0.052], [0.302, 0.078]], trim, 0, 0, 12)));
+      const belt = piece(K, mesh(new T.TorusGeometry(0.172, 0.012, 8, 48), clay("#EBD199", { roughness: 0.5 }), 0, 0.17, 0)); belt.rotation.x = Math.PI / 2; belt.scale.y = 0.88; bunny.add(belt);
+      piece(K, blob(bunny, pearl, 0, 0.17, 0.188, 0.02, 0.02, 0.014));
+      [-1, 1].forEach(s => piece(K, blob(bunny, gold, s * 0.034, 0.17, 0.18, 0.01, 0.01, 0.008, true)));
+      [0.195, 0.235].forEach(y => piece(K, blob(bunny, trim, 0, y, 0.172, 0.012, 0.012, 0.007, true)));
+      collarFor(K, clay("#FFFFFF", DS), trim);
+      sleevesFor(K, tartanTop, clay("#FFFFFF", DS));
       shoesFor(K, cloth("#FFF1E0", { roughness: 0.35 }), clay("#E3C9A8"));
-      piece(K, bowAt(headG, cloth("#FFD995"), g => blob(g, pearl, 0, 0, 0.016, 0.022, 0.022, 0.018)));
+      piece(K, bowAt(headG, cloth("#FFE3A8", { roughness: 0.28, metalness: 0.14, side: T.DoubleSide }), g => blob(g, pearl, 0, 0, 0.016, 0.02, 0.02, 0.016)));
     }
     let outfitNow = "none";
     function wear(key) {
