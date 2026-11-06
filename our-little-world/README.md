@@ -64,7 +64,7 @@ between our phones too.
 | --- | --- |
 | Spring | cherry blossom (sakura) tree, falling pink petals, soft green grass, sunset sky |
 | Summer | royal poinciana: a wide umbrella of flame-red flowers dropping petals, bright grass, fireflies, blue sky |
-| Fall | birch: white bark with dark marks and golden leaves that fall, golden grass, amber sky |
+| Fall | maple: a thick dark trunk, golden-orange leaves and fallen leaves beneath the crown, golden grass, amber sky |
 | Winter | snowy pine, snow caps on the bushes, snow on the ground, snowflakes, periwinkle sky |
 
 **Christmas:** from December 18 to 31 the winter pine is dressed up, with a
